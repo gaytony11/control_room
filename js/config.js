@@ -40,6 +40,7 @@ const CONTROL_ROOM_CONFIG = {
     airports_global: "#0284c7",
     seaports:        "#2dd4bf",
     underground:     "#f43f5e",
+    national_rail:   "#38bdf8",
     flights:         "#f59e0b",
     bikes:           "#22c55e"
   },
@@ -64,5 +65,11 @@ const CONTROL_ROOM_CONFIG = {
     statusRefresh: 60000,     // 60 seconds
     bikesRefresh: 300000,     // 5 minutes
     arrivalCache: 30000       // cache arrivals for 30s
+  },
+
+  // National Rail (Darwin LDBWS via local proxy)
+  nationalRail: {
+    refreshInterval: 60000,
+    defaultRows: 12
   }
 };

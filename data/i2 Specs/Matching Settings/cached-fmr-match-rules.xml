@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<tns:matchRules xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.i2group.com/Schemas/2019-05-14/MatchRules MatchRules.xsd " version="2" enableSourceIdentifierMatching="true" xmlns:tns="http://www.i2group.com/Schemas/2019-05-14/MatchRules">
+  <matchRule id="5e658735-385d-4c8c-9d7e-91cd4ddf95a7" itemTypeId="ET12" displayName="Op Name Exact Match" version="1" description="" active="true">
+    <matchAll>
+      <condition propertyTypeId="PT23">
+        <operator>EXACT_MATCH</operator>
+        <normalizations>
+          <normalization>IGNORE_CASE</normalization>
+          <normalization>SIMPLIFY_LIGATURES</normalization>
+          <normalization>IGNORE_DIACRITICS</normalization>
+          <normalization>IGNORE_NONALPHANUMERIC</normalization>
+          <normalization>IGNORE_WHITESPACE_BETWEEN</normalization>
+          <normalization>IGNORE_WHITESPACE_AROUND</normalization>
+        </normalizations>
+      </condition>
+    </matchAll>
+    <matchAny xsi:nil="true" />
+  </matchRule>
+</tns:matchRules>

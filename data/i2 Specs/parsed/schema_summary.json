@@ -1,0 +1,265 @@
+{
+  "entity_type_count": 54,
+  "link_type_count": 10,
+  "entity_types": [
+    {
+      "id": "CHART",
+      "name": "Analyst's Notebook Chart"
+    },
+    {
+      "id": "ET1",
+      "name": "Location"
+    },
+    {
+      "id": "ET2",
+      "name": "Maritime Event"
+    },
+    {
+      "id": "ET3",
+      "name": "Vehicle"
+    },
+    {
+      "id": "ET4",
+      "name": "Organisation"
+    },
+    {
+      "id": "ET5",
+      "name": "Person"
+    },
+    {
+      "id": "ET6",
+      "name": "Document"
+    },
+    {
+      "id": "ET8",
+      "name": "Communication Entity"
+    },
+    {
+      "id": "ET10",
+      "name": "Financial Account"
+    },
+    {
+      "id": "ET9",
+      "name": "Firearm"
+    },
+    {
+      "id": "ET11",
+      "name": "Ammunition"
+    },
+    {
+      "id": "ET12",
+      "name": "Operation"
+    },
+    {
+      "id": "ET16",
+      "name": "IMEI"
+    },
+    {
+      "id": "ET18",
+      "name": "IMSI"
+    },
+    {
+      "id": "ET17",
+      "name": "Exhibit"
+    },
+    {
+      "id": "ET19",
+      "name": "Comms Data Record"
+    },
+    {
+      "id": "ET20",
+      "name": "Contact"
+    },
+    {
+      "id": "ET21",
+      "name": "Subscriber"
+    },
+    {
+      "id": "ET22",
+      "name": "IP Address"
+    },
+    {
+      "id": "ET23",
+      "name": "Booking"
+    },
+    {
+      "id": "ET24",
+      "name": "Vessel"
+    },
+    {
+      "id": "ET25",
+      "name": "Aircraft"
+    },
+    {
+      "id": "ET26",
+      "name": "Container"
+    },
+    {
+      "id": "ET27",
+      "name": "Passport"
+    },
+    {
+      "id": "ET30",
+      "name": "Card"
+    },
+    {
+      "id": "ET33",
+      "name": "Communication Other Data"
+    },
+    {
+      "id": "ET34",
+      "name": "IP Lease Data"
+    },
+    {
+      "id": "ET35",
+      "name": "MAC Address"
+    },
+    {
+      "id": "ET37",
+      "name": "OCG"
+    },
+    {
+      "id": "ET38",
+      "name": "Surveillance Log"
+    },
+    {
+      "id": "ET40",
+      "name": "URL"
+    },
+    {
+      "id": "ET29",
+      "name": "ICCID"
+    },
+    {
+      "id": "ET14",
+      "name": "Driving Licence"
+    },
+    {
+      "id": "ET31",
+      "name": "Identification Document"
+    },
+    {
+      "id": "ET7",
+      "name": "Travel"
+    },
+    {
+      "id": "ET15",
+      "name": "Apps (software)"
+    },
+    {
+      "id": "ET13",
+      "name": "Commodity"
+    },
+    {
+      "id": "ET28",
+      "name": "Trailer"
+    },
+    {
+      "id": "ET39",
+      "name": "WiFi Access Point"
+    },
+    {
+      "id": "ET32",
+      "name": "X.IMEI TAC Lookup"
+    },
+    {
+      "id": "ET36",
+      "name": "Action Fraud NFRC"
+    },
+    {
+      "id": "ET41",
+      "name": "Intelligence Reference"
+    },
+    {
+      "id": "ET42",
+      "name": "Message"
+    },
+    {
+      "id": "ET43",
+      "name": "Text Extraction"
+    },
+    {
+      "id": "ET44",
+      "name": "Action Fraud Case"
+    },
+    {
+      "id": "ET45",
+      "name": "Outboard Motor"
+    },
+    {
+      "id": "ET46",
+      "name": "JFC Tracker"
+    },
+    {
+      "id": "ET47",
+      "name": "X1.CD Target Contact Activity"
+    },
+    {
+      "id": "ET52",
+      "name": "SBCSD"
+    },
+    {
+      "id": "ET54",
+      "name": "Dark Web Marketplace"
+    },
+    {
+      "id": "ET55",
+      "name": "Alias"
+    },
+    {
+      "id": "ET56",
+      "name": "Cash"
+    },
+    {
+      "id": "ET57",
+      "name": "Image"
+    },
+    {
+      "id": "ET58",
+      "name": "Team"
+    }
+  ],
+  "link_types": [
+    {
+      "id": "LAS1",
+      "name": "Association"
+    },
+    {
+      "id": "LTR1",
+      "name": "Transaction"
+    },
+    {
+      "id": "LT4",
+      "name": "IMEI Link"
+    },
+    {
+      "id": "LT5",
+      "name": "IMSI Link"
+    },
+    {
+      "id": "LT3",
+      "name": "Comms Data Record Link"
+    },
+    {
+      "id": "LT10",
+      "name": "IP to IP Link"
+    },
+    {
+      "id": "LT11",
+      "name": "Location Link"
+    },
+    {
+      "id": "LT13",
+      "name": "ICCID Link"
+    },
+    {
+      "id": "LT14",
+      "name": "Travel Link"
+    },
+    {
+      "id": "LT15",
+      "name": "Communication Link"
+    }
+  ],
+  "label_definition_count": 64
+}

@@ -1,6 +1,6 @@
 // ================== map.js ==================
 
-// ── Status / Progress helpers ──
+// â”€â”€ Status / Progress helpers â”€â”€
 
 function setStatus(msg) {
   const el = document.getElementById("status-text");
@@ -29,17 +29,47 @@ function setPscProgress(msg, pct) {
   if (p) p.textContent = pct != null ? pct + "%" : "";
 }
 
-// ── Companies House data ──
+// â”€â”€ Companies House data â”€â”€
 
 let CH_INDEX = [];
 let CH_CACHE = {};
 let CH_LAST_RESULTS = [];
 let CH_TOTAL_ROWS = 0;
+let I2_ENTITY_CATALOG = [];
+const I2_ENTITY_BY_ID = {};
+const I2_ENTITY_BY_NAME = {};
+
+const I2_DEFAULT_BY_CATEGORY = {
+  people: "Person",
+  buildings: "Location",
+  financial: "Financial Account",
+  vehicles: "Vehicle",
+  aviation: "Aircraft",
+  communication: "Communication Entity",
+  online_services: "Communication Entity",
+  real_estate: "Location",
+  weapons: "Firearm",
+  social_media: "Communication Entity",
+  law_enforcement: "Operation",
+  misc: "Location"
+};
+
+const I2_ENTITY_TO_CATEGORY = {
+  person: "people",
+  organisation: "financial",
+  location: "buildings",
+  vehicle: "vehicles",
+  aircraft: "aviation",
+  vessel: "vehicles",
+  operation: "people",
+  "communication entity": "communication",
+  "financial account": "financial"
+};
 
 async function loadCompaniesHouseIndex() {
   try {
     const r = await fetch("data/companies_house_index.json");
-    if (!r.ok) { console.warn("No local company index — using API only"); return; }
+    if (!r.ok) { console.warn("No local company index â€” using API only"); return; }
     CH_INDEX = await r.json();
   } catch (e) { console.warn("Company index load failed:", e); }
 }
@@ -67,7 +97,7 @@ function loadSubset(file) {
   }).catch(err => { console.warn("Load failed:", file, err); return []; });
 }
 
-// ── Search ──
+// â”€â”€ Search â”€â”€
 
 function filterByCriteria(rows, criteria, limit) {
   const nL = criteria.name     ? criteria.name.trim().toLowerCase()     : "";
@@ -130,60 +160,154 @@ async function searchProgressive(criteria, onBatch) {
 
 function debounce(fn, ms) { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; }
 
-// ── Postcode lookup ──
+// â”€â”€ Postcode lookup â”€â”€
 
-const PC_CACHE = {}, PC_LOADING = {};
-function postcodeArea(pc) { const m = pc.match(/^([A-Z]{1,2})/); return m ? m[1] : null; }
-function loadPostcodeArea(area) {
-  if (PC_CACHE[area]) return Promise.resolve(PC_CACHE[area]);
-  if (PC_LOADING[area]) return PC_LOADING[area];
-  PC_LOADING[area] = fetch(`data/postcodes/${area}.json`).then(r => r.json())
-    .then(d => { PC_CACHE[area] = d; delete PC_LOADING[area]; return d; })
-    .catch(() => { delete PC_LOADING[area]; return {}; });
-  return PC_LOADING[area];
+const PC_CACHE = {};
+function normalizePostcodeKey(raw) {
+  return String(raw || "").toUpperCase().replace(/[^A-Z0-9]/g, "");
 }
-function lookupPostcode(pc) { const a = postcodeArea(pc); return a && PC_CACHE[a] ? PC_CACHE[a][pc] || null : null; }
+function extractUkPostcode(raw) {
+  const text = String(raw || "").toUpperCase();
+  const m = text.match(/\b([A-Z]{1,2}\d[A-Z\d]?\s*\d[A-Z]{2})\b/);
+  return m ? m[1] : "";
+}
+function postcodeVariants(rawPostcode) {
+  const raw = String(rawPostcode || "").trim();
+  const extracted = extractUkPostcode(raw);
+  const base = extracted || raw;
+  const key = normalizePostcodeKey(base);
+  if (!key) return [];
 
-// Fallback geocoding via postcodes.io when local files unavailable
-async function geocodePostcode(rawPostcode) {
-  const pc = rawPostcode.toUpperCase().replace(/[^A-Z0-9]/g, "");
-  const area = postcodeArea(pc);
-  if (!area) return null;
+  const canonical = key.length > 3 ? `${key.slice(0, -3)} ${key.slice(-3)}` : key;
+  const variants = [raw, extracted, canonical, key]
+    .map((v) => String(v || "").trim())
+    .filter(Boolean);
+  return [...new Set(variants)];
+}
+function postcodeArea(pc) {
+  const m = normalizePostcodeKey(pc).match(/^([A-Z]{1,2})/);
+  return m ? m[1] : null;
+}
+function lookupPostcode(pc) {
+  return PC_CACHE[normalizePostcodeKey(pc)] || null;
+}
+function cachePostcode(pc, coords) {
+  const key = normalizePostcodeKey(pc);
+  if (!key || !coords) return;
+  if (!Number.isFinite(coords.lat) || !Number.isFinite(coords.lon)) return;
+  PC_CACHE[key] = { lat: Number(coords.lat), lon: Number(coords.lon) };
+}
 
-  // Try local first
-  await loadPostcodeArea(area);
-  const local = lookupPostcode(pc);
-  if (local) return local;
+async function geocodeViaPostcodesIo(rawPostcode) {
+  const variants = postcodeVariants(rawPostcode);
+  if (!variants.length) return null;
 
-  // Fallback to postcodes.io API (free, no key, CORS enabled)
-  try {
-    const formatted = rawPostcode.trim().replace(/\s+/g, "+");
-    const resp = await fetch(`https://api.postcodes.io/postcodes/${formatted}`);
-    if (!resp.ok) return null;
+  for (const variant of variants) {
+    const formatted = encodeURIComponent(variant);
+    let resp = null;
+    try {
+      resp = await fetch(`/postcodes/postcodes/${formatted}`);
+    } catch (_) {
+      // ignore
+    }
+    if (!resp || resp.status === 404) {
+      try {
+        resp = await fetch(`https://api.postcodes.io/postcodes/${formatted}`);
+      } catch (_) {
+        resp = null;
+      }
+    }
+    if (!resp || !resp.ok) continue;
     const data = await resp.json();
     if (data.status === 200 && data.result) {
-      const coords = { lat: data.result.latitude, lon: data.result.longitude };
-      // Cache it locally so subsequent lookups are instant
-      if (!PC_CACHE[area]) PC_CACHE[area] = {};
-      PC_CACHE[area][pc] = coords;
+      const lat = Number(data.result.latitude);
+      const lon = Number(data.result.longitude);
+      if (Number.isFinite(lat) && Number.isFinite(lon)) return { lat, lon };
+    }
+  }
+
+  const wanted = normalizePostcodeKey(rawPostcode);
+  for (const variant of variants) {
+    const q = encodeURIComponent(variant);
+    let resp = null;
+    try {
+      resp = await fetch(`/postcodes/postcodes?q=${q}`);
+    } catch (_) {
+      // ignore
+    }
+    if (!resp || resp.status === 404) {
+      try {
+        resp = await fetch(`https://api.postcodes.io/postcodes?q=${q}`);
+      } catch (_) {
+        resp = null;
+      }
+    }
+    if (!resp || !resp.ok) continue;
+    const data = await resp.json();
+    const list = Array.isArray(data?.result) ? data.result : [];
+    if (!list.length) continue;
+    const hit = list.find((r) => normalizePostcodeKey(r.postcode) === wanted) || list[0];
+    const lat = Number(hit?.latitude);
+    const lon = Number(hit?.longitude);
+    if (Number.isFinite(lat) && Number.isFinite(lon)) return { lat, lon };
+  }
+  return null;
+}
+
+async function geocodeViaOsPlaces(rawPostcode) {
+  const variants = postcodeVariants(rawPostcode);
+  if (!variants.length) return null;
+
+  for (const variant of variants) {
+    const formatted = encodeURIComponent(variant);
+    let resp = null;
+    try {
+      resp = await fetch(`/osplaces/postcode?postcode=${formatted}`);
+    } catch (_) {
+      resp = null;
+    }
+    if (!resp || !resp.ok) continue;
+    const data = await resp.json();
+    if (!Array.isArray(data.results) || !data.results.length) continue;
+
+    const first = data.results[0] || {};
+    const rec = first.DPA || first.LPI || {};
+    const lat = parseFloat(rec.LAT ?? rec.LATITUDE);
+    const lon = parseFloat(rec.LNG ?? rec.LONGITUDE);
+    if (Number.isFinite(lat) && Number.isFinite(lon)) return { lat, lon };
+  }
+  return null;
+}
+
+// API-only postcode geocoding with cache + multi-provider fallback.
+async function geocodePostcode(rawPostcode) {
+  const pc = normalizePostcodeKey(rawPostcode);
+  if (!pc) return null;
+  const cached = lookupPostcode(pc);
+  if (cached) return cached;
+
+  try {
+    let coords = await geocodeViaPostcodesIo(rawPostcode);
+    if (!coords) {
+      coords = await geocodeViaOsPlaces(rawPostcode);
+    }
+    if (coords) {
+      cachePostcode(pc, coords);
       return coords;
     }
-  } catch (e) { console.warn("postcodes.io fallback failed:", e); }
+  } catch (e) {
+    console.warn("postcode geocoding failed:", e);
+  }
   return null;
 }
 async function ensurePostcodesForRows(rows) {
-  const needed = new Set();
-  for (const r of rows) {
-    const raw = r["RegAddress.PostCode"]; if (!raw) continue;
-    const a = postcodeArea(raw.toUpperCase().replace(/[^A-Z0-9]/g, ""));
-    if (a && !PC_CACHE[a]) needed.add(a);
-  }
-  if (needed.size) await Promise.all([...needed].map(loadPostcodeArea));
+  // Intentionally no-op: postcode lookup is now API-only via geocodePostcode().
+  return Promise.resolve(rows);
 }
 
-// ══════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // PSC (Persons with Significant Control)
-// ══════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
 let PSC_MANIFEST = null;
 const PSC_NAME_CACHE = {};    // keyed by 2-char prefix (e.g. "SM"), value = array
@@ -206,7 +330,7 @@ async function loadPscManifest() {
     const r = await fetch("data/psc_manifest.json");
     PSC_MANIFEST = await r.json();
   } catch (e) {
-    console.warn("PSC manifest not found — run preprocess_psc_v2.py first", e);
+    console.warn("PSC manifest not found â€” run preprocess_psc_v2.py first", e);
     PSC_MANIFEST = null;
   }
 }
@@ -293,7 +417,7 @@ async function loadCompanyPscFile(key, filePath) {
   return data;
 }
 
-// Search by person name — loads relevant name chunk files progressively
+// Search by person name â€” loads relevant name chunk files progressively
 async function searchPersonByName(nameQuery, limit) {
   limit = limit || 200;
   const files = findNameFiles(nameQuery);
@@ -320,7 +444,7 @@ async function searchPersonByName(nameQuery, limit) {
   return results;
 }
 
-// Search PSC by company number — loads relevant company chunk files
+// Search PSC by company number â€” loads relevant company chunk files
 async function searchPscByCompany(coNum) {
   const files = findCompanyPscFiles(coNum);
   if (!files.length) return [];
@@ -343,18 +467,25 @@ async function searchPscByCompany(coNum) {
   return results;
 }
 
-// ══════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // MAP
-// ══════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
 const map = L.map("map", { zoomControl: true }).setView(
   CONTROL_ROOM_CONFIG.map.center, CONTROL_ROOM_CONFIG.map.zoom
 );
 
+// Dedicated panes keep routes clickable but below station markers.
+map.createPane("tflRoutesPane");
+map.getPane("tflRoutesPane").style.zIndex = 430;
+
+map.createPane("tflStationsPane");
+map.getPane("tflStationsPane").style.zIndex = 470;
+
 // Scale bar
 L.control.scale({ imperial: false, position: "bottomright" }).addTo(map);
 
-// ── Tile layers ──
+// â”€â”€ Tile layers â”€â”€
 
 const tileCfg = CONTROL_ROOM_CONFIG.tiles;
 const baseLayers = {};
@@ -369,7 +500,7 @@ for (const k in tileCfg) {
 baseLayers["Dark"].addTo(map);
 let activeBase = "Dark";
 
-// ── Overlay layers (ALL OFF by default) ──
+// â”€â”€ Overlay layers (ALL OFF by default) â”€â”€
 
 const companyCluster = L.markerClusterGroup({
   chunkedLoading: true, 
@@ -382,10 +513,10 @@ const companyCluster = L.markerClusterGroup({
   animateAddingMarkers: true
 });
 
-// ── Connection Lines Layer ──
+// â”€â”€ Connection Lines Layer â”€â”€
 const connectionsLayer = L.layerGroup();
 
-// ── Custom Entities Layer ──
+// â”€â”€ Custom Entities Layer â”€â”€
 const entitiesLayer = L.layerGroup();
 
 const layers = {
@@ -397,6 +528,7 @@ const layers = {
   airports_global: L.featureGroup(),
   seaports:        L.featureGroup(),
   underground:     L.featureGroup(),
+  national_rail:   L.featureGroup(),
   flights:         L.featureGroup(),
   bikes:           L.featureGroup()
 };
@@ -455,6 +587,11 @@ map.on('click', function(e) {
   } else {
     // Clear connection highlights when clicking on empty map
     clearConnectionHighlights();
+    if (window._selectedTflLineId) {
+      window._selectedTflLineId = null;
+      window.updateTflLineStylesFromStatus(window._lastTflStatuses || []);
+      document.dispatchEvent(new CustomEvent("tfl-line-selection-changed", { detail: { lineId: null } }));
+    }
   }
 });
 
@@ -484,14 +621,26 @@ function showEntityPlacementDialog(latLng) {
   
   // Pre-populate icons for the selected category
   updateIconDropdown(category);
+  populateI2EntityTypeSelect(category);
   
   // Update coordinates display
-  document.getElementById('entity-coords').textContent = `${latLng[0].toFixed(5)}, ${latLng[1].toFixed(5)}`;
+  const coordPair = normalizeLatLng(latLng);
+  document.getElementById('entity-coords').textContent = `${coordPair[0].toFixed(5)}, ${coordPair[1].toFixed(5)}`;
   
   // Focus on the label input
   setTimeout(() => {
     document.getElementById('entity-label').focus();
   }, 100);
+}
+
+function normalizeLatLng(latLng) {
+  if (Array.isArray(latLng) && latLng.length >= 2) {
+    return [Number(latLng[0]), Number(latLng[1])];
+  }
+  if (latLng && typeof latLng === "object" && Number.isFinite(latLng.lat) && Number.isFinite(latLng.lng)) {
+    return [Number(latLng.lat), Number(latLng.lng)];
+  }
+  return [NaN, NaN];
 }
 
 function updateIconDropdown(category) {
@@ -516,14 +665,631 @@ function closeEntityPanel() {
   // Clear form
   document.getElementById('entity-placement-form').reset();
   document.getElementById('entity-coords').textContent = '--';
+  const i2Fields = document.getElementById("entity-i2-fields");
+  if (i2Fields) {
+    i2Fields.innerHTML = '<div class="entity-i2-fields-empty">Select an i2 entity type to capture structured properties.</div>';
+  }
   
   // Cancel placement mode
   cancelPlacementMode();
 }
 
-// ══════════════════════════════════════════════════════
+function getI2EntityByKey(key) {
+  if (!key) return null;
+  return I2_ENTITY_BY_ID[String(key).toUpperCase()] || I2_ENTITY_BY_NAME[String(key).toLowerCase()] || null;
+}
+
+function defaultI2EntityForCategory(category) {
+  const preferred = I2_DEFAULT_BY_CATEGORY[category];
+  return preferred ? (getI2EntityByKey(preferred) || null) : null;
+}
+
+function defaultCategoryForI2Entity(entityTypeKey) {
+  const entity = getI2EntityByKey(entityTypeKey);
+  if (!entity) return "";
+  const name = String(entity.entity_name || "").toLowerCase();
+  if (I2_ENTITY_TO_CATEGORY[name]) return I2_ENTITY_TO_CATEGORY[name];
+
+  if (/(person|subject|individual|officer|witness|suspect|victim|alias)/.test(name)) return "people";
+  if (/(location|address|site|premises|property|building|place|town|city|postcode)/.test(name)) return "buildings";
+  if (/(aircraft|flight|aviation|airport|airline|helicopter)/.test(name)) return "aviation";
+  if (/(vehicle|car|van|truck|lorry|boat|vessel|ship|train)/.test(name)) return "vehicles";
+  if (/(organisation|organization|company|business|account|bank|finance|transaction)/.test(name)) return "financial";
+  if (/(communication|phone|email|mobile|device|call)/.test(name)) return "communication";
+  if (/(social|facebook|twitter|instagram|telegram|whatsapp|online|account)/.test(name)) return "social";
+  return "people";
+}
+
+function chooseIconForI2Entity(entity) {
+  const category = defaultCategoryForI2Entity(entity?.entity_id || entity?.entity_name || "") || "people";
+  const catData = ICON_CATEGORIES[category] || ICON_CATEGORIES.people;
+  const suggested = suggestIcon(String(entity?.entity_name || ""), category);
+  if (suggested) {
+    const hit = catData.icons.find((ic) => ic.id === suggested.id || ic.name === suggested.name);
+    if (hit) return { category, icon: hit };
+  }
+  return { category, icon: catData.icons[0] };
+}
+
+function startI2EntityPlacement(entityTypeId) {
+  const entityDef = getI2EntityByKey(entityTypeId);
+  if (!entityDef) return;
+
+  const chosen = chooseIconForI2Entity(entityDef);
+  const category = chosen.category;
+  startPlacementMode(category);
+  showEntityPlacementDialog(map.getCenter());
+
+  const categorySelect = document.getElementById("entity-category");
+  const typeSelect = document.getElementById("entity-i2-type");
+  const iconSelect = document.getElementById("entity-icon");
+  const labelInput = document.getElementById("entity-label");
+  const placementAddressInput = document.getElementById("entity-placement-address");
+
+  if (categorySelect) {
+    categorySelect.value = category;
+    updateIconDropdown(category);
+  }
+  if (typeSelect) {
+    typeSelect.value = entityDef.entity_id;
+    renderI2FieldsForType(entityDef.entity_id);
+  }
+  if (iconSelect) {
+    const idx = (ICON_CATEGORIES[category]?.icons || []).findIndex((ic) => ic.id === chosen.icon.id);
+    if (idx >= 0) iconSelect.value = String(idx);
+  }
+
+  ENTITY_ICON_MANUAL_OVERRIDE = false;
+  autoSelectIconFromI2Fields(true);
+  if (labelInput) labelInput.value = "";
+  if (placementAddressInput) placementAddressInput.value = "";
+  setStatus(`Placing ${entityDef.entity_name}: set fields and submit to place on map`);
+}
+
+const I2_FIELD_PRIORITY = [
+  "Full Name",
+  "First Name",
+  "Middle Name",
+  "Surname",
+  "Date of Birth",
+  "Gender",
+  "Organisation Name",
+  "Organisation Type",
+  "Company/Registration Number",
+  "VRM",
+  "Registration Mark",
+  "Vehicle Type",
+  "Vehicle Make",
+  "Vehicle Model",
+  "Address String",
+  "Building Number",
+  "Street Name",
+  "Town/City",
+  "Post Code",
+  "Country or Region",
+  "Location Type",
+  "Intelligence Date",
+  "IR or Reference",
+  "Additional Information"
+];
+
+const I2_LOW_VALUE_FIELDS = new Set([
+  "Maiden Name",
+  "Warning Marker",
+  "Warning Marker 2",
+  "Warning Marker 3",
+  "Warning Marker 4",
+  "Warning Marker Additional Notes",
+  "Name"
+]);
+
+const I2_PLACEMENT_REQUIRED_FIELDS = {
+  person: ["First Name", "Surname", "Full Name", "Name"],
+  organisation: ["Organisation Name"],
+  location: ["Location Type", "Address String", "Post Code", "Town/City"],
+  vehicle: ["VRM", "Vehicle Make", "Vehicle Model"],
+  aircraft: ["Registration Mark", "Type", "Manufacturer"],
+  "financial account": ["Account Number", "IBAN", "Sort Code"]
+};
+
+let ENTITY_ICON_MANUAL_OVERRIDE = false;
+
+function i2FieldPriorityScore(prop) {
+  const mandatory = String(prop.mandatory || "").toLowerCase() === "true";
+  const name = String(prop.property_name || "");
+  const idx = I2_FIELD_PRIORITY.findIndex((n) => n.toLowerCase() === name.toLowerCase());
+  const priority = idx >= 0 ? idx : 999;
+  return (mandatory ? -1000 : 0) + priority;
+}
+
+function isPlacementRequiredField(entityName, propName, mandatory) {
+  const e = String(entityName || "").toLowerCase();
+  const p = String(propName || "");
+  const requiredList = I2_PLACEMENT_REQUIRED_FIELDS[e] || [];
+  if (requiredList.some((x) => String(x).toLowerCase() === p.toLowerCase())) return true;
+  // Keep strict requirement only where it's the lone mandatory structural anchor.
+  if (mandatory && /^(location type|organisation name|vrm|registration mark)$/i.test(p)) return true;
+  return false;
+}
+
+function getWarningMarkerMeta(propertyName) {
+  const name = String(propertyName || "").trim().toLowerCase();
+  if (name === "warning marker") return { level: 1 };
+  if (name === "warning marker 2") return { level: 2 };
+  if (name === "warning marker 3") return { level: 3 };
+  if (name === "warning marker 4") return { level: 4 };
+  if (name === "warning marker additional notes") return { notes: true };
+  return null;
+}
+
+function buildI2FieldInput(prop, index, entityName = "") {
+  const fieldId = `entity-i2-prop-${index}`;
+  const mandatory = String(prop.mandatory || "").toLowerCase() === "true";
+  const placementRequired = isPlacementRequiredField(entityName, prop.property_name, mandatory);
+  const logicalType = String(prop.logical_type || "").toUpperCase();
+  const possibleValues = Array.isArray(prop.possible_values) ? prop.possible_values.filter(Boolean) : [];
+  const warningMeta = getWarningMarkerMeta(prop.property_name);
+  const warningAttrs = warningMeta
+    ? (warningMeta.level
+      ? ` data-warning-level="${warningMeta.level}"`
+      : ` data-warning-notes="1"`)
+    : "";
+
+  let inputHtml = "";
+  if ((logicalType === "SELECTED_FROM" || logicalType === "SUGGESTED_FROM") && possibleValues.length) {
+    const options = ['<option value="">Select...</option>']
+      .concat(possibleValues.map((v) => `<option value="${escapeHtml(String(v))}">${escapeHtml(String(v))}</option>`))
+      .join("");
+    inputHtml = `<select id="${fieldId}" data-i2-property-id="${escapeHtml(prop.property_id)}" data-i2-property-name="${escapeHtml(prop.property_name)}" data-i2-logical-type="${escapeHtml(logicalType)}" ${placementRequired ? "required" : ""}>${options}</select>`;
+  } else if (logicalType === "MULTIPLE_LINE_STRING") {
+    inputHtml = `<textarea id="${fieldId}" rows="2" data-i2-property-id="${escapeHtml(prop.property_id)}" data-i2-property-name="${escapeHtml(prop.property_name)}" data-i2-logical-type="${escapeHtml(logicalType)}" ${placementRequired ? "required" : ""}></textarea>`;
+  } else if (logicalType === "DATE") {
+    inputHtml = `<input id="${fieldId}" type="date" data-i2-property-id="${escapeHtml(prop.property_id)}" data-i2-property-name="${escapeHtml(prop.property_name)}" data-i2-logical-type="${escapeHtml(logicalType)}" ${placementRequired ? "required" : ""}>`;
+  } else if (logicalType === "DATE_AND_TIME") {
+    inputHtml = `<input id="${fieldId}" type="datetime-local" data-i2-property-id="${escapeHtml(prop.property_id)}" data-i2-property-name="${escapeHtml(prop.property_name)}" data-i2-logical-type="${escapeHtml(logicalType)}" ${placementRequired ? "required" : ""}>`;
+  } else if (logicalType === "INTEGER") {
+    inputHtml = `<input id="${fieldId}" type="number" step="1" data-i2-property-id="${escapeHtml(prop.property_id)}" data-i2-property-name="${escapeHtml(prop.property_name)}" data-i2-logical-type="${escapeHtml(logicalType)}" ${placementRequired ? "required" : ""}>`;
+  } else if (logicalType === "DECIMAL") {
+    inputHtml = `<input id="${fieldId}" type="number" step="any" data-i2-property-id="${escapeHtml(prop.property_id)}" data-i2-property-name="${escapeHtml(prop.property_name)}" data-i2-logical-type="${escapeHtml(logicalType)}" ${placementRequired ? "required" : ""}>`;
+  } else {
+    inputHtml = `<input id="${fieldId}" type="text" data-i2-property-id="${escapeHtml(prop.property_id)}" data-i2-property-name="${escapeHtml(prop.property_name)}" data-i2-logical-type="${escapeHtml(logicalType)}" ${placementRequired ? "required" : ""}>`;
+  }
+
+  return (
+    `<div class="entity-i2-field-row"${warningAttrs}>` +
+      `<label for="${fieldId}">${escapeHtml(prop.property_name)}${placementRequired ? " *" : ""}</label>` +
+      inputHtml +
+      `<div class="entity-i2-meta">${escapeHtml(prop.property_id)} | ${escapeHtml(logicalType || "TEXT")}${mandatory && !placementRequired ? " | i2 mandatory" : ""}</div>` +
+    `</div>`
+  );
+}
+
+function renderI2FieldsForType(entityTypeKey) {
+  const fieldsContainer = document.getElementById("entity-i2-fields");
+  if (!fieldsContainer) return;
+  const entity = getI2EntityByKey(entityTypeKey);
+  if (!entity) {
+    fieldsContainer.innerHTML = '<div class="entity-i2-fields-empty">Select an i2 entity type to capture structured properties.</div>';
+    return;
+  }
+
+  const entityName = String(entity.entity_name || "");
+  const properties = Array.isArray(entity.properties) ? entity.properties : [];
+  const hasFullName = properties.some((p) => String(p.property_name || "").toLowerCase() === "full name");
+
+  const core = [];
+  const advanced = [];
+  for (const prop of properties) {
+    const name = String(prop.property_name || "");
+    const mandatory = String(prop.mandatory || "").toLowerCase() === "true";
+    const redundantName = hasFullName && name.toLowerCase() === "name";
+    const lowValue = I2_LOW_VALUE_FIELDS.has(name) || redundantName;
+    const placementRequired = isPlacementRequiredField(entityName, name, mandatory);
+    const topPriority = i2FieldPriorityScore(prop) < 12;
+    if (placementRequired || topPriority) {
+      core.push(prop);
+    } else if (!mandatory && lowValue) {
+      advanced.push(prop);
+    } else {
+      advanced.push(prop);
+    }
+  }
+
+  core.sort((a, b) => i2FieldPriorityScore(a) - i2FieldPriorityScore(b));
+  advanced.sort((a, b) => i2FieldPriorityScore(a) - i2FieldPriorityScore(b));
+  const mandatoryCount = properties.filter((p) => String(p.mandatory || "").toLowerCase() === "true").length;
+
+  const header = `<div class="entity-i2-fields-title">${escapeHtml(entity.entity_name)} (${escapeHtml(entity.entity_id)}) - ${mandatoryCount} i2 mandatory field${mandatoryCount === 1 ? "" : "s"} (only essential fields required for placement)</div>`;
+  const coreHtml = core.map((prop, idx) => buildI2FieldInput(prop, idx, entityName)).join("");
+  const advancedHtml = advanced.length
+    ? (
+      `<details class="entity-i2-advanced">` +
+      `<summary>Additional fields (${advanced.length})</summary>` +
+      advanced.map((prop, idx) => buildI2FieldInput(prop, core.length + idx, entityName)).join("") +
+      `</details>`
+    ) : "";
+  fieldsContainer.innerHTML = header + coreHtml + advancedHtml;
+  updateWarningMarkerVisibility();
+}
+
+function populateI2EntityTypeSelect(selectedCategory = "") {
+  const select = document.getElementById("entity-i2-type");
+  if (!select) return;
+  if (!I2_ENTITY_CATALOG.length) {
+    select.innerHTML = '<option value="">i2 catalog unavailable</option>';
+    return;
+  }
+
+  select.innerHTML = '<option value="">Select i2 entity type...</option>';
+  I2_ENTITY_CATALOG.forEach((entity) => {
+    const opt = document.createElement("option");
+    opt.value = entity.entity_id;
+    opt.textContent = `${entity.entity_name} (${entity.entity_id})`;
+    select.appendChild(opt);
+  });
+
+  const fallback = defaultI2EntityForCategory(selectedCategory) || I2_ENTITY_CATALOG[0];
+  if (fallback) {
+    select.value = fallback.entity_id;
+    renderI2FieldsForType(fallback.entity_id);
+  }
+}
+
+async function initI2EntityCatalog() {
+  try {
+    const resp = await fetch("data/i2 Specs/parsed/entity_catalog.json");
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    const list = await resp.json();
+    I2_ENTITY_CATALOG = Array.isArray(list) ? list : [];
+    I2_ENTITY_CATALOG.forEach((entity) => {
+      if (!entity || !entity.entity_id) return;
+      I2_ENTITY_BY_ID[String(entity.entity_id).toUpperCase()] = entity;
+      I2_ENTITY_BY_NAME[String(entity.entity_name || "").toLowerCase()] = entity;
+    });
+  } catch (err) {
+    console.warn("Could not load i2 entity catalog for placement form:", err);
+    I2_ENTITY_CATALOG = [];
+  }
+  populateI2EntityTypeSelect();
+}
+
+function collectI2EntityFormData() {
+  // Ensure Address String has propagated into structured fields before validation/export.
+  syncAddressStringDerivedFields();
+
+  const typeSelect = document.getElementById("entity-i2-type");
+  const entityTypeId = typeSelect?.value || "";
+  const entityDef = getI2EntityByKey(entityTypeId);
+  if (!entityDef) return null;
+
+  const values = {};
+  const fields = document.querySelectorAll("#entity-i2-fields [data-i2-property-id]");
+  for (const field of fields) {
+    const propertyId = field.dataset.i2PropertyId || "";
+    const propertyName = field.dataset.i2PropertyName || propertyId;
+    const logicalType = field.dataset.i2LogicalType || "";
+    const required = field.hasAttribute("required");
+    const raw = String(field.value || "").trim();
+    if (required && !raw) {
+      return { error: `Missing mandatory i2 field: ${propertyName}` };
+    }
+    if (!raw) continue;
+    values[propertyId] = {
+      propertyId,
+      propertyName,
+      logicalType,
+      value: raw,
+      mandatory: required
+    };
+  }
+
+  return {
+    entityId: entityDef.entity_id,
+    entityName: entityDef.entity_name,
+    values
+  };
+}
+
+function inferEntityLabel(inputLabel, i2EntityData, fallbackName) {
+  const direct = String(inputLabel || "").trim();
+  if (direct) return direct;
+  if (!i2EntityData || !i2EntityData.values) return fallbackName;
+
+  const vals = Object.values(i2EntityData.values);
+  const byName = (needle) => vals.find((v) => String(v.propertyName || "").toLowerCase() === needle.toLowerCase())?.value || "";
+
+  if (String(i2EntityData.entityName || "").toLowerCase() === "person") {
+    const full = byName("Full Name") || byName("Name");
+    if (full) return full;
+    const first = byName("First Name");
+    const sur = byName("Surname");
+    const assembled = `${first} ${sur}`.trim();
+    if (assembled) return assembled;
+  }
+
+  const firstValue = vals[0]?.value;
+  return firstValue || fallbackName;
+}
+
+function inferEntityAddress(i2EntityData) {
+  if (!i2EntityData || !i2EntityData.values) return "";
+  const vals = Object.values(i2EntityData.values);
+  const byName = (needle) => vals.find((v) => String(v.propertyName || "").toLowerCase() === needle.toLowerCase())?.value || "";
+  const direct = byName("Address String");
+  if (direct) return direct;
+
+  const parts = [
+    byName("Building Number"),
+    byName("Street Name"),
+    byName("Town/City"),
+    byName("Post Code")
+  ].filter(Boolean);
+  return parts.join(", ");
+}
+
+function inferEntityNotes(i2EntityData) {
+  if (!i2EntityData || !i2EntityData.values) return "";
+  const vals = Object.values(i2EntityData.values);
+  const byName = (needle) => vals.find((v) => String(v.propertyName || "").toLowerCase() === needle.toLowerCase())?.value || "";
+  return (
+    byName("Additional Information") ||
+    byName("Description") ||
+    byName("Reason for De-Reg") ||
+    byName("3x5x2 Notes") ||
+    ""
+  );
+}
+
+function getI2ValueByNames(i2EntityData, names) {
+  if (!i2EntityData || !i2EntityData.values) return "";
+  const vals = Object.values(i2EntityData.values);
+  for (const n of names || []) {
+    const hit = vals.find((v) => String(v.propertyName || "").toLowerCase() === String(n || "").toLowerCase());
+    if (hit && String(hit.value || "").trim()) return String(hit.value || "").trim();
+  }
+  return "";
+}
+
+function getI2FieldByNames(names) {
+  const fields = document.querySelectorAll("#entity-i2-fields [data-i2-property-name]");
+  for (const field of fields) {
+    const pname = String(field.dataset.i2PropertyName || "").toLowerCase();
+    if ((names || []).some((n) => pname === String(n || "").toLowerCase())) {
+      return field;
+    }
+  }
+  return null;
+}
+
+function setI2FieldIfEmpty(names, value) {
+  const val = String(value || "").trim();
+  if (!val) return false;
+  const field = getI2FieldByNames(names);
+  if (!field) return false;
+  const current = String(field.value || "").trim();
+  const auto = String(field.dataset.autogen || "") === "1";
+  if (current && !auto) return false;
+  if (current === val && auto) return false;
+  field.value = val;
+  field.dataset.autogen = "1";
+  return true;
+}
+
+function parseAddressString(rawAddress) {
+  const address = String(rawAddress || "").trim();
+  if (!address) return null;
+
+  const out = {
+    buildingNumber: "",
+    streetName: "",
+    town: "",
+    county: "",
+    postcode: "",
+    country: ""
+  };
+
+  const cleaned = address.replace(/\s+/g, " ").trim();
+  const ukPostcodeMatch = cleaned.match(/\b([A-Z]{1,2}\d[A-Z\d]?\s*\d[A-Z]{2})\b/i);
+  if (ukPostcodeMatch) {
+    out.postcode = ukPostcodeMatch[1].toUpperCase().replace(/\s+/g, "");
+  }
+
+  // Remove postcode from tail before splitting locality tokens.
+  const withoutPostcode = out.postcode
+    ? cleaned.replace(new RegExp(out.postcode.replace(/\s*/g, "\\s*"), "i"), "").replace(/,\s*$/, "").trim()
+    : cleaned;
+
+  const parts = withoutPostcode.split(",").map((p) => p.trim()).filter(Boolean);
+  const first = parts[0] || "";
+
+  const firstMatch = first.match(/^(\d+[A-Z]?)\s+(.+)$/i);
+  if (firstMatch) {
+    out.buildingNumber = firstMatch[1].trim();
+    out.streetName = firstMatch[2].trim();
+  } else if (first) {
+    // Keep full first token as street/address fragment when no obvious number.
+    out.streetName = first;
+  }
+
+  if (parts.length > 1) out.town = parts[1];
+  if (parts.length > 2) out.county = parts[2];
+  if (parts.length > 3) out.country = parts[3];
+
+  return out;
+}
+
+function composeAddressFromStructuredFields() {
+  const building = getEntityFieldValueByName("Building Number");
+  const street = getEntityFieldValueByName("Street Name");
+  const town = getEntityFieldValueByName("Town/City");
+  const county = getEntityFieldValueByName("County or State");
+  const postcode = getEntityFieldValueByName("Post Code");
+  const country = getEntityFieldValueByName("Country or Region");
+
+  const line1 = [building, street].filter(Boolean).join(" ").trim();
+  const parts = [line1, town, county, postcode, country].filter(Boolean);
+  return parts.join(", ");
+}
+
+function syncStructuredFieldsToAddressString() {
+  const addrField = getI2FieldByNames(["Address String", "Address"]);
+  if (!addrField) return false;
+  const current = String(addrField.value || "").trim();
+  const allowOverwrite = !current || String(addrField.dataset.autogen || "") === "1";
+  if (!allowOverwrite) return false;
+
+  const composed = composeAddressFromStructuredFields();
+  if (!composed) return false;
+  addrField.value = composed;
+  addrField.dataset.autogen = "1";
+  return true;
+}
+
+function syncAddressStringDerivedFields() {
+  const addrField = getI2FieldByNames(["Address String", "Address"]);
+  if (!addrField) return false;
+  const currentAddress = String(addrField.value || "").trim();
+  if (!currentAddress) {
+    return syncStructuredFieldsToAddressString();
+  }
+  const parsed = parseAddressString(currentAddress);
+  if (!parsed) return false;
+  // User-provided address string is source; mark non-autogenerated while user edits.
+  if (document.activeElement === addrField) {
+    addrField.dataset.autogen = "0";
+  }
+
+  let updated = false;
+  updated = setI2FieldIfEmpty(["Building Number", "House Number"], parsed.buildingNumber) || updated;
+  updated = setI2FieldIfEmpty(["Street Name", "Street"], parsed.streetName) || updated;
+  updated = setI2FieldIfEmpty(["Town/City", "Town", "City", "Locality"], parsed.town) || updated;
+  updated = setI2FieldIfEmpty(["County or State", "County", "State"], parsed.county) || updated;
+  updated = setI2FieldIfEmpty(["Post Code", "Postal Code", "Postcode"], parsed.postcode) || updated;
+  updated = setI2FieldIfEmpty(["Country or Region", "Country"], parsed.country) || updated;
+
+  return syncStructuredFieldsToAddressString() || updated;
+}
+
+function getEntityFieldValueByName(fieldName) {
+  const fields = document.querySelectorAll("#entity-i2-fields [data-i2-property-name]");
+  for (const field of fields) {
+    if (String(field.dataset.i2PropertyName || "").toLowerCase() === String(fieldName || "").toLowerCase()) {
+      return String(field.value || "").trim();
+    }
+  }
+  return "";
+}
+
+function setCategoryIconById(category, iconId) {
+  const iconSelect = document.getElementById("entity-icon");
+  if (!iconSelect || !category || !ICON_CATEGORIES[category]) return false;
+  const idx = ICON_CATEGORIES[category].icons.findIndex((icon) => icon.id === iconId);
+  if (idx < 0) return false;
+  iconSelect.value = String(idx);
+  return true;
+}
+
+function autoSelectIconFromI2Fields(force = false) {
+  const category = document.getElementById("entity-category")?.value || "";
+  if (!category || !ICON_CATEGORIES[category]) return;
+  if (!force && ENTITY_ICON_MANUAL_OVERRIDE) return;
+
+  const locationType = getEntityFieldValueByName("Location Type").toLowerCase();
+
+  if (category === "buildings" && locationType) {
+    if (/(town|city|village|region)/.test(locationType)) {
+      if (setCategoryIconById(category, "building")) return;
+    }
+    if (/(home|residence|house|address)/.test(locationType)) {
+      if (setCategoryIconById(category, "house")) return;
+    }
+    if (/(factory|warehouse|industrial)/.test(locationType)) {
+      if (setCategoryIconById(category, "factory")) return;
+    }
+  }
+
+  if (category === "financial" && /(bank)/.test(locationType)) {
+    if (setCategoryIconById(category, "bank")) return;
+  }
+
+  if (category === "aviation") {
+    if (/(airport|terminal|runway|airfield)/.test(locationType)) {
+      if (setCategoryIconById(category, "airport")) return;
+    }
+    const aircraftHints = [
+      getEntityFieldValueByName("Registration Mark"),
+      getEntityFieldValueByName("Aircraft class"),
+      getEntityFieldValueByName("Type"),
+      getEntityFieldValueByName("Manufacturer")
+    ].join(" ").toLowerCase();
+    if (/(aircraft|plane|jet|boeing|airbus|cessna|helicopter|flight)/.test(aircraftHints)) {
+      if (setCategoryIconById(category, "aircraft")) return;
+    }
+  }
+
+  if (category === "people") {
+    const gender = getEntityFieldValueByName("Gender").toLowerCase();
+    const title = getEntityFieldValueByName("Title").toLowerCase();
+    if (/(^|\b)(male|man|boy)(\b|$)/.test(gender) || /(^|\b)(mr|sir)(\b|$)/.test(title)) {
+      if (setCategoryIconById(category, "man")) return;
+    }
+    if (/(^|\b)(female|woman|girl)(\b|$)/.test(gender) || /(^|\b)(ms|mrs|miss|madam)(\b|$)/.test(title)) {
+      if (setCategoryIconById(category, "woman")) return;
+    }
+  }
+
+  const hintText = [
+    document.getElementById("entity-label")?.value || "",
+    getEntityFieldValueByName("Full Name"),
+    getEntityFieldValueByName("Name"),
+    getEntityFieldValueByName("Organisation Name"),
+    getEntityFieldValueByName("Location Type"),
+    getEntityFieldValueByName("Vehicle Type"),
+    getEntityFieldValueByName("Manufacturer")
+  ].filter(Boolean).join(" ");
+
+  if (hintText) {
+    const suggested = suggestIcon(hintText, category);
+    if (suggested) {
+      const idx = ICON_CATEGORIES[category].icons.findIndex((icon) => icon.name === suggested.name);
+      if (idx >= 0) {
+        document.getElementById("entity-icon").value = String(idx);
+      }
+    }
+  }
+}
+
+function updateWarningMarkerVisibility() {
+  const wrap = document.getElementById("entity-i2-fields");
+  if (!wrap) return;
+  const row1 = wrap.querySelector('[data-warning-level="1"]');
+  const row2 = wrap.querySelector('[data-warning-level="2"]');
+  const row3 = wrap.querySelector('[data-warning-level="3"]');
+  const row4 = wrap.querySelector('[data-warning-level="4"]');
+  const notes = wrap.querySelector('[data-warning-notes="1"]');
+  const val1 = row1 ? String(row1.querySelector("[data-i2-property-id]")?.value || "").trim() : "";
+  const val2 = row2 ? String(row2.querySelector("[data-i2-property-id]")?.value || "").trim() : "";
+  const val3 = row3 ? String(row3.querySelector("[data-i2-property-id]")?.value || "").trim() : "";
+  const val4 = row4 ? String(row4.querySelector("[data-i2-property-id]")?.value || "").trim() : "";
+
+  const setVisible = (row, show) => {
+    if (!row) return;
+    row.style.display = show ? "" : "none";
+    if (!show) {
+      const input = row.querySelector("[data-i2-property-id]");
+      if (input) input.value = "";
+    }
+  };
+
+  setVisible(row2, !!val1);
+  setVisible(row3, !!val2);
+  setVisible(row4, !!val3);
+  setVisible(notes, !!(val1 || val2 || val3 || val4));
+}
+
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // ENTITY DEFINITIONS
-// ══════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
 const ICON_CATEGORIES = {
   people: {
@@ -577,6 +1343,18 @@ const ICON_CATEGORIES = {
       { id: 'police_car', name: 'Police Car', icon: 'gfx/map_icons/cars/police_car.png', keywords: ['police car', 'patrol'] },
       { id: 'ambulance', name: 'Ambulance', icon: 'gfx/map_icons/cars/ambulance.png', keywords: ['ambulance', 'emergency'] },
       { id: 'truck', name: 'Truck', icon: 'gfx/map_icons/cars/truck.png', keywords: ['truck', 'lorry'] }
+    ]
+  },
+  aviation: {
+    name: 'Aviation',
+    color: '#38bdf8',
+    defaultIcon: 'gfx/map_icons/email/paper_plane.png',
+    icons: [
+      { id: 'aircraft', name: 'Aircraft', icon: 'gfx/map_icons/email/paper_plane.png', keywords: ['aircraft', 'plane', 'flight', 'jet', 'air'] },
+      { id: 'airport', name: 'Airport/Terminal', icon: 'gfx/map_icons/buildings/building.png', keywords: ['airport', 'terminal', 'runway'] },
+      { id: 'pilot', name: 'Pilot', icon: 'gfx/map_icons/people/pilot.png', keywords: ['pilot', 'captain'] },
+      { id: 'captain', name: 'Captain', icon: 'gfx/map_icons/people/captain.png', keywords: ['captain'] },
+      { id: 'crew', name: 'Cabin Crew', icon: 'gfx/map_icons/people/stewardess.png', keywords: ['crew', 'steward', 'stewardess'] }
     ]
   },
   communication: {
@@ -633,18 +1411,23 @@ function getAllIcons() {
   return allIcons;
 }
 
-// ══════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // CONNECTION MANAGEMENT
-// ══════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
 function addConnection(fromLatLng, toLatLng, label, type = 'officer', metadata = {}) {
   const connectionId = `conn_${Date.now()}_${Math.random()}`;
+  const from = normalizeLatLng(fromLatLng);
+  const to = normalizeLatLng(toLatLng);
+  if (!Number.isFinite(from[0]) || !Number.isFinite(from[1]) || !Number.isFinite(to[0]) || !Number.isFinite(to[1])) {
+    return null;
+  }
   
   const color = type === 'officer' ? '#a78bfa' : 
                 type === 'psc' ? '#fbbf24' : 
                 type === 'manual' ? '#22c55e' : '#64748b';
   
-  const polyline = L.polyline([fromLatLng, toLatLng], {
+  const polyline = L.polyline([from, to], {
     color: color,
     weight: 3,
     opacity: 0.7,
@@ -653,8 +1436,8 @@ function addConnection(fromLatLng, toLatLng, label, type = 'officer', metadata =
   
   // Store reference to connected entities for highlighting
   polyline._connectionData = {
-    fromLatLng: fromLatLng,
-    toLatLng: toLatLng,
+    fromLatLng: from,
+    toLatLng: to,
     connectionId: connectionId,
     metadata: metadata
   };
@@ -667,8 +1450,8 @@ function addConnection(fromLatLng, toLatLng, label, type = 'officer', metadata =
   
   // Add label at midpoint
   if (label) {
-    const midLat = (fromLatLng[0] + toLatLng[0]) / 2;
-    const midLng = (fromLatLng[1] + toLatLng[1]) / 2;
+    const midLat = (from[0] + to[0]) / 2;
+    const midLng = (from[1] + to[1]) / 2;
     
     const labelIcon = L.divIcon({
       className: 'connection-label',
@@ -683,8 +1466,8 @@ function addConnection(fromLatLng, toLatLng, label, type = 'officer', metadata =
       id: connectionId,
       type,
       label,
-      fromLatLng: fromLatLng,
-      toLatLng: toLatLng,
+      fromLatLng: from,
+      toLatLng: to,
       line: polyline,
       labelMarker: labelMarker,
       metadata: metadata
@@ -693,8 +1476,8 @@ function addConnection(fromLatLng, toLatLng, label, type = 'officer', metadata =
     window._mapConnections.push({
       id: connectionId,
       type,
-      fromLatLng: fromLatLng,
-      toLatLng: toLatLng,
+      fromLatLng: from,
+      toLatLng: to,
       line: polyline,
       metadata: metadata
     });
@@ -797,9 +1580,9 @@ function clearConnections() {
   updateDashboardCounts();
 }
 
-// ══════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // ENTITY PLACEMENT
-// ══════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
 function startPlacementMode(category) {
   window._placementMode = category;
@@ -814,8 +1597,50 @@ function cancelPlacementMode() {
   map.getContainer().style.cursor = '';
 }
 
-function placeEntity(latLng, iconData, label = '', address = '', notes = '') {
+function formatI2EntitySummary(i2EntityData) {
+  if (!i2EntityData || !i2EntityData.entityName) return "";
+  const values = i2EntityData.values ? Object.values(i2EntityData.values) : [];
+  const preferredOrder = ["Full Name", "Name", "First Name", "Surname", "Date of Birth", "DOB", "Registration Mark", "VRM", "Organisation Name"];
+  const selected = [];
+  for (const pref of preferredOrder) {
+    const found = values.find((v) => String(v.propertyName || "").toLowerCase() === pref.toLowerCase());
+    if (found && !selected.includes(found)) selected.push(found);
+    if (selected.length >= 4) break;
+  }
+  for (const v of values) {
+    if (selected.length >= 4) break;
+    if (!selected.includes(v)) selected.push(v);
+  }
+  const preview = selected.map((v) => `${escapeHtml(v.propertyName)}: ${escapeHtml(v.value)}`).join("<br>");
+  return (
+    `<br><span class="popup-label">i2 Type</span> <span class="popup-tag">${escapeHtml(i2EntityData.entityName)} (${escapeHtml(i2EntityData.entityId)})</span>` +
+    (preview ? `<br>${preview}` : "")
+  );
+}
+
+function buildEntityPopup(entityId, entity) {
+  return `
+    <strong>${escapeHtml(entity.label)}</strong>
+    <span class="popup-label">Type</span> <span class="popup-tag" style="background:${entity.iconData.categoryColor || entity.iconData.color};">${escapeHtml(entity.iconData.categoryName || entity.iconData.name)}</span><br>
+    ${entity.address ? `<span class="popup-label">Address</span> ${escapeHtml(entity.address)}<br>` : ''}
+    ${entity.notes ? `<span class="popup-label">Notes</span> ${escapeHtml(entity.notes)}<br>` : ''}
+    <span class="popup-label">Lat/Lng</span> ${entity.latLng[0].toFixed(5)}, ${entity.latLng[1].toFixed(5)}
+    ${formatI2EntitySummary(entity.i2EntityData)}
+    <div class="popup-btn-row">
+      <button class="popup-psc-btn" onclick="editEntity('${entityId}')">Edit</button>
+      <button class="popup-psc-btn" onclick="drawConnectionFrom('${entityId}')">Connect</button>
+      <button class="popup-psc-btn" onclick="removeEntity('${entityId}')">Remove</button>
+    </div>
+  `;
+}
+
+function placeEntity(latLng, iconData, label = '', address = '', notes = '', i2EntityData = null) {
   const entityId = `entity_${Date.now()}_${Math.random()}`;
+  const coords = normalizeLatLng(latLng);
+  if (!Number.isFinite(coords[0]) || !Number.isFinite(coords[1])) {
+    setStatus("Invalid coordinates for entity placement");
+    return null;
+  }
   
   const icon = L.icon({
     iconUrl: iconData.icon,
@@ -824,40 +1649,34 @@ function placeEntity(latLng, iconData, label = '', address = '', notes = '') {
     popupAnchor: [0, -16]
   });
   
-  const marker = L.marker(latLng, { icon: icon });
+  const marker = L.marker(coords, { icon: icon });
   
-  const popup = `
-    <strong>${escapeHtml(label || iconData.name)}</strong>
-    <span class="popup-label">Type</span> <span class="popup-tag" style="background:${iconData.categoryColor || iconData.color};">${escapeHtml(iconData.categoryName || iconData.name)}</span><br>
-    ${address ? `<span class="popup-label">Address</span> ${escapeHtml(address)}<br>` : ''}
-    ${notes ? `<span class="popup-label">Notes</span> ${escapeHtml(notes)}<br>` : ''}
-    <span class="popup-label">Lat/Lng</span> ${latLng[0].toFixed(5)}, ${latLng[1].toFixed(5)}
-    <div class="popup-btn-row">
-      <button class="popup-psc-btn" onclick="editEntity('${entityId}')">Edit</button>
-      <button class="popup-psc-btn" onclick="drawConnectionFrom('${entityId}')">Connect</button>
-      <button class="popup-psc-btn" onclick="removeEntity('${entityId}')">Remove</button>
-    </div>
-  `;
-  
-  marker.bindPopup(popup).addTo(entitiesLayer);
-  
-  // Add click handler to highlight connections
-  marker.on('click', function(e) {
-    L.DomEvent.stopPropagation(e);
-    highlightConnections(marker.getLatLng());
-  });
-  
-  marker.openPopup();
-  
-  window._mapEntities.push({
+  const entity = {
     id: entityId,
     iconData: iconData,
     label: label || iconData.name,
     address: address || '',
     notes: notes || '',
-    latLng: latLng,
-    marker: marker
+    latLng: coords,
+    marker: marker,
+    i2EntityData: i2EntityData || null
+  };
+
+  marker.bindPopup(buildEntityPopup(entityId, entity)).addTo(entitiesLayer);
+
+  // In connect mode, clicking another entity should complete the link immediately.
+  marker.on('click', function(e) {
+    L.DomEvent.stopPropagation(e);
+    if (connectionDrawingMode && connectionDrawingMode.fromId !== entityId) {
+      completeConnection(entityId);
+      return;
+    }
+    highlightConnections(marker.getLatLng());
   });
+  
+  marker.openPopup();
+
+  window._mapEntities.push(entity);
   
   updateDashboardCounts();
   
@@ -894,20 +1713,7 @@ function editEntity(entityId) {
   entity.address = newAddress.trim();
   entity.notes = newNotes.trim();
   
-  // Update popup
-  const popup = `
-    <strong>${escapeHtml(entity.label)}</strong>
-    <span class="popup-label">Type</span> <span class="popup-tag" style="background:${entity.iconData.categoryColor || entity.iconData.color};">${escapeHtml(entity.iconData.categoryName || entity.iconData.name)}</span><br>
-    ${entity.address ? `<span class="popup-label">Address</span> ${escapeHtml(entity.address)}<br>` : ''}
-    ${entity.notes ? `<span class="popup-label">Notes</span> ${escapeHtml(entity.notes)}<br>` : ''}
-    <span class="popup-label">Lat/Lng</span> ${entity.latLng[0].toFixed(5)}, ${entity.latLng[1].toFixed(5)}
-    <div class="popup-btn-row">
-      <button class="popup-psc-btn" onclick="editEntity('${entityId}')">Edit</button>
-      <button class="popup-psc-btn" onclick="drawConnectionFrom('${entityId}')">Connect</button>
-      <button class="popup-psc-btn" onclick="removeEntity('${entityId}')">Remove</button>
-    </div>
-  `;
-  entity.marker.setPopupContent(popup);
+  entity.marker.setPopupContent(buildEntityPopup(entityId, entity));
   setStatus('Entity updated');
 }
 
@@ -944,9 +1750,9 @@ window.editConnection = editConnection;
 window.highlightConnections = highlightConnections;
 window.clearConnectionHighlights = clearConnectionHighlights;
 
-// ══════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // MANUAL CONNECTION DRAWING
-// ══════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
 let connectionDrawingMode = null;
 
@@ -962,14 +1768,11 @@ function drawConnectionFrom(entityId) {
   
   setStatus(`Click another entity to connect to ${entity.label}...`);
   map.getContainer().style.cursor = 'crosshair';
-  
-  // Add temporary click handler
-  map.once('click', cancelConnectionDrawing);
 }
 
-function cancelConnectionDrawing() {
+function cancelConnectionDrawing(statusMessage = 'Connection cancelled') {
   connectionDrawingMode = null;
-  setStatus('Connection cancelled');
+  if (statusMessage) setStatus(statusMessage);
   map.getContainer().style.cursor = '';
 }
 
@@ -1001,8 +1804,8 @@ function completeConnection(toEntityId) {
     }
   );
   
-  setStatus(`Connected: ${connectionDrawingMode.fromEntity.label} → ${toEntity.label}`);
-  cancelConnectionDrawing();
+  setStatus(`Connected: ${connectionDrawingMode.fromEntity.label} -> ${toEntity.label}`);
+  cancelConnectionDrawing(null);
 }
 
 function showConnectionPopup(latlng, connectionId, label, metadata) {
@@ -1070,51 +1873,74 @@ function editConnection(connectionId) {
   map.closePopup();
 }
 
-// ══════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // ENTITY SELECTOR UI
-// ══════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
 function initializeEntitySelector() {
   const container = document.getElementById('entity_selector');
   if (!container) return;
   
   container.innerHTML = '';
-  
-  // Create category buttons  
-  for (const [catId, category] of Object.entries(ICON_CATEGORIES)) {
-    const categoryBtn = document.createElement('div');
-    categoryBtn.className = 'entity-category';
-    
-    const firstIcon = category.icons[0];
-    categoryBtn.innerHTML = `
-      <button class="entity-btn" data-category="${catId}">
-        <img src="${firstIcon.icon}" class="entity-icon" alt="${category.name}">
-        <span class="entity-name">${category.name}</span>
-        <span class="entity-count">${category.icons.length}</span>
-      </button>
-    `;
-    
-    const btn = categoryBtn.querySelector('.entity-btn');
-    btn.addEventListener('click', () => {
-      startPlacementMode(catId);
-      // Visual feedback
-      document.querySelectorAll('.entity-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-    });
-    
-    container.appendChild(categoryBtn);
+
+  if (I2_ENTITY_CATALOG.length) {
+    const sorted = [...I2_ENTITY_CATALOG].sort((a, b) =>
+      String(a.entity_name || "").localeCompare(String(b.entity_name || ""))
+    );
+
+    for (const entity of sorted) {
+      const item = document.createElement("div");
+      item.className = "entity-category";
+      const chosen = chooseIconForI2Entity(entity);
+      const iconPath = chosen.icon?.icon || (ICON_CATEGORIES.people?.icons?.[0]?.icon || "");
+      item.innerHTML = `
+        <button class="entity-btn" data-i2-entity-id="${escapeHtml(entity.entity_id)}">
+          <img src="${iconPath}" class="entity-icon" alt="${escapeHtml(entity.entity_name || entity.entity_id)}">
+          <span class="entity-name">${escapeHtml(entity.entity_name || entity.entity_id)}</span>
+        </button>
+      `;
+
+      const btn = item.querySelector(".entity-btn");
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".entity-btn").forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+        startI2EntityPlacement(entity.entity_id);
+      });
+      container.appendChild(item);
+    }
+  } else {
+    // Fallback when i2 catalog is unavailable.
+    for (const [catId, category] of Object.entries(ICON_CATEGORIES)) {
+      const categoryBtn = document.createElement('div');
+      categoryBtn.className = 'entity-category';
+      const firstIcon = category.icons[0];
+      categoryBtn.innerHTML = `
+        <button class="entity-btn" data-category="${catId}">
+          <img src="${firstIcon.icon}" class="entity-icon" alt="${category.name}">
+          <span class="entity-name">${category.name}</span>
+        </button>
+      `;
+      const btn = categoryBtn.querySelector('.entity-btn');
+      btn.addEventListener('click', () => {
+        startPlacementMode(catId);
+        showEntityPlacementDialog(map.getCenter());
+        document.querySelectorAll('.entity-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+      });
+      container.appendChild(categoryBtn);
+    }
   }
   
   // Add manual connection button
   const connBtn = document.createElement('button');
   connBtn.className = 'btn-secondary';
-  connBtn.innerHTML = '🔗 Draw Connection';
+  connBtn.innerHTML = 'Draw Connection';
   connBtn.addEventListener('click', () => {
     const entityList = window._mapEntities.map((e, i) => `${i + 1}. ${e.label}`).join('\n');
     if (entityList) {
-      alert(`Click the "🔗 Connect" button on any entity to start drawing connections.\n\nEntities on map:\n${entityList}`);
+      alert(`Click the "Connect" button on any entity to start drawing connections.\n\nEntities on map:\n${entityList}`);
     } else {
-      alert('No entities on map. Place entities first, then use the 🔗 Connect button on each entity.');
+      alert('No entities on map. Place entities first, then use the Connect button on each entity.');
     }
   });
   container.appendChild(connBtn);
@@ -1122,7 +1948,7 @@ function initializeEntitySelector() {
   // Add cancel and clear buttons
   const cancelBtn = document.createElement('button');
   cancelBtn.className = 'btn-secondary';
-  cancelBtn.textContent = '✕ Cancel Placement';
+  cancelBtn.textContent = 'Cancel Placement';
   cancelBtn.addEventListener('click', () => {
     cancelPlacementMode();
     cancelConnectionDrawing();
@@ -1132,7 +1958,7 @@ function initializeEntitySelector() {
   
   const clearBtn = document.createElement('button');
   clearBtn.className = 'btn-secondary';
-  clearBtn.textContent = '🗑️ Clear All';
+  clearBtn.textContent = 'Clear All';
   clearBtn.addEventListener('click', () => {
     if (confirm('Remove all custom entities and connections from map?')) {
       clearAllEntities();
@@ -1142,7 +1968,253 @@ function initializeEntitySelector() {
   container.appendChild(clearBtn);
 }
 
-// ── Load overlay data ──
+// Import tracking for bulk uploads
+window._importedEntityIds = new Set();
+window._importedConnectionIds = new Set();
+
+function normalizeFieldName(value) {
+  return String(value || "")
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "_")
+    .replace(/^_+|_+$/g, "");
+}
+
+function detectImportColumns(headers) {
+  const out = {
+    name: null,
+    dob: null,
+    address: null,
+    postcode: null,
+    lat: null,
+    lon: null,
+    entityType: null,
+    target: null,
+    relation: null,
+    notes: null
+  };
+
+  for (const raw of headers) {
+    const h = normalizeFieldName(raw);
+    if (!h) continue;
+
+    if (!out.name && /^(name|full_name|person|subject|entity|primary_entity)$/.test(h)) out.name = raw;
+    if (!out.dob && /^(dob|date_of_birth|birth_date|born)$/.test(h)) out.dob = raw;
+    if (!out.address && /^(address|address_line_1|street|location|residence|home_address)$/.test(h)) out.address = raw;
+    if (!out.postcode && /^(postcode|postal_code|zip|zip_code)$/.test(h)) out.postcode = raw;
+    if (!out.lat && /^(lat|latitude|y)$/.test(h)) out.lat = raw;
+    if (!out.lon && /^(lon|lng|longitude|x)$/.test(h)) out.lon = raw;
+    if (!out.entityType && /^(entity_type|type|i2_type|category)$/.test(h)) out.entityType = raw;
+    if (!out.target && /^(linked_to|associate|target|to|connection_to|related_to|company|organisation|organization)$/.test(h)) out.target = raw;
+    if (!out.relation && /^(relation|relationship|link|edge|association|role)$/.test(h)) out.relation = raw;
+    if (!out.notes && /^(notes|comment|description|intel|intelligence)$/.test(h)) out.notes = raw;
+  }
+  return out;
+}
+
+function parseDobFromText(text) {
+  const str = String(text || "");
+  const m = str.match(/\b(?:dob|d\.o\.b\.?|born)\s*[:\-]?\s*(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})\b/i);
+  if (!m) return null;
+  return m[1].replace(/-/g, "/");
+}
+
+function extractNameFromMixedText(text) {
+  const str = String(text || "").trim();
+  if (!str) return "";
+  const clean = str
+    .replace(/\b(?:dob|d\.o\.b\.?|born)\b.*$/i, "")
+    .replace(/\s{2,}/g, " ")
+    .trim();
+  return clean || str;
+}
+
+function inferEntityKind(row, cols) {
+  const typeText = String(row[cols.entityType] || "").toLowerCase();
+  if (typeText.includes("person") || typeText.includes("subject")) return "person";
+  if (typeText.includes("address") || typeText.includes("location") || typeText.includes("organisation") || typeText.includes("organization")) return "location";
+  if (typeText.includes("phone") || typeText.includes("msisdn") || typeText.includes("imei") || typeText.includes("imsi") || typeText.includes("email")) return "communication";
+
+  const hasDob = !!(row[cols.dob] || parseDobFromText(row[cols.name]));
+  const hasAddress = !!(row[cols.address] || row[cols.postcode]);
+  if (hasDob) return "person";
+  if (hasAddress) return "location";
+  return "generic";
+}
+
+function pickIconForImport(kind, label) {
+  let categoryKey = "people";
+  if (kind === "location") categoryKey = "buildings";
+  if (kind === "communication") categoryKey = "communication";
+  if (kind === "generic") {
+    const suggestedAny = suggestIcon(label || "");
+    if (suggestedAny?.category && ICON_CATEGORIES[suggestedAny.category]) {
+      categoryKey = suggestedAny.category;
+    } else {
+      categoryKey = "people";
+    }
+  }
+  const cat = ICON_CATEGORIES[categoryKey];
+  const suggested = suggestIcon(label || "", categoryKey);
+  const picked = suggested || cat.icons[0];
+  return {
+    ...picked,
+    categoryColor: cat.color,
+    categoryName: cat.name
+  };
+}
+
+async function readSpreadsheetRows(file) {
+  const buf = await file.arrayBuffer();
+  if (!window.XLSX) throw new Error("XLSX parser library not loaded");
+
+  const wb = XLSX.read(buf, { type: "array", cellDates: true, raw: false });
+  if (!wb.SheetNames.length) return [];
+  const ws = wb.Sheets[wb.SheetNames[0]];
+  return XLSX.utils.sheet_to_json(ws, { defval: "" });
+}
+
+function getEntityById(entityId) {
+  return window._mapEntities.find((e) => e.id === entityId) || null;
+}
+
+function getNetworkPlacementLatLng(index) {
+  const center = map.getCenter();
+  const angle = index * 0.62;
+  const radius = 0.03 + (index % 7) * 0.01;
+  const lat = center.lat + Math.sin(angle) * radius;
+  const lng = center.lng + Math.cos(angle) * radius;
+  return [lat, lng];
+}
+
+async function importEntitiesFromRows(rows) {
+  const summaryEl = document.getElementById("entity-import-summary");
+  if (!Array.isArray(rows) || rows.length === 0) {
+    if (summaryEl) summaryEl.textContent = "No rows found in file.";
+    return;
+  }
+
+  const headers = Object.keys(rows[0] || {});
+  const cols = detectImportColumns(headers);
+
+  const nameToEntityId = new Map();
+  let plotted = 0;
+  let skipped = 0;
+  let linked = 0;
+  let networkPlaced = 0;
+  let geoPlaced = 0;
+  let networkIndex = 0;
+
+  for (let i = 0; i < rows.length; i++) {
+    const row = rows[i];
+    const sourceName = row[cols.name] || row.Name || row.name || "";
+    const dobDetected = row[cols.dob] || parseDobFromText(sourceName);
+    const label = extractNameFromMixedText(sourceName) || `Entity ${i + 1}`;
+    const address = String(row[cols.address] || "").trim();
+    const postcode = String(row[cols.postcode] || "").trim();
+    const noteRaw = String(row[cols.notes] || "").trim();
+    const entityKind = inferEntityKind(row, cols);
+    let usedNetworkPlacement = false;
+
+    let lat = parseFloat(String(row[cols.lat] || "").trim());
+    let lon = parseFloat(String(row[cols.lon] || "").trim());
+    if (!Number.isFinite(lat) || !Number.isFinite(lon)) {
+      lat = NaN;
+      lon = NaN;
+    }
+
+    if (!Number.isFinite(lat) || !Number.isFinite(lon)) {
+      if (postcode) {
+        const geo = await geocodePostcode(postcode);
+        if (geo) {
+          lat = geo.lat;
+          lon = geo.lon;
+        }
+      }
+    }
+
+    if (!Number.isFinite(lat) || !Number.isFinite(lon)) {
+      const synthetic = getNetworkPlacementLatLng(networkIndex++);
+      lat = synthetic[0];
+      lon = synthetic[1];
+      networkPlaced++;
+      usedNetworkPlacement = true;
+    } else {
+      geoPlaced++;
+    }
+
+    const notes = [
+      dobDetected ? `DOB: ${dobDetected}` : "",
+      noteRaw,
+      postcode ? `Postcode: ${postcode}` : "",
+      usedNetworkPlacement ? "Placed by network layout (no geocode fields)" : ""
+    ].filter(Boolean).join(" | ");
+
+    const iconData = pickIconForImport(entityKind, label);
+    const entityId = placeEntity([lat, lon], iconData, label, address || postcode, notes);
+    window._importedEntityIds.add(entityId);
+    nameToEntityId.set(label.toLowerCase(), entityId);
+    plotted++;
+  }
+
+  // Second pass for inferred relationship links
+  for (const row of rows) {
+    const srcLabel = extractNameFromMixedText(row[cols.name] || row.Name || row.name || "").toLowerCase();
+    const tgtLabel = String(row[cols.target] || "").trim().toLowerCase();
+    if (!srcLabel || !tgtLabel) continue;
+
+    const srcId = nameToEntityId.get(srcLabel);
+    const tgtId = nameToEntityId.get(tgtLabel);
+    if (!srcId || !tgtId || srcId === tgtId) continue;
+
+    const srcEntity = getEntityById(srcId);
+    const tgtEntity = getEntityById(tgtId);
+    if (!srcEntity || !tgtEntity) continue;
+
+    const relation = String(row[cols.relation] || row.relationship || row.Relationship || "Associate").trim();
+    const connectionId = addConnection(
+      srcEntity.latLng,
+      tgtEntity.latLng,
+      relation,
+      "manual",
+      {
+        fromId: srcId,
+        toId: tgtId,
+        fromLabel: srcEntity.label,
+        toLabel: tgtEntity.label,
+        imported: true
+      }
+    );
+    window._importedConnectionIds.add(connectionId);
+    linked++;
+  }
+
+  if (summaryEl) {
+    const mappedCols = Object.entries(cols).filter(([, v]) => !!v).map(([k, v]) => `${k}:${v}`).join(", ");
+    summaryEl.textContent =
+      `Imported ${plotted} entities (${geoPlaced} geospatial, ${networkPlaced} network-layout), skipped ${skipped}, inferred ${linked} links. ` +
+      `Detected columns: ${mappedCols || "none"}.`;
+  }
+  setStatus(`Imported ${plotted} entities from spreadsheet`);
+}
+
+function clearImportedEntities() {
+  for (const connId of Array.from(window._importedConnectionIds)) {
+    removeConnection(connId);
+  }
+  window._importedConnectionIds.clear();
+
+  for (const entityId of Array.from(window._importedEntityIds)) {
+    removeEntity(entityId);
+  }
+  window._importedEntityIds.clear();
+
+  const summaryEl = document.getElementById("entity-import-summary");
+  if (summaryEl) summaryEl.textContent = "Imported entities cleared.";
+  setStatus("Imported entities removed");
+}
+
+// â”€â”€ Load overlay data â”€â”€
 
 // Police force boundaries
 fetch("data/police_force_areas_wgs84.geojson").then(r => r.json()).then(data => {
@@ -1157,6 +2229,12 @@ fetch("data/police_force_areas_wgs84.geojson").then(r => r.json()).then(data => 
 
 // Airports
 const UK_COUNTRIES = ["ENGLAND","SCOTLAND","WALES","NORTHERN IRELAND","IRELAND","UK"];
+window.AIRPORT_INDEX = {
+  all: [],
+  uk: [],
+  byIcao: {},
+  byIata: {}
+};
 fetch("data/airports.geojson").then(r => r.json()).then(data => {
   L.geoJSON(data, {
     pointToLayer: (f, ll) => {
@@ -1172,7 +2250,40 @@ fetch("data/airports.geojson").then(r => r.json()).then(data => {
     onEachFeature: (f, l) => {
       const c = (f.properties?.country || "").toUpperCase();
       const isUK = UK_COUNTRIES.includes(c);
-      l.bindPopup(`<strong>${f.properties?.name || "Unnamed"}</strong><br><span class="popup-label">${c}</span>`);
+      const airport = {
+        icao: String(f.properties?.icao || "").toUpperCase(),
+        iata: String(f.properties?.iata || "").toUpperCase(),
+        name: String(f.properties?.name || "Unnamed"),
+        city: String(f.properties?.city || ""),
+        country: c,
+        lat: Number(f.geometry?.coordinates?.[1]),
+        lon: Number(f.geometry?.coordinates?.[0]),
+        isUK
+      };
+      window.AIRPORT_INDEX.all.push(airport);
+      if (isUK) window.AIRPORT_INDEX.uk.push(airport);
+      if (airport.icao) window.AIRPORT_INDEX.byIcao[airport.icao] = airport;
+      if (airport.iata && airport.iata !== "N/A") window.AIRPORT_INDEX.byIata[airport.iata] = airport;
+
+      l._airportMeta = airport;
+      l.bindPopup(
+        `<div class="airport-intel-popup">` +
+        `<strong>${escapeHtml(airport.name)}</strong><br>` +
+        `<span class="popup-label">ICAO</span> ${escapeHtml(airport.icao || "N/A")} | <span class="popup-label">IATA</span> ${escapeHtml(airport.iata || "N/A")}<br>` +
+        `<span class="popup-label">Country</span> ${escapeHtml(c)}<br>` +
+        `<span class="popup-label">Intel</span> Loading nearby flights...` +
+        `</div>`
+      );
+      l.on("popupopen", () => {
+        if (typeof window.buildAirportIntelPopup === "function") {
+          try {
+            const html = window.buildAirportIntelPopup(l._airportMeta);
+            if (html) l.setPopupContent(html);
+          } catch (_) {
+            // keep fallback popup
+          }
+        }
+      });
       (isUK ? layers.airports_uk : layers.airports_global).addLayer(l);
     }
   });
@@ -1265,101 +2376,199 @@ fetch("data/underground_map/underground-live-map-master/bin/lines_for_stations.j
       else if (fullName.includes("Tram")) networkType = "Tram";
       
       // Use line-specific roundel icon
-      L.marker([lat, lon], {
-        icon: getTfLRoundelIcon(lines)
-      }).bindPopup(
+      const stationMarker = L.marker([lat, lon], {
+        icon: getTfLRoundelIcon(lines),
+        pane: "tflStationsPane"
+      }).addTo(layers.underground);
+
+      stationMarker.bindPopup(
         `<strong>${stationName}</strong><br>` +
-        `<span class="popup-label">Lines</span> ${networkType}`
-      ).addTo(layers.underground);
+        `<span class="popup-label">Lines</span> ${networkType}` +
+        '<div class="tfl-arrivals"><div class="tfl-arrivals-loading">Loading arrivals...</div></div>'
+      );
+
+      stationMarker.on("popupopen", async () => {
+        if (typeof window.buildTflStationPopup !== "function") return;
+        try {
+          const popupData = await window.buildTflStationPopup(stationName, networkType);
+          stationMarker.setPopupContent(popupData.loadingHtml);
+          const fullHtml = await popupData.fetchFull();
+          stationMarker.setPopupContent(fullHtml);
+        } catch (_) {
+          stationMarker.setPopupContent(
+            `<strong>${stationName}</strong><br>` +
+            `<span class="popup-label">Lines</span> ${networkType}` +
+            '<div class="tfl-arrivals"><div class="tfl-arrivals-empty">Arrivals unavailable</div></div>'
+          );
+        }
+      });
     }
-    console.log(`✓ TfL stations loaded with line-specific roundel icons`);
+    console.log(`âœ“ TfL stations loaded with line-specific roundel icons`);
   })
   .catch(e => console.warn("TfL Stations:", e));
 
-// TfL Line Routes with Official Colors
-const TFL_LINE_COLORS = {
-  "Northern": "#000000",
-  "Bakerloo": "#a45a2a", 
-  "Central": "#da291c",
-  "Circle": "#ffcd00",
-  "District": "#007a33",
-  "DLR": "#00b2a9",
-  "Hammersmith & City": "#e89cae",
-  "Jubilee": "#7C878e",
-  "Metropolitan": "#840b55",
-  "Piccadilly": "#10069f",
-  "Victoria": "#00a3e0",
-  "Waterloo & City": "#6eceb2",
-  "Elizabeth": "#753bbd",
-  "Overground": "#e87722",
-  "Cable Car": "#c8102e",
-  "Tramlink": "#78be20"
+// Map polyline colors from london-lines.json to line metadata
+const TFL_COLOR_TO_META = {
+  "#9364cc": { id: "elizabeth-line", name: "Elizabeth", color: "#753bbd" },
+  "#3c8cff": { id: "victoria", name: "Victoria", color: "#00a3e0" },
+  "#149600": { id: "district", name: "District", color: "#007a33" },
+  "#64500a": { id: "bakerloo", name: "Bakerloo", color: "#a45a2a" },
+  "#8c505a": { id: "metropolitan", name: "Metropolitan", color: "#840b55" },
+  "#ff64a0": { id: "hammersmith-city", name: "Hammersmith & City", color: "#e89cae" },
+  "#ffff00": { id: "circle", name: "Circle", color: "#ffcd00" },
+  "#ff0000": { id: "central", name: "Central", color: "#da291c" },
+  "#0000c8": { id: "piccadilly", name: "Piccadilly", color: "#10069f" },
+  "#808080": { id: "jubilee", name: "Jubilee", color: "#7c878e" },
+  "#000000": { id: "northern", name: "Northern", color: "#000000" },
+  "#00ffa0": { id: "waterloo-city", name: "Waterloo & City", color: "#6eceb2" },
+  "#ffbe28": { id: "overground", name: "Overground", color: "#e87722" }
 };
 
-// Map polyline colors from london-lines.json to official TfL colors
-const COLOR_MAP = {
-  "#9364cc": "#753bbd",  // Elizabeth line (purple)
-  "#3c8cff": "#00a3e0",  // Victoria line (light blue)
-  "#149600": "#007a33",  // District line (green)
-  "#64500a": "#a45a2a",  // Bakerloo line (brown)
-  "#8c505a": "#840b55",  // Metropolitan line (magenta)
-  "#ff64a0": "#e89cae",  // Hammersmith & City (pink)
-  "#ffff00": "#ffcd00",  // Circle line (yellow)
-  "#ff0000": "#da291c",  // Central line (red)
-  "#0000c8": "#10069f",  // Piccadilly line (blue)
-  "#808080": "#7C878e",  // Jubilee line (grey)
-  "#000000": "#000000",  // Northern line (black)
-  "#00ffa0": "#6eceb2",  // Waterloo & City (turquoise)
-  "#ffbe28": "#e87722"   // Overground (orange)
+const TFL_STATUS_TONE = {
+  good: "#22c55e",
+  warning: "#f59e0b",
+  bad: "#ef4444",
+  neutral: "#94a3b8"
 };
 
-// Load TfL line route polylines  
+window._tflRouteRegistry = {};
+window._selectedTflLineId = null;
+window._lastTflStatuses = [];
+
+window.updateSelectedTflLineInfo = function updateSelectedTflLineInfo() {
+  const el = document.getElementById("tfl-selected-line");
+  if (!el) return;
+  const selectedId = window._selectedTflLineId;
+  if (!selectedId) {
+    el.textContent = "Selected: None";
+    return;
+  }
+
+  const meta = window._tflRouteRegistry[selectedId];
+  const status = (window._lastTflStatuses || []).find(
+    (line) => String(line.id || "").toLowerCase() === selectedId
+  );
+  const label = status?.lineStatuses?.[0]?.statusSeverityDescription || "Status unknown";
+  const name = meta?.name || selectedId;
+  el.textContent = `Selected: ${name} (${label})`;
+};
+
+function getStatusToneFromSeverity(severity) {
+  if (severity === 10) return "good";
+  if (severity === 9) return "warning";
+  if (severity <= 8) return "bad";
+  return "neutral";
+}
+
+function applyTflLineVisual(lineMeta, statusSeverity) {
+  const tone = getStatusToneFromSeverity(statusSeverity);
+  const selected = window._selectedTflLineId && window._selectedTflLineId === lineMeta.id;
+  const dimmed = window._selectedTflLineId && !selected;
+  const glow = TFL_STATUS_TONE[tone] || TFL_STATUS_TONE.neutral;
+
+  for (const seg of lineMeta.segments) {
+    seg.setStyle({
+      color: lineMeta.color,
+      weight: selected ? 7 : 4,
+      opacity: dimmed ? 0.16 : 0.82
+    });
+
+    if (seg._path) {
+      seg._path.classList.remove("tfl-status-good", "tfl-status-warning", "tfl-status-bad", "tfl-line-selected", "tfl-line-dimmed");
+      seg._path.classList.add(`tfl-status-${tone}`);
+      if (selected) seg._path.classList.add("tfl-line-selected");
+      if (dimmed) seg._path.classList.add("tfl-line-dimmed");
+      seg._path.style.setProperty("--tfl-glow", glow);
+    }
+  }
+}
+
+window.updateTflLineStylesFromStatus = function updateTflLineStylesFromStatus(lines) {
+  window._lastTflStatuses = Array.isArray(lines) ? lines : [];
+  const statusById = {};
+  for (const line of window._lastTflStatuses) {
+    statusById[(line.id || "").toLowerCase()] = line.lineStatuses?.[0]?.statusSeverity ?? 10;
+  }
+  for (const meta of Object.values(window._tflRouteRegistry)) {
+    const severity = statusById[meta.id] ?? 10;
+    applyTflLineVisual(meta, severity);
+  }
+  window.updateSelectedTflLineInfo();
+};
+
+window.selectTflLine = function selectTflLine(lineId) {
+  if (!lineId) return;
+  const normalized = String(lineId).toLowerCase();
+  window._selectedTflLineId = window._selectedTflLineId === normalized ? null : normalized;
+  window.updateTflLineStylesFromStatus(window._lastTflStatuses);
+  window.updateSelectedTflLineInfo();
+  document.dispatchEvent(new CustomEvent("tfl-line-selection-changed", { detail: { lineId: window._selectedTflLineId } }));
+};
+
+window.focusTflLine = function focusTflLine(lineId) {
+  const normalized = String(lineId || "").toLowerCase();
+  const meta = window._tflRouteRegistry[normalized];
+  if (!meta || !meta.segments || !meta.segments.length) return;
+  const group = L.featureGroup(meta.segments);
+  map.fitBounds(group.getBounds(), { padding: [80, 80], maxZoom: 12 });
+};
+
+// Load TfL line route polylines
 fetch("data/underground_map/underground-live-map-master/bin/london-lines.json")
-  .then(response => {
+  .then((response) => {
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     return response.json();
   })
-  .then(data => {
+  .then((data) => {
     if (!data.polylines || !Array.isArray(data.polylines)) {
       throw new Error("Invalid data structure - no polylines array");
     }
-    
-    const polylines = data.polylines;
-    let addedCount = 0;
-    
-    for (let i = 0; i < polylines.length; i++) {
-      const segment = polylines[i];
-      if (!Array.isArray(segment) || segment.length < 3) continue;
-      
-      const oldColor = segment[0];
-      const opacity = segment[1];
-      const coords = segment.slice(2);
-      
-      if (coords.length === 0) continue;
-      
-      // Map to official TfL color
-      const color = COLOR_MAP[oldColor] || oldColor;
-      
-      L.polyline(coords, {
-        color: color,
-        weight: 4,
-        opacity: 0.8,
-        smoothFactor: 1,
-        className: 'tfl-line'
-      }).addTo(layers.underground);
-      
-      addedCount++;
-    }
-    
-    console.log(`✓ TfL route lines loaded: ${addedCount} segments`);
-  })
-  .catch(e => {
-    console.error("✗ TfL route lines failed:", e.message);
-  });
 
-// ══════════════════════════════════════════════════════
+    let addedCount = 0;
+    for (const segment of data.polylines) {
+      if (!Array.isArray(segment) || segment.length < 3) continue;
+
+      const sourceColor = String(segment[0] || "").toLowerCase();
+      const meta = TFL_COLOR_TO_META[sourceColor];
+      const coords = segment.slice(2);
+      if (!coords.length || !meta) continue;
+
+      if (!window._tflRouteRegistry[meta.id]) {
+        window._tflRouteRegistry[meta.id] = {
+          id: meta.id,
+          name: meta.name,
+          color: meta.color,
+          segments: []
+        };
+      }
+
+      const routeSegment = L.polyline(coords, {
+        color: meta.color,
+        weight: 4,
+        opacity: 0.82,
+        smoothFactor: 1,
+        className: "tfl-line",
+        pane: "tflRoutesPane"
+      }).addTo(layers.underground);
+
+      routeSegment.on("click", (ev) => {
+        L.DomEvent.stop(ev);
+        window.selectTflLine(meta.id);
+      });
+      routeSegment.bindTooltip(meta.name, { sticky: true, opacity: 0.9, direction: "top" });
+
+      window._tflRouteRegistry[meta.id].segments.push(routeSegment);
+      addedCount += 1;
+    }
+
+    window.updateTflLineStylesFromStatus(window._lastTflStatuses);
+    console.log(`TfL route lines loaded: ${addedCount} segments`);
+  })
+  .catch((e) => {
+    console.error("TfL route lines failed:", e.message);
+  });
 // UI
-// ══════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
 function getCriteriaFromUI() {
   return {
@@ -1374,7 +2583,7 @@ function getCriteriaFromUI() {
 function pickSeed(c) { return c.number || c.postcode || c.name || c.town || ""; }
 function escapeHtml(s) { const d = document.createElement("div"); d.textContent = s; return d.innerHTML; }
 
-// ── Company Results list ──
+// â”€â”€ Company Results list â”€â”€
 const MAX_VISIBLE = 50;
 function renderResults(container, rows, isPartial) {
   container.innerHTML = "";
@@ -1394,7 +2603,7 @@ function renderResults(container, rows, isPartial) {
   }
 }
 
-// ── PSC Results list ──
+// â”€â”€ PSC Results list â”€â”€
 function renderPscResults(container, results, mode) {
   container.innerHTML = "";
   if (!results.length) {
@@ -1499,7 +2708,7 @@ async function lookupAndPlotCompanies(companyNumbers) {
   }
 }
 
-// ── Live search ──
+// â”€â”€ Live search â”€â”€
 let _seq = 0;
 function liveSearch(container) {
   const c = getCriteriaFromUI(), seed = pickSeed(c).trim();
@@ -1514,45 +2723,56 @@ function liveSearch(container) {
   renderResults(container, matches, Object.keys(CH_CACHE).length < CH_INDEX.length);
 }
 
-// ── Plot companies ──
+// â”€â”€ Plot companies â”€â”€
 async function plotCompanies(rows, clearFirst = false) {
   if (clearFirst) layers.companies.clearLayers();
   if (!rows.length) { setStatus("No companies to plot"); return; }
   setStatus(`Plotting ${rows.length} compan${rows.length===1?"y":"ies"}...`);
-  await ensurePostcodesForRows(rows);
   let plotted = 0;
+  let skipped = 0;
+  const failedPostcodes = new Set();
   for (const r of rows) {
-    const raw = r["RegAddress.PostCode"]; if (!raw) continue;
-    const pc = raw.toUpperCase().replace(/[^A-Z0-9]/g, ""); if (!pc) continue;
-    const co = lookupPostcode(pc); if (!co) continue;
+    try {
+      const raw = r["RegAddress.PostCode"];
+      if (!raw) { skipped++; continue; }
+      const co = await geocodePostcode(raw);
+      if (!co || !Number.isFinite(co.lat) || !Number.isFinite(co.lon)) {
+        skipped++;
+        failedPostcodes.add(String(raw).trim().toUpperCase());
+        continue;
+      }
 
-    const coNum = escapeHtml(r.CompanyNumber);
-    const companyName = escapeHtml(r.CompanyName);
-    const popup =
-      `<strong>${companyName}</strong>` +
-      `<span class="popup-label">Company #</span> ${coNum}<br>` +
-      (r["RegAddress.AddressLine1"] ? escapeHtml(r["RegAddress.AddressLine1"]) + "<br>" : "") +
-      (r["RegAddress.PostTown"] ? escapeHtml(r["RegAddress.PostTown"]) + " " : "") + escapeHtml(raw) +
-      (r.CompanyStatus ? `<br><span class="popup-label">Status</span> <span class="popup-tag">${escapeHtml(r.CompanyStatus)}</span>` : "") +
-      (r["SICCode.SicText_1"] ? `<br><span class="popup-label">SIC</span> ${escapeHtml(r["SICCode.SicText_1"])}` : "") +
-      `<div class="popup-btn-row">` +
-      `<button class="popup-psc-btn" onclick="viewCompanyPsc('${coNum}', '${companyName.replace(/'/g, "\\'")}')">View PSC</button>` +
-      `<button class="popup-psc-btn" onclick="downloadCompanyProfile('${coNum}', '${companyName.replace(/'/g, "\\'")}')">Profile PDF</button>` +
-      `<button class="popup-psc-btn" onclick="downloadFilingHistory('${coNum}', '${companyName.replace(/'/g, "\\'")}')">Filings PDF</button>` +
-      `</div>`;
+      const coNum = escapeHtml(r.CompanyNumber);
+      const companyName = escapeHtml(r.CompanyName);
+      const popup =
+        `<strong>${companyName}</strong>` +
+        `<span class="popup-label">Company #</span> ${coNum}<br>` +
+        (r["RegAddress.AddressLine1"] ? escapeHtml(r["RegAddress.AddressLine1"]) + "<br>" : "") +
+        (r["RegAddress.PostTown"] ? escapeHtml(r["RegAddress.PostTown"]) + " " : "") + escapeHtml(raw) +
+        (r.CompanyStatus ? `<br><span class="popup-label">Status</span> <span class="popup-tag">${escapeHtml(r.CompanyStatus)}</span>` : "") +
+        (r["SICCode.SicText_1"] ? `<br><span class="popup-label">SIC</span> ${escapeHtml(r["SICCode.SicText_1"])}` : "") +
+        `<div class="popup-btn-row">` +
+        `<button class="popup-psc-btn" onclick="viewCompanyPsc('${coNum}', '${companyName.replace(/'/g, "\\'")}')">View PSC</button>` +
+        `<button class="popup-psc-btn" onclick="downloadCompanyProfile('${coNum}', '${companyName.replace(/'/g, "\\'")}')">Profile PDF</button>` +
+        `<button class="popup-psc-btn" onclick="downloadFilingHistory('${coNum}', '${companyName.replace(/'/g, "\\'")}')">Filings PDF</button>` +
+        `</div>`;
 
-    // Use custom icon or circle marker
-    const useCircle = window._useCircleMarkers !== false;
-    const marker = createCustomMarker([co.lat, co.lon], 'company', 'standard', useCircle);
-    marker.bindPopup(popup).addTo(layers.companies);
-    
-    // Add click handler to highlight connections
-    marker.on('click', function(e) {
-      L.DomEvent.stopPropagation(e);
-      highlightConnections(marker.getLatLng());
-    });
-    
-    plotted++;
+      // Use custom icon or circle marker
+      const useCircle = window._useCircleMarkers !== false;
+      const marker = createCustomMarker([co.lat, co.lon], 'company', 'standard', useCircle);
+      marker.bindPopup(popup).addTo(layers.companies);
+
+      // Add click handler to highlight connections
+      marker.on('click', function(e) {
+        L.DomEvent.stopPropagation(e);
+        highlightConnections(marker.getLatLng());
+      });
+
+      plotted++;
+    } catch (err) {
+      skipped++;
+      console.warn("Skipping company row due to plot error:", r?.CompanyNumber || r, err);
+    }
   }
   if (plotted) {
     if (!map.hasLayer(layers.companies)) {
@@ -1561,9 +2781,16 @@ async function plotCompanies(rows, clearFirst = false) {
       if (cb) cb.checked = true;
     }
     map.fitBounds(layers.companies.getBounds(), { padding: [40, 40] });
-    setStatus(`${plotted} compan${plotted===1?"y":"ies"} plotted`);
+    const suffix = skipped ? ` (${skipped} skipped)` : "";
+    setStatus(`${plotted} compan${plotted===1?"y":"ies"} plotted${suffix}`);
+    if (failedPostcodes.size) {
+      console.warn("Company geocode failed postcodes (sample):", Array.from(failedPostcodes).slice(0, 20));
+    }
   } else {
     setStatus(`No geocodable postcodes in ${rows.length} results`);
+    if (failedPostcodes.size) {
+      console.warn("No companies plotted, failed postcodes (sample):", Array.from(failedPostcodes).slice(0, 40));
+    }
   }
 }
 
@@ -1745,9 +2972,9 @@ async function addPersonToMap(officerName, address, companies = []) {
   }
 }
 
-// ══════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // API-BASED SEARCH (REPLACES LOCAL FILE SEARCH)
-// ══════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
 async function searchCompaniesViaAPI(criteria, limit = 100) {
   // Primary search by company name or number
@@ -1755,6 +2982,8 @@ async function searchCompaniesViaAPI(criteria, limit = 100) {
   const numberQuery = criteria.number?.trim() || "";
   const postcodeFilter = criteria.postcode?.trim().toLowerCase() || "";
   const townFilter = criteria.town?.trim().toLowerCase() || "";
+  const statusFilter = criteria.status?.trim().toLowerCase() || "";
+  const sicFilter = criteria.sic?.trim() || "";
   
   const query = nameQuery || numberQuery;
   if (!query || query.length < 2) {
@@ -1800,14 +3029,14 @@ async function searchCompaniesViaAPI(criteria, limit = 100) {
     // Filter by company status
     if (statusFilter) {
       results = results.filter(r => 
-        r.CompanyStatus.toLowerCase().includes(statusFilter)
+        (r.CompanyStatus || "").toLowerCase().includes(statusFilter)
       );
     }
     
     // Filter by SIC code
     if (sicFilter) {
       results = results.filter(r => 
-        r._rawSicCodes.some(sic => sic.includes(sicFilter))
+        (r._rawSicCodes || []).some(sic => String(sic).includes(sicFilter))
       );
     }
     
@@ -1818,7 +3047,7 @@ async function searchCompaniesViaAPI(criteria, limit = 100) {
   }
 }
 
-// ── Clear ──
+// â”€â”€ Clear â”€â”€
 function clearAll() {
   _searchAbort = true;
   if (confirm('Clear all companies from map?')) {
@@ -1840,7 +3069,7 @@ function clearPsc() {
   setStatus("Ready");
 }
 
-// ── PSC Search handler (NOW USES API) ──
+// â”€â”€ PSC Search handler (NOW USES API) â”€â”€
 async function runPscSearch() {
   const nameVal = document.getElementById("psc_name")?.value?.trim() || "";
   const coVal = document.getElementById("psc_company")?.value?.trim() || "";
@@ -1899,13 +3128,13 @@ async function runPscSearch() {
         card.dataset.officerAddress = JSON.stringify(officer.address || {});
         
         card.innerHTML = `
-          <div class="ch-r-name">${escapeHtml(officer.title || officer.name || 'Unknown')} <span class="expand-icon">▶</span></div>
+          <div class="ch-r-name">${escapeHtml(officer.title || officer.name || 'Unknown')} <span class="expand-icon">></span></div>
           <div class="ch-r-detail">
             ${officer.appointment_count ? `${officer.appointment_count} appointment${officer.appointment_count === 1 ? '' : 's'}` : ''}
-            ${officer.date_of_birth ? ` • Born ${officer.date_of_birth.month}/${officer.date_of_birth.year}` : ''}
+            ${officer.date_of_birth ? ` - Born ${officer.date_of_birth.month}/${officer.date_of_birth.year}` : ''}
             ${officer.address_snippet ? `<br>${escapeHtml(officer.address_snippet)}` : ''}
           </div>
-          ${officer.address?.postal_code ? `<button class="btn-add-company btn-sm" style="margin-top: 6px;" onclick='event.stopPropagation(); addPersonToMap("${escapeHtml(officer.title || officer.name || 'Unknown').replace(/"/g, '&quot;')}", ${JSON.stringify(officer.address)}, [])'>📍 Add Person to Map</button>` : ''}
+          ${officer.address?.postal_code ? `<button class="btn-add-company btn-sm" style="margin-top: 6px;" onclick='event.stopPropagation(); addPersonToMap("${escapeHtml(officer.title || officer.name || 'Unknown').replace(/"/g, '&quot;')}", ${JSON.stringify(officer.address)}, [])'>Add Person to Map</button>` : ''}
           <div class="officer-companies" style="display: none;">
             <div class="officer-loading">Loading appointments...</div>
           </div>
@@ -1921,10 +3150,10 @@ async function runPscSearch() {
           
           if (isExpanded) {
             companiesDiv.style.display = 'none';
-            expandIcon.textContent = '▶';
+            expandIcon.textContent = '>';
           } else {
             companiesDiv.style.display = 'block';
-            expandIcon.textContent = '▼';
+            expandIcon.textContent = 'v';
             
             // Fetch appointments if not already loaded
             if (!companiesDiv.dataset.loaded) {
@@ -1946,8 +3175,8 @@ async function runPscSearch() {
                     <div class="officer-company-name">${escapeHtml(appt.appointed_to?.company_name || 'Unknown Company')}</div>
                     <div class="officer-company-detail">
                       #${escapeHtml(appt.appointed_to?.company_number || 'N/A')}
-                      ${appt.officer_role ? ` • ${escapeHtml(appt.officer_role)}` : ''}
-                      ${appt.appointed_on ? ` • Since ${appt.appointed_on}` : ''}
+                      ${appt.officer_role ? ` - ${escapeHtml(appt.officer_role)}` : ''}
+                      ${appt.appointed_on ? ` - Since ${appt.appointed_on}` : ''}
                     </div>
                     <button class="btn-add-company btn-sm" 
                             data-company-number="${escapeHtml(appt.appointed_to?.company_number || '')}"
@@ -1955,7 +3184,7 @@ async function runPscSearch() {
                             data-officer-name="${card.dataset.officerName}"
                             data-officer-role="${escapeHtml(appt.officer_role || 'officer')}"
                             data-appointed-on="${escapeHtml(appt.appointed_on || '')}">
-                      ➕ Add to Map
+                      Add to Map
                     </button>
                   `;
                   companiesDiv.appendChild(companyItem);
@@ -2003,76 +3232,117 @@ async function runPscSearch() {
   }
 }
 
-// ══════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // BOOTSTRAP
-// ══════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
 document.addEventListener("DOMContentLoaded", async () => {
   setStatus("Initializing...");
   // Only load company index for compatibility (not used for search anymore)
   await loadCompaniesHouseIndex().catch(() => console.log('Legacy company index not loaded'));
 
-  setStatus(`Ready — Live API search enabled ✓`);
+  setStatus("Ready - Live API search enabled");
   
-  // Initialize entity selector
+  // Initialize i2 catalog first so entity selector can list every i2 entity type.
+  await initI2EntityCatalog();
   initializeEntitySelector();
   
   // Entity placement panel handlers
   const entityCategorySelect = document.getElementById('entity-category');
   const entityIconSelect = document.getElementById('entity-icon');
+  const entityI2TypeSelect = document.getElementById('entity-i2-type');
   const entityLabelInput = document.getElementById('entity-label');
   const entityForm = document.getElementById('entity-placement-form');
+  const entityI2FieldsWrap = document.getElementById('entity-i2-fields');
   const entityPanelClose = document.getElementById('entity-panel-close');
   const entityCancelBtn = document.getElementById('entity-cancel-btn');
+  const entityImportFile = document.getElementById('entity-import-file');
+  const entityImportRunBtn = document.getElementById('entity-import-run');
+  const entityImportClearBtn = document.getElementById('entity-import-clear');
   
   // Category change handler
   entityCategorySelect?.addEventListener('change', (e) => {
     const category = e.target.value;
+    ENTITY_ICON_MANUAL_OVERRIDE = false;
     updateIconDropdown(category);
-    
-    // Try to auto-suggest icon based on label
-    const label = entityLabelInput.value;
-    if (label && category) {
-      const suggested = suggestIcon(label, category);
-      if (suggested) {
-        const icons = ICON_CATEGORIES[category].icons;
-        const index = icons.findIndex(icon => icon.name === suggested.name);
-        if (index >= 0) {
-          entityIconSelect.value = index;
-        }
-      }
+    const defaultI2Entity = defaultI2EntityForCategory(category);
+    if (defaultI2Entity && entityI2TypeSelect) {
+      entityI2TypeSelect.value = defaultI2Entity.entity_id;
+      renderI2FieldsForType(defaultI2Entity.entity_id);
     }
+    autoSelectIconFromI2Fields(true);
+  });
+
+  entityI2TypeSelect?.addEventListener('change', (e) => {
+    const mappedCategory = defaultCategoryForI2Entity(e.target.value);
+    if (mappedCategory && entityCategorySelect && ICON_CATEGORIES[mappedCategory]) {
+      entityCategorySelect.value = mappedCategory;
+      ENTITY_ICON_MANUAL_OVERRIDE = false;
+      updateIconDropdown(mappedCategory);
+    }
+    renderI2FieldsForType(e.target.value);
+    autoSelectIconFromI2Fields(true);
   });
   
-  // Label input handler - auto-suggest icon
+  // Label input handler - auto-suggest icon (unless user locked icon)
   entityLabelInput?.addEventListener('input', (e) => {
     const label = e.target.value;
     const category = entityCategorySelect.value;
     
     if (label && category) {
-      const suggested = suggestIcon(label, category);
-      if (suggested) {
-        const icons = ICON_CATEGORIES[category].icons;
-        const index = icons.findIndex(icon => icon.name === suggested.name);
-        if (index >= 0) {
-          entityIconSelect.value = index;
-        }
-      }
+      autoSelectIconFromI2Fields(false);
     }
+  });
+
+  entityIconSelect?.addEventListener('change', () => {
+    ENTITY_ICON_MANUAL_OVERRIDE = true;
+  });
+
+  entityI2FieldsWrap?.addEventListener('change', () => {
+    const activeField = document.activeElement;
+    if (activeField && activeField.matches && activeField.matches("[data-i2-property-id]")) {
+      activeField.dataset.autogen = "0";
+    }
+    const addrField = getI2FieldByNames(["Address String", "Address"]);
+    if (addrField && document.activeElement === addrField) {
+      addrField.dataset.autogen = "0";
+    }
+    syncAddressStringDerivedFields();
+    updateWarningMarkerVisibility();
+    autoSelectIconFromI2Fields(false);
+  });
+  entityI2FieldsWrap?.addEventListener('input', () => {
+    const activeField = document.activeElement;
+    if (activeField && activeField.matches && activeField.matches("[data-i2-property-id]")) {
+      activeField.dataset.autogen = "0";
+    }
+    const addrField = getI2FieldByNames(["Address String", "Address"]);
+    if (addrField && document.activeElement === addrField) {
+      addrField.dataset.autogen = "0";
+    }
+    syncAddressStringDerivedFields();
+    autoSelectIconFromI2Fields(false);
   });
   
   // Form submission handler
-  entityForm?.addEventListener('submit', (e) => {
+  entityForm?.addEventListener('submit', async (e) => {
     e.preventDefault();
     
-    const label = entityLabelInput.value.trim();
+    const rawLabel = entityLabelInput.value.trim();
     const categoryKey = entityCategorySelect.value;
     const iconIndex = parseInt(entityIconSelect.value);
-    const address = document.getElementById('entity-address').value.trim();
-    const notes = document.getElementById('entity-notes').value.trim();
     const latLng = window._pendingEntityLatLng;
+    const i2EntityData = collectI2EntityFormData();
+    if (!i2EntityData) {
+      alert('Select an i2 entity type for this entity');
+      return;
+    }
+    if (i2EntityData && i2EntityData.error) {
+      alert(i2EntityData.error);
+      return;
+    }
     
-    if (!label || !categoryKey || isNaN(iconIndex) || !latLng) {
+    if (!categoryKey || isNaN(iconIndex) || !latLng) {
       alert('Please fill in all required fields');
       return;
     }
@@ -2081,20 +3351,72 @@ document.addEventListener("DOMContentLoaded", async () => {
     const iconData = {...category.icons[iconIndex]};
     iconData.categoryColor = category.color;
     iconData.categoryName = category.name;
+    const label = inferEntityLabel(rawLabel, i2EntityData, iconData.name);
+    const manualPlacementAddress = String(document.getElementById("entity-placement-address")?.value || "").trim();
+    const address = inferEntityAddress(i2EntityData) || manualPlacementAddress;
+    const notes = inferEntityNotes(i2EntityData);
+    if (!label) {
+      alert('Please enter a label or complete i2 name fields');
+      return;
+    }
     
+    // Prefer postcode geocode from i2 fields when available.
+    let placementLatLng = latLng;
+    const postcode = getI2ValueByNames(i2EntityData, ["Post Code", "Postal Code", "Postcode"]);
+    const addressString = getI2ValueByNames(i2EntityData, ["Address String", "Address"]) || manualPlacementAddress;
+    const extractedPostcode = !postcode ? extractUkPostcode(addressString) : "";
+    let usedPostcodeGeo = false;
+    const geoPostcode = postcode || extractedPostcode;
+    if (geoPostcode) {
+      const geo = await geocodePostcode(geoPostcode);
+      if (geo && Number.isFinite(geo.lat) && Number.isFinite(geo.lon)) {
+        placementLatLng = [geo.lat, geo.lon];
+        usedPostcodeGeo = true;
+      }
+    }
+
     // Place the entity
-    placeEntity(latLng, iconData, label, address, notes);
-    map.panTo(latLng);
+    placeEntity(placementLatLng, iconData, label, address, notes, i2EntityData);
+    map.panTo(placementLatLng);
     
     // Close panel
     closeEntityPanel();
     
-    setStatus(`Placed: ${label}`);
+    setStatus(usedPostcodeGeo ? `Placed: ${label} (address/postcode geocoded)` : `Placed: ${label}`);
   });
   
   // Close button handlers
   entityPanelClose?.addEventListener('click', closeEntityPanel);
   entityCancelBtn?.addEventListener('click', closeEntityPanel);
+
+  entityImportRunBtn?.addEventListener('click', async () => {
+    const file = entityImportFile?.files?.[0];
+    const summaryEl = document.getElementById('entity-import-summary');
+    if (!file) {
+      if (summaryEl) summaryEl.textContent = 'Choose an Excel/CSV file first.';
+      return;
+    }
+
+    if (summaryEl) summaryEl.textContent = `Parsing ${file.name}...`;
+    setStatus(`Importing ${file.name}...`);
+    try {
+      const rows = await readSpreadsheetRows(file);
+      await importEntitiesFromRows(rows);
+    } catch (err) {
+      console.error('Entity import failed:', err);
+      if (summaryEl) summaryEl.textContent = `Import failed: ${err.message || err}`;
+      setStatus('Entity import failed');
+    }
+  });
+
+  entityImportClearBtn?.addEventListener('click', () => {
+    if (window._importedEntityIds.size === 0) {
+      const summaryEl = document.getElementById('entity-import-summary');
+      if (summaryEl) summaryEl.textContent = 'No imported entities to clear.';
+      return;
+    }
+    clearImportedEntities();
+  });
 
   const resultsDiv = document.getElementById("ch_results");
   const pscResultsDiv = document.getElementById("psc_results");
@@ -2109,13 +3431,13 @@ document.addEventListener("DOMContentLoaded", async () => {
   const pscInputs = ["psc_name","psc_company"]
     .map(id => document.getElementById(id)).filter(Boolean);
 
-  // ── Panel collapse ──
+  // â”€â”€ Panel collapse â”€â”€
   toggleBtn?.addEventListener("click", () => {
     body.classList.toggle("collapsed");
     toggleBtn.textContent = body.classList.contains("collapsed") ? "+" : "\u2212";
   });
 
-  // ── Tabs ──
+  // â”€â”€ Tabs â”€â”€
   document.querySelectorAll(".cp-tab").forEach(tab => {
     tab.addEventListener("click", () => {
       document.querySelectorAll(".cp-tab").forEach(t => t.classList.remove("active"));
@@ -2125,7 +3447,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   });
 
-  // ── Base layer pills ──
+  // â”€â”€ Base layer pills â”€â”€
   document.querySelectorAll(".bl-pill").forEach(pill => {
     pill.addEventListener("click", () => {
       const name = pill.dataset.base;
@@ -2138,21 +3460,31 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   });
 
-  // ── Overlay toggles ──
+  // â”€â”€ Overlay toggles â”€â”€
+  function syncLayerToolBlocks() {
+    document.querySelectorAll("[data-layer-tools]").forEach((el) => {
+      const layerId = el.getAttribute("data-layer-tools");
+      const cb = document.querySelector(`.layer-cb[data-layer="${layerId}"]`);
+      const enabled = !!cb?.checked;
+      el.classList.toggle("hidden", !enabled);
+    });
+  }
   document.querySelectorAll(".layer-cb").forEach(cb => {
     cb.addEventListener("change", () => {
       const layer = layers[cb.dataset.layer];
       if (!layer) return;
       if (cb.checked) { layer.addTo(map); }
       else { map.removeLayer(layer); }
+      syncLayerToolBlocks();
     });
   });
+  syncLayerToolBlocks();
 
-  // ── Live company search DISABLED (now using API on button click) ──
+  // â”€â”€ Live company search DISABLED (now using API on button click) â”€â”€
   // const debouncedSearch = debounce(() => liveSearch(resultsDiv), 300);
   // inputs.forEach(input => input.addEventListener("input", debouncedSearch));
 
-  // ── Full company search (NOW USES API) ──
+  // â”€â”€ Full company search (NOW USES API) â”€â”€
   const runSearch = async () => {
     const criteria = getCriteriaFromUI();
     if (!pickSeed(criteria).trim()) return;
@@ -2164,13 +3496,18 @@ document.addEventListener("DOMContentLoaded", async () => {
     
     try {
       const matches = await searchCompaniesViaAPI(criteria, 100);
-      
-      hideProgress(); 
+
+      hideProgress();
       CH_LAST_RESULTS = matches;
       renderResults(resultsDiv, matches, false);
-      
+
       if (matches.length) {
-        await plotCompanies(matches);
+        try {
+          await plotCompanies(matches);
+        } catch (plotErr) {
+          console.error("Plotting error:", plotErr);
+          setStatus(`Search returned ${matches.length} result${matches.length === 1 ? "" : "s"}; some map points could not be plotted`);
+        }
       } else {
         setStatus("No matches found");
       }
@@ -2184,13 +3521,13 @@ document.addEventListener("DOMContentLoaded", async () => {
   btn?.addEventListener("click", runSearch);
   inputs.forEach(input => input.addEventListener("keydown", e => { if (e.key === "Enter") runSearch(); }));
 
-  // ── Clear company ──
+  // â”€â”€ Clear company â”€â”€
   clearBtn?.addEventListener("click", clearAll);
 
-  // ── PSC search ──
+  // â”€â”€ PSC search â”€â”€
   pscBtn?.addEventListener("click", runPscSearch);
   pscInputs.forEach(input => input.addEventListener("keydown", e => { if (e.key === "Enter") runPscSearch(); }));
 
-  // ── Clear PSC ──
+  // â”€â”€ Clear PSC â”€â”€
   pscClearBtn?.addEventListener("click", clearPsc);
 });

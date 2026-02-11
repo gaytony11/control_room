@@ -1,0 +1,97 @@
+{
+  "metadata": {
+    "template_file": "Quick Look - A to B Events.oimp",
+    "source_type": "File",
+    "rows_processed": 3,
+    "nodes": 4,
+    "edges": 2
+  },
+  "nodes": [
+    {
+      "id": "N-79f38fe82d0d",
+      "type_id": "ET8",
+      "type_name": "Communication Entity",
+      "label": "447700900001",
+      "properties": {
+        "Unique Identifier": "447700900001"
+      },
+      "identity_key": "ET8|IDRULE|447700900001",
+      "source_row": 1
+    },
+    {
+      "id": "N-1b93b20680e4",
+      "type_id": "ET8",
+      "type_name": "Communication Entity",
+      "label": "447700900002",
+      "properties": {
+        "Unique Identifier": "447700900002"
+      },
+      "identity_key": "ET8|IDRULE|447700900002",
+      "source_row": 1
+    },
+    {
+      "id": "N-aafc963e6807",
+      "type_id": "ET8",
+      "type_name": "Communication Entity",
+      "label": "447700900003",
+      "properties": {
+        "Unique Identifier": "447700900003"
+      },
+      "identity_key": "ET8|IDRULE|447700900003",
+      "source_row": 3
+    },
+    {
+      "id": "N-380bdccb374f",
+      "type_id": "ET8",
+      "type_name": "Communication Entity",
+      "label": "447700900004",
+      "properties": {
+        "Unique Identifier": "447700900004"
+      },
+      "identity_key": "ET8|IDRULE|447700900004",
+      "source_row": 3
+    }
+  ],
+  "edges": [
+    {
+      "id": "E-96a2c1b74122",
+      "type_id": "LT15",
+      "type_name": "Communication Link",
+      "source": "N-79f38fe82d0d",
+      "target": "N-1b93b20680e4",
+      "properties": {
+        "Link Type": "Comms Data",
+        "Weekday": "Monday",
+        "Start Date and Time": "",
+        "Duration": "",
+        "End Date and Time": "",
+        "Event Type": "Voice",
+        "Entity A Calling": "447700900001",
+        "Entity B Called": "447700900002",
+        "Communication Content": "Call from A to B"
+      },
+      "identity_key": "LT15|IDRULE||Voice|447700900001|447700900002",
+      "source_row": 1
+    },
+    {
+      "id": "E-b82fd119d76a",
+      "type_id": "LT15",
+      "type_name": "Communication Link",
+      "source": "N-aafc963e6807",
+      "target": "N-380bdccb374f",
+      "properties": {
+        "Link Type": "Comms Data",
+        "Weekday": "Tuesday",
+        "Start Date and Time": "",
+        "Duration": "",
+        "End Date and Time": "",
+        "Event Type": "SMS",
+        "Entity A Calling": "447700900003",
+        "Entity B Called": "447700900004",
+        "Communication Content": "Message from C to D"
+      },
+      "identity_key": "LT15|IDRULE||SMS|447700900003|447700900004",
+      "source_row": 3
+    }
+  ]
+}

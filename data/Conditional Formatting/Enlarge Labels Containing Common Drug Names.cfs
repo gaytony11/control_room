@@ -1,0 +1,422 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<FormattingRuleSet Version="1.0">
+  <Rules>
+    <FormattingRule>
+      <Target>
+        <AllEntitiesTarget />
+      </Target>
+      <Parameter>
+        <AnalysisAttributeParameter AnalysisAttributeId="17" />
+      </Parameter>
+      <Style>
+        <LabelStyle />
+      </Style>
+      <Value>
+        <MappedValue>
+          <Mappings>
+            <MappingEntry KeyComparison="Contains">
+              <Key>
+                <String>Amphetamines</String>
+              </Key>
+              <Value>
+                <TextFormat Bold="True" FontSize="VeryLarge" />
+              </Value>
+            </MappingEntry>
+            <MappingEntry KeyComparison="Contains">
+              <Key>
+                <String>Amyl Nitrate</String>
+              </Key>
+              <Value>
+                <TextFormat Bold="True" FontSize="VeryLarge" />
+              </Value>
+            </MappingEntry>
+            <MappingEntry KeyComparison="Contains">
+              <Key>
+                <String>Cannabis</String>
+              </Key>
+              <Value>
+                <TextFormat Bold="True" FontSize="VeryLarge" />
+              </Value>
+            </MappingEntry>
+            <MappingEntry KeyComparison="Contains">
+              <Key>
+                <String>Cocaine</String>
+              </Key>
+              <Value>
+                <TextFormat Bold="True" FontSize="VeryLarge" />
+              </Value>
+            </MappingEntry>
+            <MappingEntry KeyComparison="Contains">
+              <Key>
+                <String>Crystal Meth</String>
+              </Key>
+              <Value>
+                <TextFormat Bold="True" FontSize="VeryLarge" />
+              </Value>
+            </MappingEntry>
+            <MappingEntry KeyComparison="Contains">
+              <Key>
+                <String>Ecstasy</String>
+              </Key>
+              <Value>
+                <TextFormat Bold="True" FontSize="VeryLarge" />
+              </Value>
+            </MappingEntry>
+            <MappingEntry KeyComparison="Contains">
+              <Key>
+                <String>GHB</String>
+              </Key>
+              <Value>
+                <TextFormat Bold="True" FontSize="VeryLarge" />
+              </Value>
+            </MappingEntry>
+            <MappingEntry KeyComparison="Contains">
+              <Key>
+                <String>Heroin</String>
+              </Key>
+              <Value>
+                <TextFormat Bold="True" FontSize="VeryLarge" />
+              </Value>
+            </MappingEntry>
+            <MappingEntry KeyComparison="Contains">
+              <Key>
+                <String>Ketamine</String>
+              </Key>
+              <Value>
+                <TextFormat Bold="True" FontSize="VeryLarge" />
+              </Value>
+            </MappingEntry>
+            <MappingEntry KeyComparison="Contains">
+              <Key>
+                <String>Khat</String>
+              </Key>
+              <Value>
+                <TextFormat Bold="True" FontSize="VeryLarge" />
+              </Value>
+            </MappingEntry>
+            <MappingEntry KeyComparison="Contains">
+              <Key>
+                <String>LSD</String>
+              </Key>
+              <Value>
+                <TextFormat Bold="True" FontSize="VeryLarge" />
+              </Value>
+            </MappingEntry>
+            <MappingEntry KeyComparison="Contains">
+              <Key>
+                <String>Marijuana</String>
+              </Key>
+              <Value>
+                <TextFormat Bold="True" FontSize="VeryLarge" />
+              </Value>
+            </MappingEntry>
+            <MappingEntry KeyComparison="Contains">
+              <Key>
+                <String>Quat</String>
+              </Key>
+              <Value>
+                <TextFormat Bold="True" FontSize="VeryLarge" />
+              </Value>
+            </MappingEntry>
+            <MappingEntry KeyComparison="Contains">
+              <Key>
+                <String>Rohypnol</String>
+              </Key>
+              <Value>
+                <TextFormat Bold="True" FontSize="VeryLarge" />
+              </Value>
+            </MappingEntry>
+            <MappingEntry KeyComparison="Contains">
+              <Key>
+                <String>Weed</String>
+              </Key>
+              <Value>
+                <TextFormat Bold="True" FontSize="VeryLarge" />
+              </Value>
+            </MappingEntry>
+            <MappingEntry KeyComparison="Contains">
+              <Key>
+                <String>Coke</String>
+              </Key>
+              <Value>
+                <TextFormat Bold="True" FontSize="VeryLarge" />
+              </Value>
+            </MappingEntry>
+            <MappingEntry KeyComparison="Contains">
+              <Key>
+                <String>Poppers</String>
+              </Key>
+              <Value>
+                <TextFormat Bold="True" FontSize="VeryLarge" />
+              </Value>
+            </MappingEntry>
+            <MappingEntry KeyComparison="Contains">
+              <Key>
+                <String>Uppers</String>
+              </Key>
+              <Value>
+                <TextFormat Bold="True" FontSize="VeryLarge" />
+              </Value>
+            </MappingEntry>
+            <MappingEntry KeyComparison="Contains">
+              <Key>
+                <String>Downers</String>
+              </Key>
+              <Value>
+                <TextFormat Bold="True" FontSize="VeryLarge" />
+              </Value>
+            </MappingEntry>
+            <MappingEntry KeyComparison="Contains">
+              <Key>
+                <String>Acid</String>
+              </Key>
+              <Value>
+                <TextFormat Bold="True" FontSize="VeryLarge" />
+              </Value>
+            </MappingEntry>
+            <MappingEntry KeyComparison="Contains">
+              <Key>
+                <String>Marujana</String>
+              </Key>
+              <Value>
+                <TextFormat Bold="True" FontSize="VeryLarge" />
+              </Value>
+            </MappingEntry>
+            <MappingEntry KeyComparison="Contains">
+              <Key>
+                <String>L.S.D.</String>
+              </Key>
+              <Value>
+                <TextFormat Bold="True" FontSize="VeryLarge" />
+              </Value>
+            </MappingEntry>
+            <MappingEntry KeyComparison="Contains">
+              <Key>
+                <String>Rohipnol</String>
+              </Key>
+              <Value>
+                <TextFormat Bold="True" FontSize="VeryLarge" />
+              </Value>
+            </MappingEntry>
+          </Mappings>
+          <Default>
+            <TextFormat FontSize="Medium" />
+          </Default>
+        </MappedValue>
+      </Value>
+    </FormattingRule>
+    <FormattingRule>
+      <Target>
+        <AllLinksTarget />
+      </Target>
+      <Parameter>
+        <AnalysisAttributeParameter AnalysisAttributeId="17" />
+      </Parameter>
+      <Style>
+        <LabelStyle />
+      </Style>
+      <Value>
+        <MappedValue>
+          <Mappings>
+            <MappingEntry KeyComparison="Contains">
+              <Key>
+                <String>Amphetamines</String>
+              </Key>
+              <Value>
+                <TextFormat Bold="True" FontSize="VeryLarge" />
+              </Value>
+            </MappingEntry>
+            <MappingEntry KeyComparison="Contains">
+              <Key>
+                <String>Amyl Nitrate</String>
+              </Key>
+              <Value>
+                <TextFormat Bold="True" FontSize="VeryLarge" />
+              </Value>
+            </MappingEntry>
+            <MappingEntry KeyComparison="Contains">
+              <Key>
+                <String>Cannabis</String>
+              </Key>
+              <Value>
+                <TextFormat Bold="True" FontSize="VeryLarge" />
+              </Value>
+            </MappingEntry>
+            <MappingEntry KeyComparison="Contains">
+              <Key>
+                <String>Cocaine</String>
+              </Key>
+              <Value>
+                <TextFormat Bold="True" FontSize="VeryLarge" />
+              </Value>
+            </MappingEntry>
+            <MappingEntry KeyComparison="Contains">
+              <Key>
+                <String>Crystal Meth</String>
+              </Key>
+              <Value>
+                <TextFormat Bold="True" FontSize="VeryLarge" />
+              </Value>
+            </MappingEntry>
+            <MappingEntry KeyComparison="Contains">
+              <Key>
+                <String>Ecstasy</String>
+              </Key>
+              <Value>
+                <TextFormat Bold="True" FontSize="VeryLarge" />
+              </Value>
+            </MappingEntry>
+            <MappingEntry KeyComparison="Contains">
+              <Key>
+                <String>GHB</String>
+              </Key>
+              <Value>
+                <TextFormat Bold="True" FontSize="VeryLarge" />
+              </Value>
+            </MappingEntry>
+            <MappingEntry KeyComparison="Contains">
+              <Key>
+                <String>Heroin</String>
+              </Key>
+              <Value>
+                <TextFormat Bold="True" FontSize="VeryLarge" />
+              </Value>
+            </MappingEntry>
+            <MappingEntry KeyComparison="Contains">
+              <Key>
+                <String>Ketamine</String>
+              </Key>
+              <Value>
+                <TextFormat Bold="True" FontSize="VeryLarge" />
+              </Value>
+            </MappingEntry>
+            <MappingEntry KeyComparison="Contains">
+              <Key>
+                <String>Khat</String>
+              </Key>
+              <Value>
+                <TextFormat Bold="True" FontSize="VeryLarge" />
+              </Value>
+            </MappingEntry>
+            <MappingEntry KeyComparison="Contains">
+              <Key>
+                <String>LSD</String>
+              </Key>
+              <Value>
+                <TextFormat Bold="True" FontSize="VeryLarge" />
+              </Value>
+            </MappingEntry>
+            <MappingEntry KeyComparison="Contains">
+              <Key>
+                <String>Marijuana</String>
+              </Key>
+              <Value>
+                <TextFormat Bold="True" FontSize="VeryLarge" />
+              </Value>
+            </MappingEntry>
+            <MappingEntry KeyComparison="Contains">
+              <Key>
+                <String>Quat</String>
+              </Key>
+              <Value>
+                <TextFormat Bold="True" FontSize="VeryLarge" />
+              </Value>
+            </MappingEntry>
+            <MappingEntry KeyComparison="Contains">
+              <Key>
+                <String>Rohypnol</String>
+              </Key>
+              <Value>
+                <TextFormat Bold="True" FontSize="VeryLarge" />
+              </Value>
+            </MappingEntry>
+            <MappingEntry KeyComparison="Contains">
+              <Key>
+                <String>Weed</String>
+              </Key>
+              <Value>
+                <TextFormat Bold="True" FontSize="VeryLarge" />
+              </Value>
+            </MappingEntry>
+            <MappingEntry KeyComparison="Contains">
+              <Key>
+                <String>Coke</String>
+              </Key>
+              <Value>
+                <TextFormat Bold="True" FontSize="VeryLarge" />
+              </Value>
+            </MappingEntry>
+            <MappingEntry KeyComparison="Contains">
+              <Key>
+                <String>Poppers</String>
+              </Key>
+              <Value>
+                <TextFormat Bold="True" FontSize="VeryLarge" />
+              </Value>
+            </MappingEntry>
+            <MappingEntry KeyComparison="Contains">
+              <Key>
+                <String>Uppers</String>
+              </Key>
+              <Value>
+                <TextFormat Bold="True" FontSize="VeryLarge" />
+              </Value>
+            </MappingEntry>
+            <MappingEntry KeyComparison="Contains">
+              <Key>
+                <String>Downers</String>
+              </Key>
+              <Value>
+                <TextFormat Bold="True" FontSize="VeryLarge" />
+              </Value>
+            </MappingEntry>
+            <MappingEntry KeyComparison="Contains">
+              <Key>
+                <String>Acid</String>
+              </Key>
+              <Value>
+                <TextFormat Bold="True" FontSize="VeryLarge" />
+              </Value>
+            </MappingEntry>
+            <MappingEntry KeyComparison="Contains">
+              <Key>
+                <String>Marujana</String>
+              </Key>
+              <Value>
+                <TextFormat Bold="True" FontSize="VeryLarge" />
+              </Value>
+            </MappingEntry>
+            <MappingEntry KeyComparison="Contains">
+              <Key>
+                <String>L.S.D.</String>
+              </Key>
+              <Value>
+                <TextFormat Bold="True" FontSize="VeryLarge" />
+              </Value>
+            </MappingEntry>
+            <MappingEntry KeyComparison="Contains">
+              <Key>
+                <String>Rohipnol</String>
+              </Key>
+              <Value>
+                <TextFormat Bold="True" FontSize="VeryLarge" />
+              </Value>
+            </MappingEntry>
+          </Mappings>
+          <Default>
+            <TextFormat FontSize="Medium" />
+          </Default>
+        </MappedValue>
+      </Value>
+    </FormattingRule>
+  </Rules>
+  <Details>
+    <Subject Value="Use a lookup table to check entity and link labels for common dug names" />
+    <Author Value="&lt;your name&gt;" />
+    <Keywords Value="Enlargement, Labels,Links, Drugs, &quot;Common Drug Names&quot;, &quot;Lookup Table&quot;" />
+    <Category Value="General" />
+    <Comments>This specification uses a lookup table to check the label text of entities and links for common drug names. If the label contains one of the entries in the lookup table, the entity or link label is set to very large bold text. (Some common misspellings and street names have also been included)</Comments>
+    <DateCreated Value="2009-05-13T13:47:29.3396788+01:00" />
+    <DateModified Value="2009-05-13T13:47:29.3396788+01:00" />
+  </Details>
+</FormattingRuleSet>

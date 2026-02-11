@@ -1,0 +1,30 @@
+{
+  "metadata": {
+    "template_file": "01. Comms Import - Entity list - Manual System Matched.oimp",
+    "source_type": "Clipboard",
+    "rows_processed": 2,
+    "nodes": 2,
+    "edges": 0
+  },
+  "nodes": [
+    {
+      "id": "N-e5ed92fff944",
+      "type_id": "ET8",
+      "type_name": "Communication Entity",
+      "label": "Communication Entity",
+      "properties": {},
+      "identity_key": "",
+      "source_row": 1
+    },
+    {
+      "id": "N-0247084208b2",
+      "type_id": "ET8",
+      "type_name": "Communication Entity",
+      "label": "Communication Entity",
+      "properties": {},
+      "identity_key": "",
+      "source_row": 2
+    }
+  ],
+  "edges": []
+}

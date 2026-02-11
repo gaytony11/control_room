@@ -1,0 +1,55 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<FormattingRuleSet Version="2.0">
+  <Rules>
+    <FormattingRule>
+      <Target>
+        <AllEntitiesTarget />
+      </Target>
+      <Parameter>
+        <AttributeParameter ClassName="Eigenvector" />
+      </Parameter>
+      <Style>
+        <IconFrameMarginStyle />
+      </Style>
+      <Value>
+        <UniformScaleValue Scale="i2.Notebook.Analysis.Formatting.Rule.LinearScale" MinimumOutput="0" MaximumOutput="128" UseChartMaximum="True" UseChartMinimum="True">
+          <MinimumInput>
+            <Int32>0</Int32>
+          </MinimumInput>
+          <MaximumInput>
+            <Int32>0</Int32>
+          </MaximumInput>
+        </UniformScaleValue>
+      </Value>
+    </FormattingRule>
+    <FormattingRule>
+      <Target>
+        <AllEntitiesTarget />
+      </Target>
+      <Parameter>
+        <AttributeParameter ClassName="Eigenvector" />
+      </Parameter>
+      <Style>
+        <IconFrameColourStyle />
+      </Style>
+      <Value>
+        <FixedValue>
+          <Value>
+            <Color>51, 102, 255</Color>
+          </Value>
+        </FixedValue>
+      </Value>
+    </FormattingRule>
+  </Rules>
+  <Details>
+    <Subject Value="Use Social Network Analysis Eigenvector values to add and enlarge icon frames" />
+    <Author Value="&lt;your name&gt;" />
+    <Keywords Value="&quot;Icon Frame&quot;, Enlargement, Color, &quot;Social Network Analysis&quot;, Eigenvector" />
+    <Category Value="SNA" />
+    <Comments xml:space="preserve">This specification adds an icon frame and uses a gradual scale to change the icon frame margin width to values between hairline and the maximum value of 128 based on the value of the Social Network Analysis Eigenvector attribute.
+
+This specification also sets the color of all the added icon frames to Light Blue</Comments>
+    <DateCreated Value="2010-03-10T16:29:46.078125+00:00" />
+    <DateModified Value="2010-04-15T14:02:07.406125+01:00" />
+  </Details>
+</FormattingRuleSet>

@@ -1,0 +1,264 @@
+[
+  {
+    "file": "cached-system-match-rules.xml",
+    "rule_count": 44,
+    "rules": [
+      {
+        "display_name": "muv",
+        "item_type_id": "LT15",
+        "active": "true"
+      },
+      {
+        "display_name": "ActionFraudCase",
+        "item_type_id": "ET44",
+        "active": "true"
+      },
+      {
+        "display_name": "ActionFraudNFRC",
+        "item_type_id": "ET36",
+        "active": "true"
+      },
+      {
+        "display_name": "Aircraft",
+        "item_type_id": "ET25",
+        "active": "true"
+      },
+      {
+        "display_name": "Booking",
+        "item_type_id": "ET23",
+        "active": "true"
+      },
+      {
+        "display_name": "Card",
+        "item_type_id": "ET30",
+        "active": "true"
+      },
+      {
+        "display_name": "CommsDataRecord",
+        "item_type_id": "ET19",
+        "active": "true"
+      },
+      {
+        "display_name": "Email",
+        "item_type_id": "ET8",
+        "active": "true"
+      },
+      {
+        "display_name": "Username",
+        "item_type_id": "ET8",
+        "active": "true"
+      },
+      {
+        "display_name": "Phone Number",
+        "item_type_id": "ET8",
+        "active": "true"
+      },
+      {
+        "display_name": "Other",
+        "item_type_id": "ET8",
+        "active": "true"
+      },
+      {
+        "display_name": "Contact",
+        "item_type_id": "ET20",
+        "active": "true"
+      },
+      {
+        "display_name": "Container",
+        "item_type_id": "ET26",
+        "active": "true"
+      },
+      {
+        "display_name": "Document",
+        "item_type_id": "ET6",
+        "active": "true"
+      },
+      {
+        "display_name": "DrivingLicence",
+        "item_type_id": "ET14",
+        "active": "true"
+      },
+      {
+        "display_name": "ExhibitRef",
+        "item_type_id": "ET17",
+        "active": "true"
+      },
+      {
+        "display_name": "BankAccandSC",
+        "item_type_id": "ET10",
+        "active": "true"
+      },
+      {
+        "display_name": "Crypto",
+        "item_type_id": "ET10",
+        "active": "true"
+      },
+      {
+        "display_name": "IBAN",
+        "item_type_id": "ET10",
+        "active": "true"
+      },
+      {
+        "display_name": "Firearm",
+        "item_type_id": "ET9",
+        "active": "true"
+      },
+      {
+        "display_name": "ICCID",
+        "item_type_id": "ET29",
+        "active": "true"
+      },
+      {
+        "display_name": "ID Document",
+        "item_type_id": "ET31",
+        "active": "true"
+      },
+      {
+        "display_name": "IMEI",
+        "item_type_id": "ET16",
+        "active": "true"
+      },
+      {
+        "display_name": "IMSI",
+        "item_type_id": "ET18",
+        "active": "true"
+      },
+      {
+        "display_name": "IntelRef",
+        "item_type_id": "ET41",
+        "active": "true"
+      },
+      {
+        "display_name": "IPAddress",
+        "item_type_id": "ET22",
+        "active": "true"
+      },
+      {
+        "display_name": "LocationCellSite",
+        "item_type_id": "ET1",
+        "active": "true"
+      },
+      {
+        "display_name": "MAC",
+        "item_type_id": "ET35",
+        "active": "true"
+      },
+      {
+        "display_name": "Message",
+        "item_type_id": "ET42",
+        "active": "true"
+      },
+      {
+        "display_name": "Operation",
+        "item_type_id": "ET12",
+        "active": "true"
+      },
+      {
+        "display_name": "PPT",
+        "item_type_id": "ET27",
+        "active": "true"
+      },
+      {
+        "display_name": "Person",
+        "item_type_id": "ET5",
+        "active": "true"
+      },
+      {
+        "display_name": "SurvOpLog",
+        "item_type_id": "ET38",
+        "active": "true"
+      },
+      {
+        "display_name": "Trailer",
+        "item_type_id": "ET28",
+        "active": "true"
+      },
+      {
+        "display_name": "URL",
+        "item_type_id": "ET40",
+        "active": "true"
+      },
+      {
+        "display_name": "Vehicle",
+        "item_type_id": "ET3",
+        "active": "true"
+      },
+      {
+        "display_name": "Vessel",
+        "item_type_id": "ET24",
+        "active": "true"
+      },
+      {
+        "display_name": "WiFiAccessPoint",
+        "item_type_id": "ET39",
+        "active": "true"
+      },
+      {
+        "display_name": "AssociationLink",
+        "item_type_id": "LAS1",
+        "active": "true"
+      },
+      {
+        "display_name": "CDRLink",
+        "item_type_id": "LT3",
+        "active": "true"
+      },
+      {
+        "display_name": "CommsLink",
+        "item_type_id": "LT15",
+        "active": "true"
+      },
+      {
+        "display_name": "LocationLinkCell",
+        "item_type_id": "LT11",
+        "active": "true"
+      },
+      {
+        "display_name": "LocationANPR",
+        "item_type_id": "ET1",
+        "active": "true"
+      },
+      {
+        "display_name": "LocationLinkANPR",
+        "item_type_id": "LT11",
+        "active": "true"
+      }
+    ],
+    "operators": {
+      "EXACT_MATCH": 58,
+      "EXACT_MATCH_END": 10,
+      "EQUAL_TO": 10,
+      "EXACT_MATCH_START": 2
+    },
+    "normalizations": {
+      "IGNORE_CASE": 71,
+      "SIMPLIFY_LIGATURES": 72,
+      "IGNORE_DIACRITICS": 72,
+      "IGNORE_WHITESPACE_AROUND": 72,
+      "IGNORE_NONALPHANUMERIC": 49,
+      "IGNORE_WHITESPACE_BETWEEN": 60
+    }
+  },
+  {
+    "file": "cached-fmr-match-rules.xml",
+    "rule_count": 1,
+    "rules": [
+      {
+        "display_name": "Op Name Exact Match",
+        "item_type_id": "ET12",
+        "active": "true"
+      }
+    ],
+    "operators": {
+      "EXACT_MATCH": 1
+    },
+    "normalizations": {
+      "IGNORE_CASE": 1,
+      "SIMPLIFY_LIGATURES": 1,
+      "IGNORE_DIACRITICS": 1,
+      "IGNORE_NONALPHANUMERIC": 1,
+      "IGNORE_WHITESPACE_BETWEEN": 1,
+      "IGNORE_WHITESPACE_AROUND": 1
+    }
+  }
+]

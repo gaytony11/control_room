@@ -1,0 +1,1459 @@
+[
+  {
+    "file": "01. Comms Import - Entity list - Manual System Matched.oimp",
+    "source_type": "Clipboard",
+    "entities": [
+      {
+        "entity_id": "Icon 2",
+        "type_id": "ET8",
+        "type_name": "Communication Entity",
+        "property_count": 2,
+        "properties": [
+          {
+            "id": "PT123",
+            "name": "Unique Identifier"
+          },
+          {
+            "id": "COM2",
+            "name": "Entity Type"
+          }
+        ]
+      }
+    ],
+    "links": [],
+    "user_columns": [],
+    "date_formats": [],
+    "actions": [
+      "RemoveCharacters"
+    ],
+    "referenced_columns": [
+      "Entity",
+      "Entity Type"
+    ],
+    "identity_type_ids": [
+      "ET8"
+    ]
+  },
+  {
+    "file": "02. Comms Import - Entity list - Auto System Matched.oimp",
+    "source_type": "Clipboard",
+    "entities": [
+      {
+        "entity_id": "Icon 2",
+        "type_id": "ET8",
+        "type_name": "Communication Entity",
+        "property_count": 2,
+        "properties": [
+          {
+            "id": "PT123",
+            "name": "Unique Identifier"
+          },
+          {
+            "id": "COM2",
+            "name": "Entity Type"
+          }
+        ]
+      }
+    ],
+    "links": [],
+    "user_columns": [],
+    "date_formats": [],
+    "actions": [
+      "RemoveCharacters"
+    ],
+    "referenced_columns": [
+      "Entity",
+      "Entity Type"
+    ],
+    "identity_type_ids": [
+      "ET8"
+    ]
+  },
+  {
+    "file": "Quick Look - A to B Events.oimp",
+    "source_type": "File",
+    "entities": [
+      {
+        "entity_id": "Icon 1",
+        "type_id": "ET8",
+        "type_name": "Communication Entity",
+        "property_count": 1,
+        "properties": [
+          {
+            "id": "PT123",
+            "name": "Unique Identifier"
+          }
+        ]
+      },
+      {
+        "entity_id": "Icon 2",
+        "type_id": "ET8",
+        "type_name": "Communication Entity",
+        "property_count": 1,
+        "properties": [
+          {
+            "id": "PT123",
+            "name": "Unique Identifier"
+          }
+        ]
+      }
+    ],
+    "links": [
+      {
+        "link_id": "Link 1",
+        "type_id": "LT15",
+        "type_name": "Communication Link",
+        "property_count": 10,
+        "properties": [
+          {
+            "id": "PT858",
+            "name": "Link Type"
+          },
+          {
+            "id": "PT1044",
+            "name": "Weekday"
+          },
+          {
+            "id": "PT966",
+            "name": "Start Date and Time"
+          },
+          {
+            "id": "PT967",
+            "name": "Duration"
+          },
+          {
+            "id": "PT972",
+            "name": "End Date and Time"
+          },
+          {
+            "id": "PT968",
+            "name": "Event Type"
+          },
+          {
+            "id": "PT969",
+            "name": "Entity A Calling"
+          },
+          {
+            "id": "PT970",
+            "name": "Entity B Called"
+          },
+          {
+            "id": "PT971",
+            "name": "Entity C Diverted"
+          },
+          {
+            "id": "PT973",
+            "name": "Communication Content"
+          }
+        ]
+      }
+    ],
+    "user_columns": [],
+    "date_formats": [
+      {
+        "column": "StartDateandTime",
+        "format": "dd/MM/yyyy HH:mm:ss"
+      },
+      {
+        "column": "EndDateandTime",
+        "format": "dd/MM/yyyy HH:mm:ss"
+      },
+      {
+        "column": "Duration",
+        "format": "HH:mm:ss"
+      }
+    ],
+    "actions": [],
+    "referenced_columns": [
+      "A_FROM_Entity",
+      "B_TO_Entity",
+      "C_DIVERT_Entity",
+      "DayName",
+      "MessageContent",
+      "Type"
+    ],
+    "identity_type_ids": [
+      "ET8",
+      "LT15"
+    ]
+  },
+  {
+    "file": "Quick Look - CDR Data.oimp",
+    "source_type": "File",
+    "entities": [
+      {
+        "entity_id": "Icon 1",
+        "type_id": "ET19",
+        "type_name": "Comms Data Record",
+        "property_count": 4,
+        "properties": [
+          {
+            "id": "PT152",
+            "name": "Reference"
+          },
+          {
+            "id": "PT153",
+            "name": "Operation"
+          },
+          {
+            "id": "PT162",
+            "name": "Target Entity"
+          },
+          {
+            "id": "PT688",
+            "name": "Application Type"
+          }
+        ]
+      },
+      {
+        "entity_id": "Icon 2",
+        "type_id": "ET8",
+        "type_name": "Communication Entity",
+        "property_count": 2,
+        "properties": [
+          {
+            "id": "PT123",
+            "name": "Unique Identifier"
+          },
+          {
+            "id": "COM2",
+            "name": "Entity Type"
+          }
+        ]
+      }
+    ],
+    "links": [
+      {
+        "link_id": "Link 1",
+        "type_id": "LT3",
+        "type_name": "Comms Data Record Link",
+        "property_count": 58,
+        "properties": [
+          {
+            "id": "PT903",
+            "name": "Row Index"
+          },
+          {
+            "id": "PT904",
+            "name": "Source File Name"
+          },
+          {
+            "id": "PT404",
+            "name": "Operation"
+          },
+          {
+            "id": "PT381",
+            "name": "CDR Reference"
+          },
+          {
+            "id": "PT392",
+            "name": "Target Entity"
+          },
+          {
+            "id": "PT163",
+            "name": "Target Type"
+          },
+          {
+            "id": "PT905",
+            "name": "Target IMEI (from CDR)"
+          },
+          {
+            "id": "PT906",
+            "name": "Target IMEI (14 Digit)"
+          },
+          {
+            "id": "PT907",
+            "name": "Target IMSI"
+          },
+          {
+            "id": "PT634",
+            "name": "Start Date"
+          },
+          {
+            "id": "PT635",
+            "name": "Start Time"
+          },
+          {
+            "id": "PT172",
+            "name": "Start Date and Time"
+          },
+          {
+            "id": "PT909",
+            "name": "End Date"
+          },
+          {
+            "id": "PT910",
+            "name": "End Time"
+          },
+          {
+            "id": "PT908",
+            "name": "End Date and Time"
+          },
+          {
+            "id": "PT911",
+            "name": "Event Type"
+          },
+          {
+            "id": "PT912",
+            "name": "Duration"
+          },
+          {
+            "id": "PT914",
+            "name": "Entity A (Calling)"
+          },
+          {
+            "id": "PT915",
+            "name": "Entity B (Called)"
+          },
+          {
+            "id": "PT916",
+            "name": "Entity C (Diverted)"
+          },
+          {
+            "id": "PT992",
+            "name": "Content"
+          },
+          {
+            "id": "PT917",
+            "name": "GPRS Charging ID"
+          },
+          {
+            "id": "PT918",
+            "name": "IP Address"
+          },
+          {
+            "id": "PT919",
+            "name": "Start Cell ID"
+          },
+          {
+            "id": "PT920",
+            "name": "Start LAC"
+          },
+          {
+            "id": "PT921",
+            "name": "Start Cell CGI"
+          },
+          {
+            "id": "PT923",
+            "name": "Start SAC"
+          },
+          {
+            "id": "PT924",
+            "name": "Start Tech"
+          },
+          {
+            "id": "PT925",
+            "name": "Start Azimuth"
+          },
+          {
+            "id": "PT926",
+            "name": "Start Site Name"
+          },
+          {
+            "id": "PT927",
+            "name": "Start Postcode"
+          },
+          {
+            "id": "PT928",
+            "name": "Start Easting"
+          },
+          {
+            "id": "PT929",
+            "name": "Start Northing"
+          },
+          {
+            "id": "PT930",
+            "name": "Start Latitude"
+          },
+          {
+            "id": "PT931",
+            "name": "Start Longitude"
+          },
+          {
+            "id": "PT932",
+            "name": "Start Cell Centroid Latitude"
+          },
+          {
+            "id": "PT933",
+            "name": "Start Cell Centroid Longitude"
+          },
+          {
+            "id": "PT934",
+            "name": "End Cell ID"
+          },
+          {
+            "id": "PT935",
+            "name": "End LAC"
+          },
+          {
+            "id": "PT936",
+            "name": "End Cell CGI"
+          },
+          {
+            "id": "PT938",
+            "name": "End SAC"
+          },
+          {
+            "id": "PT939",
+            "name": "End Tech"
+          },
+          {
+            "id": "PT940",
+            "name": "End Azimuth"
+          },
+          {
+            "id": "PT941",
+            "name": "End Site Name"
+          },
+          {
+            "id": "PT942",
+            "name": "End Postcode"
+          },
+          {
+            "id": "PT943",
+            "name": "End Easting"
+          },
+          {
+            "id": "PT944",
+            "name": "End Northing"
+          },
+          {
+            "id": "PT945",
+            "name": "End Latitude"
+          },
+          {
+            "id": "PT946",
+            "name": "End Longitude"
+          },
+          {
+            "id": "PT947",
+            "name": "End Cell Centroid Latitude"
+          },
+          {
+            "id": "PT948",
+            "name": "End Cell Centroid Longitude"
+          },
+          {
+            "id": "PT950",
+            "name": "Comments"
+          },
+          {
+            "id": "PT952",
+            "name": "GPRS Confidence"
+          },
+          {
+            "id": "PT219",
+            "name": "3x5x2"
+          },
+          {
+            "id": "PT345",
+            "name": "3x5x2 Action"
+          },
+          {
+            "id": "PT395",
+            "name": "3x5x2 Sanitisation"
+          },
+          {
+            "id": "PT987",
+            "name": "Start Geographic Location"
+          },
+          {
+            "id": "PT949",
+            "name": "End Geographic Location"
+          }
+        ]
+      }
+    ],
+    "user_columns": [
+      "End GEOJSON",
+      "IMEI14",
+      "StartGeoJSON"
+    ],
+    "date_formats": [
+      {
+        "column": "StartDateandTime",
+        "format": "dd/MM/yyyy HH:mm:ss"
+      },
+      {
+        "column": "CallStartDate",
+        "format": "dd/MM/yyyy"
+      },
+      {
+        "column": "CallStartTime",
+        "format": "HH:mm:ss"
+      },
+      {
+        "column": "EndDateandTime",
+        "format": "dd/MM/yyyy HH:mm:ss"
+      },
+      {
+        "column": "CallEndDate",
+        "format": "dd/MM/yyyy"
+      },
+      {
+        "column": "CallEndTime",
+        "format": "HH:mm:ss"
+      },
+      {
+        "column": "Duration",
+        "format": "HH:mm:ss"
+      }
+    ],
+    "actions": [
+      "ColumnSuffix",
+      "ExtractText",
+      "ValuePrefix",
+      "ValueSuffix"
+    ],
+    "referenced_columns": [
+      "A_FROM_Entity",
+      "B_TO_Entity",
+      "CDRReference",
+      "C_DIVERT_Entity",
+      "Comments",
+      "DataSourceFile",
+      "End GEOJSON",
+      "EndCellAzimuth",
+      "EndCellCGI",
+      "EndCellCentroidLatitude",
+      "EndCellCentroidLongitude",
+      "EndCellEasting",
+      "EndCellID",
+      "EndCellLAC",
+      "EndCellNorthing",
+      "EndCellPostcode",
+      "EndCellSAC",
+      "EndCellSiteLatitude",
+      "EndCellSiteLongitude",
+      "EndCellSiteName",
+      "EndCellTechn",
+      "GPRSCellConfidence",
+      "GPRSChargingID",
+      "IMEI14",
+      "IPAddress",
+      "MessageContent",
+      "Operation",
+      "Row",
+      "StartCellAzimuth",
+      "StartCellCGI",
+      "StartCellCentroidLatitude",
+      "StartCellCentroidLongitude",
+      "StartCellEasting",
+      "StartCellID",
+      "StartCellLAC",
+      "StartCellLatitude",
+      "StartCellLongitude",
+      "StartCellNorthing",
+      "StartCellPostcode",
+      "StartCellSAC",
+      "StartCellSiteName",
+      "StartCellTech",
+      "StartGeoJSON",
+      "TargetEntity",
+      "TargetIMEI",
+      "TargetIMSI",
+      "Type"
+    ],
+    "identity_type_ids": [
+      "ET19",
+      "ET8",
+      "LT3"
+    ]
+  },
+  {
+    "file": "Quick Look - Entities (MSISDN,IMEI,IMSI,CDR) New Format.oimp",
+    "source_type": "File",
+    "entities": [
+      {
+        "entity_id": "Icon 1",
+        "type_id": "ET8",
+        "type_name": "Communication Entity",
+        "property_count": 2,
+        "properties": [
+          {
+            "id": "PT123",
+            "name": "Unique Identifier"
+          },
+          {
+            "id": "COM2",
+            "name": "Entity Type"
+          }
+        ]
+      },
+      {
+        "entity_id": "Icon 2",
+        "type_id": "ET8",
+        "type_name": "Communication Entity",
+        "property_count": 2,
+        "properties": [
+          {
+            "id": "PT123",
+            "name": "Unique Identifier"
+          },
+          {
+            "id": "COM2",
+            "name": "Entity Type"
+          }
+        ]
+      },
+      {
+        "entity_id": "Icon 3",
+        "type_id": "ET8",
+        "type_name": "Communication Entity",
+        "property_count": 2,
+        "properties": [
+          {
+            "id": "PT123",
+            "name": "Unique Identifier"
+          },
+          {
+            "id": "COM2",
+            "name": "Entity Type"
+          }
+        ]
+      },
+      {
+        "entity_id": "Icon 5",
+        "type_id": "ET16",
+        "type_name": "IMEI",
+        "property_count": 1,
+        "properties": [
+          {
+            "id": "PT141",
+            "name": "IMEI"
+          }
+        ]
+      },
+      {
+        "entity_id": "Icon 6",
+        "type_id": "ET18",
+        "type_name": "IMSI",
+        "property_count": 1,
+        "properties": [
+          {
+            "id": "PT109",
+            "name": "IMSI"
+          }
+        ]
+      },
+      {
+        "entity_id": "Icon 7",
+        "type_id": "ET19",
+        "type_name": "Comms Data Record",
+        "property_count": 1,
+        "properties": [
+          {
+            "id": "PT152",
+            "name": "Reference"
+          }
+        ]
+      }
+    ],
+    "links": [],
+    "user_columns": [],
+    "date_formats": [],
+    "actions": [],
+    "referenced_columns": [
+      "A_FROM_Entity",
+      "B_TO_Entity",
+      "CDRReference",
+      "C_DIVERT_Entity",
+      "TargetIMEI",
+      "TargetIMSI"
+    ],
+    "identity_type_ids": [
+      "ET16",
+      "ET18",
+      "ET19",
+      "ET8"
+    ]
+  },
+  {
+    "file": "Quick Look - Entities (MSISDN,IMEI,IMSI,CDR).oimp",
+    "source_type": "File",
+    "entities": [
+      {
+        "entity_id": "Icon 1",
+        "type_id": "ET8",
+        "type_name": "Communication Entity",
+        "property_count": 2,
+        "properties": [
+          {
+            "id": "PT123",
+            "name": "Unique Identifier"
+          },
+          {
+            "id": "COM2",
+            "name": "Entity Type"
+          }
+        ]
+      },
+      {
+        "entity_id": "Icon 2",
+        "type_id": "ET8",
+        "type_name": "Communication Entity",
+        "property_count": 2,
+        "properties": [
+          {
+            "id": "PT123",
+            "name": "Unique Identifier"
+          },
+          {
+            "id": "COM2",
+            "name": "Entity Type"
+          }
+        ]
+      },
+      {
+        "entity_id": "Icon 3",
+        "type_id": "ET8",
+        "type_name": "Communication Entity",
+        "property_count": 2,
+        "properties": [
+          {
+            "id": "PT123",
+            "name": "Unique Identifier"
+          },
+          {
+            "id": "COM2",
+            "name": "Entity Type"
+          }
+        ]
+      },
+      {
+        "entity_id": "Icon 5",
+        "type_id": "ET16",
+        "type_name": "IMEI",
+        "property_count": 1,
+        "properties": [
+          {
+            "id": "PT141",
+            "name": "IMEI"
+          }
+        ]
+      },
+      {
+        "entity_id": "Icon 6",
+        "type_id": "ET18",
+        "type_name": "IMSI",
+        "property_count": 1,
+        "properties": [
+          {
+            "id": "PT109",
+            "name": "IMSI"
+          }
+        ]
+      },
+      {
+        "entity_id": "Icon 7",
+        "type_id": "ET19",
+        "type_name": "Comms Data Record",
+        "property_count": 1,
+        "properties": [
+          {
+            "id": "PT152",
+            "name": "Reference"
+          }
+        ]
+      }
+    ],
+    "links": [],
+    "user_columns": [],
+    "date_formats": [],
+    "actions": [],
+    "referenced_columns": [
+      "A(FROM)Entity",
+      "B(TO)Entity",
+      "C(DIVERT)Entity",
+      "CDRReference",
+      "TargetIMEI",
+      "TargetIMSI"
+    ],
+    "identity_type_ids": [
+      "ET16",
+      "ET18",
+      "ET19",
+      "ET8"
+    ]
+  },
+  {
+    "file": "Quick Look - Map Cells from CDR No DateTime.oimp",
+    "source_type": "File",
+    "entities": [
+      {
+        "entity_id": "Icon 1",
+        "type_id": "ET8",
+        "type_name": "Communication Entity",
+        "property_count": 2,
+        "properties": [
+          {
+            "id": "PT123",
+            "name": "Unique Identifier"
+          },
+          {
+            "id": "COM2",
+            "name": "Entity Type"
+          }
+        ]
+      },
+      {
+        "entity_id": "Icon 2",
+        "type_id": "ET1",
+        "type_name": "Location",
+        "property_count": 12,
+        "properties": [
+          {
+            "id": "ADD25",
+            "name": "Location Type"
+          },
+          {
+            "id": "ADD8",
+            "name": "Post Code"
+          },
+          {
+            "id": "ADD11",
+            "name": "Easting"
+          },
+          {
+            "id": "PT231",
+            "name": "Cell: CGI"
+          },
+          {
+            "id": "PT232",
+            "name": "Cell: CellID"
+          },
+          {
+            "id": "PT233",
+            "name": "Cell: Azimuth"
+          },
+          {
+            "id": "PT235",
+            "name": "Cell: LAC"
+          },
+          {
+            "id": "PT236",
+            "name": "Cell: SAC"
+          },
+          {
+            "id": "PT237",
+            "name": "Cell: Tech"
+          },
+          {
+            "id": "PT238",
+            "name": "Cell: Site Name"
+          },
+          {
+            "id": "ADD26",
+            "name": "Geographic Location"
+          },
+          {
+            "id": "PT170",
+            "name": "Address String"
+          }
+        ]
+      },
+      {
+        "entity_id": "Icon 3",
+        "type_id": "ET1",
+        "type_name": "Location",
+        "property_count": 15,
+        "properties": [
+          {
+            "id": "ADD25",
+            "name": "Location Type"
+          },
+          {
+            "id": "PT170",
+            "name": "Address String"
+          },
+          {
+            "id": "ADD8",
+            "name": "Post Code"
+          },
+          {
+            "id": "ADD26",
+            "name": "Geographic Location"
+          },
+          {
+            "id": "ADD11",
+            "name": "Easting"
+          },
+          {
+            "id": "ADD12",
+            "name": "Northing"
+          },
+          {
+            "id": "ADD13",
+            "name": "Latitude"
+          },
+          {
+            "id": "ADD14",
+            "name": "Longitude"
+          },
+          {
+            "id": "PT231",
+            "name": "Cell: CGI"
+          },
+          {
+            "id": "PT232",
+            "name": "Cell: CellID"
+          },
+          {
+            "id": "PT233",
+            "name": "Cell: Azimuth"
+          },
+          {
+            "id": "PT235",
+            "name": "Cell: LAC"
+          },
+          {
+            "id": "PT236",
+            "name": "Cell: SAC"
+          },
+          {
+            "id": "PT237",
+            "name": "Cell: Tech"
+          },
+          {
+            "id": "PT238",
+            "name": "Cell: Site Name"
+          }
+        ]
+      }
+    ],
+    "links": [
+      {
+        "link_id": "Link 1",
+        "type_id": "LAS1",
+        "type_name": "Association",
+        "property_count": 1,
+        "properties": [
+          {
+            "id": "LAS4",
+            "name": "Association Type"
+          }
+        ]
+      },
+      {
+        "link_id": "Link 2",
+        "type_id": "LAS1",
+        "type_name": "Association",
+        "property_count": 1,
+        "properties": [
+          {
+            "id": "LAS4",
+            "name": "Association Type"
+          }
+        ]
+      }
+    ],
+    "user_columns": [
+      "End Address String",
+      "End GeoJSON",
+      "Start Address String",
+      "StartGeoJSON"
+    ],
+    "date_formats": [],
+    "actions": [
+      "ColumnSuffix",
+      "ValuePrefix",
+      "ValueSuffix"
+    ],
+    "referenced_columns": [
+      "End Address String",
+      "End GeoJSON",
+      "EndCellAzimuth",
+      "EndCellCGI",
+      "EndCellEasting",
+      "EndCellID",
+      "EndCellLAC",
+      "EndCellNorthing",
+      "EndCellPostcode",
+      "EndCellSAC",
+      "EndCellSiteLatitude",
+      "EndCellSiteLongitude",
+      "EndCellSiteName",
+      "EndCellTechn",
+      "Start Address String",
+      "StartCellAzimuth",
+      "StartCellCGI",
+      "StartCellEasting",
+      "StartCellID",
+      "StartCellLAC",
+      "StartCellLongitude",
+      "StartCellPostcode",
+      "StartCellSAC",
+      "StartCellSiteName",
+      "StartCellTech",
+      "StartGeoJSON",
+      "TargetEntity"
+    ],
+    "identity_type_ids": [
+      "ET1",
+      "ET8",
+      "LT11"
+    ]
+  },
+  {
+    "file": "Quick Look - Map Cells from CDR WIth DateTime.oimp",
+    "source_type": "File",
+    "entities": [
+      {
+        "entity_id": "Icon 1",
+        "type_id": "ET8",
+        "type_name": "Communication Entity",
+        "property_count": 2,
+        "properties": [
+          {
+            "id": "PT123",
+            "name": "Unique Identifier"
+          },
+          {
+            "id": "COM2",
+            "name": "Entity Type"
+          }
+        ]
+      },
+      {
+        "entity_id": "Icon 2",
+        "type_id": "ET1",
+        "type_name": "Location",
+        "property_count": 12,
+        "properties": [
+          {
+            "id": "ADD25",
+            "name": "Location Type"
+          },
+          {
+            "id": "ADD8",
+            "name": "Post Code"
+          },
+          {
+            "id": "ADD11",
+            "name": "Easting"
+          },
+          {
+            "id": "PT231",
+            "name": "Cell: CGI"
+          },
+          {
+            "id": "PT232",
+            "name": "Cell: CellID"
+          },
+          {
+            "id": "PT233",
+            "name": "Cell: Azimuth"
+          },
+          {
+            "id": "PT235",
+            "name": "Cell: LAC"
+          },
+          {
+            "id": "PT236",
+            "name": "Cell: SAC"
+          },
+          {
+            "id": "PT237",
+            "name": "Cell: Tech"
+          },
+          {
+            "id": "PT238",
+            "name": "Cell: Site Name"
+          },
+          {
+            "id": "ADD26",
+            "name": "Geographic Location"
+          },
+          {
+            "id": "PT170",
+            "name": "Address String"
+          }
+        ]
+      },
+      {
+        "entity_id": "Icon 3",
+        "type_id": "ET1",
+        "type_name": "Location",
+        "property_count": 15,
+        "properties": [
+          {
+            "id": "ADD25",
+            "name": "Location Type"
+          },
+          {
+            "id": "PT170",
+            "name": "Address String"
+          },
+          {
+            "id": "ADD8",
+            "name": "Post Code"
+          },
+          {
+            "id": "ADD26",
+            "name": "Geographic Location"
+          },
+          {
+            "id": "ADD11",
+            "name": "Easting"
+          },
+          {
+            "id": "ADD12",
+            "name": "Northing"
+          },
+          {
+            "id": "ADD13",
+            "name": "Latitude"
+          },
+          {
+            "id": "ADD14",
+            "name": "Longitude"
+          },
+          {
+            "id": "PT231",
+            "name": "Cell: CGI"
+          },
+          {
+            "id": "PT232",
+            "name": "Cell: CellID"
+          },
+          {
+            "id": "PT233",
+            "name": "Cell: Azimuth"
+          },
+          {
+            "id": "PT235",
+            "name": "Cell: LAC"
+          },
+          {
+            "id": "PT236",
+            "name": "Cell: SAC"
+          },
+          {
+            "id": "PT237",
+            "name": "Cell: Tech"
+          },
+          {
+            "id": "PT238",
+            "name": "Cell: Site Name"
+          }
+        ]
+      }
+    ],
+    "links": [
+      {
+        "link_id": "START",
+        "type_id": "LT11",
+        "type_name": "Location Link",
+        "property_count": 28,
+        "properties": [
+          {
+            "id": "PT697",
+            "name": "Link Strength"
+          },
+          {
+            "id": "PT194",
+            "name": "Link Type"
+          },
+          {
+            "id": "PT215",
+            "name": "Target Entity"
+          },
+          {
+            "id": "PT216",
+            "name": "Target IMEI"
+          },
+          {
+            "id": "PT217",
+            "name": "Target IMSI"
+          },
+          {
+            "id": "PT214",
+            "name": "Start or End"
+          },
+          {
+            "id": "PT213",
+            "name": "Start Date and Time"
+          },
+          {
+            "id": "PT762",
+            "name": "Duration"
+          },
+          {
+            "id": "PT5",
+            "name": "Event Type"
+          },
+          {
+            "id": "PT755",
+            "name": "Entity A (Calling)"
+          },
+          {
+            "id": "PT756",
+            "name": "Entity B (Called)"
+          },
+          {
+            "id": "PT761",
+            "name": "Entity C (Diverted)"
+          },
+          {
+            "id": "PT993",
+            "name": "Communication Content"
+          },
+          {
+            "id": "PT779",
+            "name": "End Date and Time"
+          },
+          {
+            "id": "PT46",
+            "name": "Charging ID"
+          },
+          {
+            "id": "PT45",
+            "name": "Tech"
+          },
+          {
+            "id": "PT33",
+            "name": "Azimuth"
+          },
+          {
+            "id": "PT31",
+            "name": "Address"
+          },
+          {
+            "id": "PT32",
+            "name": "Postcode"
+          },
+          {
+            "id": "PT750",
+            "name": "Cell ID"
+          },
+          {
+            "id": "PT751",
+            "name": "LAC"
+          },
+          {
+            "id": "PT752",
+            "name": "CGI"
+          },
+          {
+            "id": "PT754",
+            "name": "SAC"
+          },
+          {
+            "id": "PT759",
+            "name": "Latitude"
+          },
+          {
+            "id": "PT760",
+            "name": "Longitude"
+          },
+          {
+            "id": "PT768",
+            "name": "GPRS Confidence"
+          },
+          {
+            "id": "PT763",
+            "name": "Geographic Location"
+          },
+          {
+            "id": "PT218",
+            "name": "Comms Data Reference"
+          }
+        ]
+      },
+      {
+        "link_id": "END",
+        "type_id": "LT11",
+        "type_name": "Location Link",
+        "property_count": 29,
+        "properties": [
+          {
+            "id": "PT697",
+            "name": "Link Strength"
+          },
+          {
+            "id": "PT194",
+            "name": "Link Type"
+          },
+          {
+            "id": "PT215",
+            "name": "Target Entity"
+          },
+          {
+            "id": "PT216",
+            "name": "Target IMEI"
+          },
+          {
+            "id": "PT217",
+            "name": "Target IMSI"
+          },
+          {
+            "id": "PT214",
+            "name": "Start or End"
+          },
+          {
+            "id": "PT213",
+            "name": "Start Date and Time"
+          },
+          {
+            "id": "PT5",
+            "name": "Event Type"
+          },
+          {
+            "id": "PT755",
+            "name": "Entity A (Calling)"
+          },
+          {
+            "id": "PT756",
+            "name": "Entity B (Called)"
+          },
+          {
+            "id": "PT761",
+            "name": "Entity C (Diverted)"
+          },
+          {
+            "id": "PT993",
+            "name": "Communication Content"
+          },
+          {
+            "id": "PT779",
+            "name": "End Date and Time"
+          },
+          {
+            "id": "PT46",
+            "name": "Charging ID"
+          },
+          {
+            "id": "PT45",
+            "name": "Tech"
+          },
+          {
+            "id": "PT33",
+            "name": "Azimuth"
+          },
+          {
+            "id": "PT31",
+            "name": "Address"
+          },
+          {
+            "id": "PT32",
+            "name": "Postcode"
+          },
+          {
+            "id": "PT218",
+            "name": "Comms Data Reference"
+          },
+          {
+            "id": "PT750",
+            "name": "Cell ID"
+          },
+          {
+            "id": "PT751",
+            "name": "LAC"
+          },
+          {
+            "id": "PT752",
+            "name": "CGI"
+          },
+          {
+            "id": "PT754",
+            "name": "SAC"
+          },
+          {
+            "id": "PT757",
+            "name": "Easting"
+          },
+          {
+            "id": "PT758",
+            "name": "Northing"
+          },
+          {
+            "id": "PT759",
+            "name": "Latitude"
+          },
+          {
+            "id": "PT760",
+            "name": "Longitude"
+          },
+          {
+            "id": "PT763",
+            "name": "Geographic Location"
+          },
+          {
+            "id": "PT768",
+            "name": "GPRS Confidence"
+          }
+        ]
+      }
+    ],
+    "user_columns": [
+      "End Address String",
+      "End GeoJSON",
+      "Start Address String",
+      "StartGeoJSON"
+    ],
+    "date_formats": [
+      {
+        "column": "StartDateandTime",
+        "format": "dd/MM/yyyy HH:mm:ss"
+      },
+      {
+        "column": "Duration",
+        "format": "HH:mm:ss"
+      },
+      {
+        "column": "EndDateandTime",
+        "format": "dd/MM/yyyy HH:mm:ss"
+      }
+    ],
+    "actions": [
+      "ColumnSuffix",
+      "ValuePrefix",
+      "ValueSuffix"
+    ],
+    "referenced_columns": [
+      "A_FROM_Entity",
+      "B_TO_Entity",
+      "CDRReference",
+      "C_DIVERT_Entity",
+      "End Address String",
+      "End GeoJSON",
+      "EndCellAzimuth",
+      "EndCellCGI",
+      "EndCellEasting",
+      "EndCellID",
+      "EndCellLAC",
+      "EndCellNorthing",
+      "EndCellPostcode",
+      "EndCellSAC",
+      "EndCellSiteLatitude",
+      "EndCellSiteLongitude",
+      "EndCellSiteName",
+      "EndCellTechn",
+      "GPRSCellConfidence",
+      "GPRSChargingID",
+      "MessageContent",
+      "Start Address String",
+      "StartCellAzimuth",
+      "StartCellCGI",
+      "StartCellEasting",
+      "StartCellID",
+      "StartCellLAC",
+      "StartCellLatitude",
+      "StartCellLongitude",
+      "StartCellPostcode",
+      "StartCellSAC",
+      "StartCellSiteName",
+      "StartCellTech",
+      "StartGeoJSON",
+      "TargetEntity",
+      "TargetIMEI",
+      "TargetIMSI",
+      "Type"
+    ],
+    "identity_type_ids": [
+      "ET1",
+      "ET8",
+      "LT11"
+    ]
+  }
+]

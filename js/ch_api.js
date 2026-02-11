@@ -9,16 +9,29 @@
 // Do NOT use in production.
 // ─────────────────────────────────────────────
 
-// Direct Companies House fetch
-function fetchCH(path) {
-  const baseUrl = "https://api.company-information.service.gov.uk";
+// Proxy-first Companies House fetch. Falls back to direct only when needed.
+async function fetchCH(path) {
+  const normalized = String(path || "").startsWith("/") ? path : `/${path}`;
+  const directBase = "https://api.company-information.service.gov.uk";
 
-  if (!window.CH_API_KEY) {
-    console.error("CH API key not set.");
-    return Promise.reject(new Error("CH_API_KEY not configured"));
+  // Try local proxy first (scripts/dev_server.py)
+  try {
+    const proxyResp = await fetch(`/ch${normalized}`, {
+      headers: { "Accept": "application/json" }
+    });
+    if (proxyResp.ok) return proxyResp;
+    // If proxy exists and returned a real API status (except 404), surface it.
+    if (proxyResp.status !== 404 && !window.CH_API_KEY) return proxyResp;
+    if (proxyResp.status !== 404 && proxyResp.status < 500) return proxyResp;
+  } catch (_) {
+    // Continue to direct fallback.
   }
 
-  return fetch(baseUrl + path, {
+  if (!window.CH_API_KEY) {
+    throw new Error("Companies House unavailable: run scripts/dev_server.py or set CH_API_KEY in js/api_keys.js");
+  }
+
+  return fetch(directBase + normalized, {
     headers: {
       "Authorization": "Basic " + btoa(window.CH_API_KEY + ":"),
       "Accept": "application/json"

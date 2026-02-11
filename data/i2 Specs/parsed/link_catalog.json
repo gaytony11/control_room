@@ -1,0 +1,4334 @@
+[
+  {
+    "link_id": "LAS1",
+    "link_name": "Association",
+    "properties": [
+      {
+        "property_id": "LAS4",
+        "property_name": "Association Type",
+        "logical_type": "SUGGESTED_FROM",
+        "mandatory": "true",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": [
+          "Accessed By",
+          "Account Holder",
+          "Action Fraud Report",
+          "Appears on or within",
+          "Alias",
+          "Arrested at",
+          "Associate - Criminal",
+          "Associate - Non Criminal",
+          "Associated",
+          "Attributed To",
+          "Border Control",
+          "Captain (maritime)",
+          "Communicated With",
+          "Company Director",
+          "Company Secretary",
+          "Co-pilot",
+          "Crew",
+          "Data Extracted From",
+          "Daughter",
+          "Driver",
+          "Employee",
+          "Father",
+          "Found in document",
+          "Found in message",
+          "Grandfather",
+          "Grandmother",
+          "In contact with",
+          "In Use With Device",
+          "Installed within",
+          "Insured",
+          "Intelligence Reference",
+          "Involved in",
+          "Linked to",
+          "Maritime Event",
+          "Loaded",
+          "Member of",
+          "Mother",
+          "Observed At",
+          "Owner",
+          "Parked Outside",
+          "Passenger",
+          "Pilot",
+          "Police Person Reporting",
+          "Present at",
+          "Proxy",
+          "Proprieter",
+          "Registered Address",
+          "Registered Keeper",
+          "Saved As (in contacts)",
+          "Seized From",
+          "Son",
+          "Spouse",
+          "Surveillance Log",
+          "Suspect",
+          "Travelled With",
+          "Used with",
+          "Unloaded",
+          "User",
+          "Username",
+          "Victim",
+          "Visited",
+          "Taken To",
+          "Target",
+          "Tractor Unit",
+          "Within Consignment/Load",
+          "Within Contacts Of Device",
+          "Witness"
+        ]
+      },
+      {
+        "property_id": "LAS5",
+        "property_name": "Start Date and Time",
+        "logical_type": "DATE_AND_TIME",
+        "mandatory": "false",
+        "max_len": "",
+        "semantic_type_id": "guidB8767EA5-841F-4734-B703-BC58786296A3",
+        "possible_values": []
+      },
+      {
+        "property_id": "LAS6",
+        "property_name": "End Date and Time",
+        "logical_type": "DATE_AND_TIME",
+        "mandatory": "false",
+        "max_len": "",
+        "semantic_type_id": "guid80860455-202C-4ddf-85A9-AE576D66BD56",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT695",
+        "property_name": "Link Strength",
+        "logical_type": "SELECTED_FROM",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": [
+          "Confirmed",
+          "Unconfirmed",
+          "Hypothetical"
+        ]
+      },
+      {
+        "property_id": "PT703",
+        "property_name": "Observation",
+        "logical_type": "MULTIPLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT704",
+        "property_name": "Observation Officer",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT705",
+        "property_name": "Surveillance Log Ref",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "LAS7",
+        "property_name": "Additional Information",
+        "logical_type": "MULTIPLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "",
+        "semantic_type_id": "guid359AD9EB-8AC2-4c0d-82E6-AA77734CC423",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT302",
+        "property_name": "3x5x2",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "3",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT343",
+        "property_name": "3x5x2 Action",
+        "logical_type": "SELECTED_FROM",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": [
+          "A1: Covert Development.  May be combined or corroborated with other intelligence but action cannot be taken directly. Permission must be sought from the originator",
+          "A2: Covert Use. Covert action may be taken on this intelligence although the source or techniques must be protected. May not be used in isolation as evidence",
+          "A3: Overt Use. Overt action is permitted on this intelligence.  See additional notes for what this information can be used for."
+        ]
+      },
+      {
+        "property_id": "PT393",
+        "property_name": "3x5x2 Sanitisation",
+        "logical_type": "SELECTED_FROM",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": [
+          "S1. Delegate Authority. The originator of the intelligence DOES PERMIT the unsupervised sanitisation of the material in order to allow dissemination to a wider audience",
+          "S2. Consult Originator. The originator of the intelligence DOES NOT PERMIT the sanitisation of the material for a wider dissemination without consultation being sought"
+        ]
+      },
+      {
+        "property_id": "PT446",
+        "property_name": "3x5x2 Notes",
+        "logical_type": "MULTIPLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT497",
+        "property_name": "Intelligence Date",
+        "logical_type": "DATE",
+        "mandatory": "false",
+        "max_len": "",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT552",
+        "property_name": "IR or Reference",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT68",
+        "property_name": "Match Unique Value",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT1084",
+        "property_name": "Entity From",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT1115",
+        "property_name": "Entity From Name",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT1085",
+        "property_name": "Entity To",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT1116",
+        "property_name": "Entity To Name",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT1425",
+        "property_name": "SourceItemId",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      }
+    ]
+  },
+  {
+    "link_id": "LTR1",
+    "link_name": "Transaction",
+    "properties": [
+      {
+        "property_id": "PT1154",
+        "property_name": "Transaction Date",
+        "logical_type": "DATE",
+        "mandatory": "false",
+        "max_len": "",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT1155",
+        "property_name": "Transaction Time",
+        "logical_type": "TIME",
+        "mandatory": "false",
+        "max_len": "",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "LTR3",
+        "property_name": "Transaction Type",
+        "logical_type": "SUGGESTED_FROM",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": [
+          "<Unknown>",
+          "Credit",
+          "Debit"
+        ]
+      },
+      {
+        "property_id": "LTR8",
+        "property_name": "Transaction Method",
+        "logical_type": "SUGGESTED_FROM",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "guidDA2E2421-DAD1-480d-8EE5-8CF639500158",
+        "possible_values": [
+          "<Unknown>",
+          "ATM",
+          "BACS",
+          "Bankers Draft",
+          "Cash",
+          "Check",
+          "Credit Card",
+          "Debit Card",
+          "Online Transfer",
+          "Refund",
+          "Wire Transfer"
+        ]
+      },
+      {
+        "property_id": "LTR6",
+        "property_name": "Transaction Currency",
+        "logical_type": "SUGGESTED_FROM",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "guid4FC4F9B1-3C63-4CCE-BA97-42E76BAD96A6",
+        "possible_values": [
+          "AED",
+          "AFA",
+          "AFN",
+          "ALK",
+          "ALL",
+          "AMD",
+          "ANG",
+          "AOA",
+          "AOK",
+          "AON",
+          "AOR",
+          "ARA",
+          "ARP",
+          "ARS",
+          "ARY",
+          "ATS",
+          "AUD",
+          "AWG",
+          "AYM",
+          "AZM",
+          "AZN",
+          "BAD",
+          "BAM",
+          "BBD",
+          "BDT",
+          "BEC",
+          "BEF",
+          "BEL",
+          "BGJ",
+          "BGK",
+          "BGL",
+          "BGN",
+          "BHD",
+          "BIF",
+          "BMD",
+          "BND",
+          "BOB",
+          "BOP",
+          "BOV",
+          "BRB",
+          "BRC",
+          "BRE",
+          "BRL",
+          "BRN",
+          "BRR",
+          "BSD",
+          "BTN",
+          "BUK",
+          "BWP",
+          "BYB",
+          "BYN",
+          "BYR",
+          "BZD",
+          "CAD",
+          "CDF",
+          "CHC",
+          "CHE",
+          "CHF",
+          "CHW",
+          "CLF",
+          "CLP",
+          "CNY",
+          "COP",
+          "COU",
+          "CRC",
+          "CSD",
+          "CSJ",
+          "CSK",
+          "CUC",
+          "CUP",
+          "CVE",
+          "CYP",
+          "CZK",
+          "DDM",
+          "DEM",
+          "DJF",
+          "DKK",
+          "DOP",
+          "DZD",
+          "ECS",
+          "ECV",
+          "EEK",
+          "EGP",
+          "ERN",
+          "ESA",
+          "ESB",
+          "ESP",
+          "ETB",
+          "EUR",
+          "FIM",
+          "FJD",
+          "FKP",
+          "FRF",
+          "GBP",
+          "GEK",
+          "GEL",
+          "GHC",
+          "GHP",
+          "GHS",
+          "GIP",
+          "GMD",
+          "GNE",
+          "GNF",
+          "GNS",
+          "GQE",
+          "GRD",
+          "GTQ",
+          "GWE",
+          "GWP",
+          "GYD",
+          "HKD",
+          "HNL",
+          "HRD",
+          "HRK",
+          "HTG",
+          "HUF",
+          "IDR",
+          "IEP",
+          "ILP",
+          "ILR",
+          "ILS",
+          "INR",
+          "IQD",
+          "IRR",
+          "ISJ",
+          "ISK",
+          "ITL",
+          "JMD",
+          "JOD",
+          "JPY",
+          "KES",
+          "KGS",
+          "KHR",
+          "KMF",
+          "KPW",
+          "KRW",
+          "KWD",
+          "KYD",
+          "KZT",
+          "LAJ",
+          "LAK",
+          "LBP",
+          "LKR",
+          "LRD",
+          "LSL",
+          "LSM",
+          "LTL",
+          "LTT",
+          "LUC",
+          "LUF",
+          "LUL",
+          "LVL",
+          "LVR",
+          "LYD",
+          "MAD",
+          "MDL",
+          "MGA",
+          "MGF",
+          "MKD",
+          "MLF",
+          "MMK",
+          "MNT",
+          "MOP",
+          "MRO",
+          "MTL",
+          "MTP",
+          "MUR",
+          "MVQ",
+          "MVR",
+          "MWK",
+          "MXN",
+          "MXP",
+          "MXV",
+          "MYR",
+          "MZE",
+          "MZM",
+          "MZN",
+          "NAD",
+          "NGN",
+          "NIC",
+          "NIO",
+          "NLG",
+          "NOK",
+          "NPR",
+          "NZD",
+          "OMR",
+          "PAB",
+          "PEH",
+          "PEI",
+          "PEN",
+          "PES",
+          "PGK",
+          "PHP",
+          "PKR",
+          "PLN",
+          "PLZ",
+          "PTE",
+          "PYG",
+          "QAR",
+          "RHD",
+          "ROK",
+          "ROL",
+          "RON",
+          "RSD",
+          "RUB",
+          "RUR",
+          "RWF",
+          "SAR",
+          "SBD",
+          "SCR",
+          "SDD",
+          "SDG",
+          "SDP",
+          "SEK",
+          "SGD",
+          "SHP",
+          "SIT",
+          "SKK",
+          "SLL",
+          "SOS",
+          "SRD",
+          "SRG",
+          "SSP",
+          "STD",
+          "SUR",
+          "SVC",
+          "SYP",
+          "SZL",
+          "THB",
+          "TJR",
+          "TJS",
+          "TMM",
+          "TMT",
+          "TND",
+          "TOP",
+          "TPE",
+          "TRL",
+          "TRY",
+          "TTD",
+          "TWD",
+          "TZS",
+          "UAH",
+          "UAK",
+          "UGS",
+          "UGW",
+          "UGX",
+          "USD",
+          "USN",
+          "USS",
+          "UYI",
+          "UYN",
+          "UYP",
+          "UYU",
+          "UZS",
+          "VEB",
+          "VEF",
+          "VNC",
+          "VND",
+          "VUV",
+          "WST",
+          "XAF",
+          "XAG",
+          "XAU",
+          "XBA",
+          "XBB",
+          "XBC",
+          "XBD",
+          "XCD",
+          "XDR",
+          "XEU",
+          "XFO",
+          "XFU",
+          "XPD",
+          "XPF",
+          "XPT",
+          "XRE",
+          "XSU",
+          "XTS",
+          "XUA",
+          "XXX",
+          "YDD",
+          "YER",
+          "YUD",
+          "YUM",
+          "YUN",
+          "ZAL",
+          "ZAR",
+          "ZMK",
+          "ZMW",
+          "ZRN",
+          "ZRZ",
+          "ZWC",
+          "ZWD",
+          "ZWL",
+          "ZWN",
+          "ZWR"
+        ]
+      },
+      {
+        "property_id": "LTR5",
+        "property_name": "Transaction Value",
+        "logical_type": "DECIMAL",
+        "mandatory": "false",
+        "max_len": "",
+        "semantic_type_id": "guid735D4427-99F9-45DF-8820-DDEA9CF7C27E",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT315",
+        "property_name": "GBP Equivalent",
+        "logical_type": "DECIMAL",
+        "mandatory": "false",
+        "max_len": "",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "LTR7",
+        "property_name": "Additional Information",
+        "logical_type": "MULTIPLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "",
+        "semantic_type_id": "guid359AD9EB-8AC2-4c0d-82E6-AA77734CC423",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT304",
+        "property_name": "3x5x2",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "3",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT357",
+        "property_name": "3x5x2 Action",
+        "logical_type": "SELECTED_FROM",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": [
+          "A1: Covert Development.  May be combined or corroborated with other intelligence but action cannot be taken directly. Permission must be sought from the originator",
+          "A2: Covert Use. Covert action may be taken on this intelligence although the source or techniques must be protected. May not be used in isolation as evidence",
+          "A3: Overt Use. Overt action is permitted on this intelligence.  See additional notes for what this information can be used for."
+        ]
+      },
+      {
+        "property_id": "PT407",
+        "property_name": "3x5x2 Sanitisation",
+        "logical_type": "SELECTED_FROM",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": [
+          "S1. Delegate Authority. The originator of the intelligence DOES PERMIT the unsupervised sanitisation of the material in order to allow dissemination to a wider audience",
+          "S2. Consult Originator. The originator of the intelligence DOES NOT PERMIT the sanitisation of the material for a wider dissemination without consultation being sought"
+        ]
+      },
+      {
+        "property_id": "PT459",
+        "property_name": "3x5x2 Notes",
+        "logical_type": "MULTIPLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT511",
+        "property_name": "Intelligence Date",
+        "logical_type": "DATE",
+        "mandatory": "false",
+        "max_len": "",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT566",
+        "property_name": "IR or Reference",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT82",
+        "property_name": "Match Unique Value",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT581",
+        "property_name": "Link Strength",
+        "logical_type": "SELECTED_FROM",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": [
+          "Confirmed",
+          "Unconfirmed",
+          "Hypothetical"
+        ]
+      },
+      {
+        "property_id": "LTR4",
+        "property_name": "Start Date and Time",
+        "logical_type": "DATE_AND_TIME",
+        "mandatory": "false",
+        "max_len": "",
+        "semantic_type_id": "guidF49AD106-BBCA-4de0-A6C8-77BCE1493AFA",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT1437",
+        "property_name": "SourceItemId",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      }
+    ]
+  },
+  {
+    "link_id": "LT4",
+    "link_name": "IMEI Link",
+    "properties": [
+      {
+        "property_id": "PT432",
+        "property_name": "Operation",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT116",
+        "property_name": "Start Date and Time",
+        "logical_type": "DATE_AND_TIME",
+        "mandatory": "false",
+        "max_len": "",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT37",
+        "property_name": "End Date and Time",
+        "logical_type": "DATE_AND_TIME",
+        "mandatory": "false",
+        "max_len": "",
+        "semantic_type_id": "guid9f0adde3-bdcd-4f36-b657-fc0bdf7a10d5",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT143",
+        "property_name": "Target IMEI(14)",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT144",
+        "property_name": "Target Entity",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT629",
+        "property_name": "Manufacturer",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT630",
+        "property_name": "Model",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT631",
+        "property_name": "IMEI8",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT224",
+        "property_name": "3x5x2",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "3",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT350",
+        "property_name": "3x5x2 Action",
+        "logical_type": "SELECTED_FROM",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": [
+          "A1: Covert Development.  May be combined or corroborated with other intelligence but action cannot be taken directly. Permission must be sought from the originator",
+          "A2: Covert Use. Covert action may be taken on this intelligence although the source or techniques must be protected. May not be used in isolation as evidence",
+          "A3: Overt Use. Overt action is permitted on this intelligence.  See additional notes for what this information can be used for."
+        ]
+      },
+      {
+        "property_id": "PT400",
+        "property_name": "3x5x2 Sanitisation",
+        "logical_type": "SELECTED_FROM",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": [
+          "S1. Delegate Authority. The originator of the intelligence DOES PERMIT the unsupervised sanitisation of the material in order to allow dissemination to a wider audience",
+          "S2. Consult Originator. The originator of the intelligence DOES NOT PERMIT the sanitisation of the material for a wider dissemination without consultation being sought"
+        ]
+      },
+      {
+        "property_id": "PT504",
+        "property_name": "Intelligence Date",
+        "logical_type": "DATE",
+        "mandatory": "false",
+        "max_len": "",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT559",
+        "property_name": "IR or Reference",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT862",
+        "property_name": "Redacted IMEI",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT632",
+        "property_name": "Target IMEI (CDR)",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT75",
+        "property_name": "Match Unique Value",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT525",
+        "property_name": "Link Strength",
+        "logical_type": "SELECTED_FROM",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": [
+          "Confirmed",
+          "Unconfirmed",
+          "Hypothetical"
+        ]
+      },
+      {
+        "property_id": "PT1431",
+        "property_name": "SourceItemId",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      }
+    ]
+  },
+  {
+    "link_id": "LT5",
+    "link_name": "IMSI Link",
+    "properties": [
+      {
+        "property_id": "PT445",
+        "property_name": "Operation",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT119",
+        "property_name": "Start Date and Time",
+        "logical_type": "DATE_AND_TIME",
+        "mandatory": "false",
+        "max_len": "",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT36",
+        "property_name": "End Date and Time",
+        "logical_type": "DATE_AND_TIME",
+        "mandatory": "false",
+        "max_len": "",
+        "semantic_type_id": "guid9f0adde3-bdcd-4f36-b657-fc0bdf7a10d5",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT145",
+        "property_name": "Target IMSI",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT146",
+        "property_name": "Target Entity",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT225",
+        "property_name": "3x5x2",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "3",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT351",
+        "property_name": "3x5x2 Action",
+        "logical_type": "SELECTED_FROM",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": [
+          "A1: Covert Development.  May be combined or corroborated with other intelligence but action cannot be taken directly. Permission must be sought from the originator",
+          "A2: Covert Use. Covert action may be taken on this intelligence although the source or techniques must be protected. May not be used in isolation as evidence",
+          "A3: Overt Use. Overt action is permitted on this intelligence.  See additional notes for what this information can be used for."
+        ]
+      },
+      {
+        "property_id": "PT401",
+        "property_name": "3x5x2 Sanitisation",
+        "logical_type": "SELECTED_FROM",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": [
+          "S1. Delegate Authority. The originator of the intelligence DOES PERMIT the unsupervised sanitisation of the material in order to allow dissemination to a wider audience",
+          "S2. Consult Originator. The originator of the intelligence DOES NOT PERMIT the sanitisation of the material for a wider dissemination without consultation being sought"
+        ]
+      },
+      {
+        "property_id": "PT453",
+        "property_name": "3x5x2 Notes",
+        "logical_type": "MULTIPLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT505",
+        "property_name": "Intelligence Date",
+        "logical_type": "DATE",
+        "mandatory": "false",
+        "max_len": "",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT560",
+        "property_name": "IR or Reference",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT863",
+        "property_name": "Redacted IMSI",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT76",
+        "property_name": "Match Unique Value",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT539",
+        "property_name": "Link Strength",
+        "logical_type": "SELECTED_FROM",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": [
+          "Confirmed",
+          "Unconfirmed",
+          "Hypothetical"
+        ]
+      },
+      {
+        "property_id": "PT1432",
+        "property_name": "SourceItemId",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      }
+    ]
+  },
+  {
+    "link_id": "LT3",
+    "link_name": "Comms Data Record Link",
+    "properties": [
+      {
+        "property_id": "PT903",
+        "property_name": "Row Index",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT904",
+        "property_name": "Source File Name",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "255",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT404",
+        "property_name": "Operation",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT381",
+        "property_name": "CDR Reference",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT392",
+        "property_name": "Target Entity",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT163",
+        "property_name": "Target Type",
+        "logical_type": "SELECTED_FROM",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": [
+          "WITHIN DATA",
+          "TARGET",
+          "Event (Traffic)"
+        ]
+      },
+      {
+        "property_id": "PT905",
+        "property_name": "Target IMEI (from CDR)",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT906",
+        "property_name": "Target IMEI (14 Digit)",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT907",
+        "property_name": "Target IMSI",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT634",
+        "property_name": "Start Date",
+        "logical_type": "DATE",
+        "mandatory": "false",
+        "max_len": "",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT635",
+        "property_name": "Start Time",
+        "logical_type": "TIME",
+        "mandatory": "false",
+        "max_len": "",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT172",
+        "property_name": "Start Date and Time",
+        "logical_type": "DATE_AND_TIME",
+        "mandatory": "false",
+        "max_len": "",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT909",
+        "property_name": "End Date",
+        "logical_type": "DATE",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT910",
+        "property_name": "End Time",
+        "logical_type": "TIME",
+        "mandatory": "false",
+        "max_len": "",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT908",
+        "property_name": "End Date and Time",
+        "logical_type": "DATE_AND_TIME",
+        "mandatory": "false",
+        "max_len": "",
+        "semantic_type_id": "guid9f0adde3-bdcd-4f36-b657-fc0bdf7a10d5",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT911",
+        "property_name": "Event Type",
+        "logical_type": "SUGGESTED_FROM",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": [
+          "Outgoing Voice",
+          "Incoming Voice",
+          "Outgoing SMS",
+          "Incoming SMS",
+          "Outgoing MMS",
+          "Incoming MMS",
+          "Data Out",
+          "Incoming Divert",
+          "Outgoing Forward",
+          "Failed Call Out",
+          "Failed Call In",
+          "Network In",
+          "Network Out",
+          "Unknown",
+          "Instant Message"
+        ]
+      },
+      {
+        "property_id": "PT912",
+        "property_name": "Duration",
+        "logical_type": "TIME",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "guid601C0497-849D-471b-A7B1-EB033EF874D4",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT913",
+        "property_name": "Ringing Time",
+        "logical_type": "TIME",
+        "mandatory": "false",
+        "max_len": "",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT914",
+        "property_name": "Entity A (Calling)",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT915",
+        "property_name": "Entity B (Called)",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT916",
+        "property_name": "Entity C (Diverted)",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT992",
+        "property_name": "Content",
+        "logical_type": "MULTIPLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT624",
+        "property_name": "IMEI A",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT625",
+        "property_name": "IMEI B",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT585",
+        "property_name": "IMSI A",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT623",
+        "property_name": "IMSI B",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT917",
+        "property_name": "GPRS Charging ID",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT918",
+        "property_name": "IP Address",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT919",
+        "property_name": "Start Cell ID",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT920",
+        "property_name": "Start LAC",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT921",
+        "property_name": "Start Cell CGI",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT922",
+        "property_name": "Start Cell(Hex)",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT923",
+        "property_name": "Start SAC",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT924",
+        "property_name": "Start Tech",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT925",
+        "property_name": "Start Azimuth",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT926",
+        "property_name": "Start Site Name",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT927",
+        "property_name": "Start Postcode",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT928",
+        "property_name": "Start Easting",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT929",
+        "property_name": "Start Northing",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT930",
+        "property_name": "Start Latitude",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT931",
+        "property_name": "Start Longitude",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT932",
+        "property_name": "Start Cell Centroid Latitude",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT933",
+        "property_name": "Start Cell Centroid Longitude",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT987",
+        "property_name": "Start Geographic Location",
+        "logical_type": "GEOSPATIAL",
+        "mandatory": "false",
+        "max_len": "",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT934",
+        "property_name": "End Cell ID",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT935",
+        "property_name": "End LAC",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT936",
+        "property_name": "End Cell CGI",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT937",
+        "property_name": "End Cell(Hex)",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT938",
+        "property_name": "End SAC",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT939",
+        "property_name": "End Tech",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT940",
+        "property_name": "End Azimuth",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT941",
+        "property_name": "End Site Name",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT942",
+        "property_name": "End Postcode",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT943",
+        "property_name": "End Easting",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT944",
+        "property_name": "End Northing",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT945",
+        "property_name": "End Latitude",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT946",
+        "property_name": "End Longitude",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT947",
+        "property_name": "End Cell Centroid Latitude",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT948",
+        "property_name": "End Cell Centroid Longitude",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT949",
+        "property_name": "End Geographic Location",
+        "logical_type": "GEOSPATIAL",
+        "mandatory": "false",
+        "max_len": "",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT950",
+        "property_name": "Comments",
+        "logical_type": "MULTIPLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT951",
+        "property_name": "Reference",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT952",
+        "property_name": "GPRS Confidence",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT953",
+        "property_name": "Cleansing Application",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT954",
+        "property_name": "Application Version",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT626",
+        "property_name": "FileType",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT955",
+        "property_name": "Additional Information",
+        "logical_type": "MULTIPLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "",
+        "semantic_type_id": "guid359AD9EB-8AC2-4c0d-82E6-AA77734CC423",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT219",
+        "property_name": "3x5x2",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "3",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT345",
+        "property_name": "3x5x2 Action",
+        "logical_type": "SELECTED_FROM",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": [
+          "A1: Covert Development.  May be combined or corroborated with other intelligence but action cannot be taken directly. Permission must be sought from the originator",
+          "A2: Covert Use. Covert action may be taken on this intelligence although the source or techniques must be protected. May not be used in isolation as evidence",
+          "A3: Overt Use. Overt action is permitted on this intelligence.  See additional notes for what this information can be used for."
+        ]
+      },
+      {
+        "property_id": "PT395",
+        "property_name": "3x5x2 Sanitisation",
+        "logical_type": "SELECTED_FROM",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": [
+          "S1. Delegate Authority. The originator of the intelligence DOES PERMIT the unsupervised sanitisation of the material in order to allow dissemination to a wider audience",
+          "S2. Consult Originator. The originator of the intelligence DOES NOT PERMIT the sanitisation of the material for a wider dissemination without consultation being sought"
+        ]
+      },
+      {
+        "property_id": "PT448",
+        "property_name": "3x5x2 Notes",
+        "logical_type": "MULTIPLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT499",
+        "property_name": "Intelligence Date",
+        "logical_type": "DATE",
+        "mandatory": "false",
+        "max_len": "",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT554",
+        "property_name": "IR or Reference",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT956",
+        "property_name": "Target IMEI TAC (8 Digit)",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT957",
+        "property_name": "Target IMEI Manufacturer",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT958",
+        "property_name": "Target IMEI Model",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT959",
+        "property_name": "Target IMSI Country",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT960",
+        "property_name": "Target IMSI Network",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT866",
+        "property_name": "Redacted Target Entity",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT961",
+        "property_name": "Redacted Target IMEI",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT962",
+        "property_name": "Redacted Target IMSI",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT963",
+        "property_name": "Redacted Entity A (Calling)",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT964",
+        "property_name": "Redacted Entity B (Called)",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT965",
+        "property_name": "Redacted Entity C (Diverted)",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT212",
+        "property_name": "Link Strength",
+        "logical_type": "SELECTED_FROM",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": [
+          "Confirmed",
+          "Unconfirmed",
+          "Hypothetical"
+        ]
+      },
+      {
+        "property_id": "PT1072",
+        "property_name": "NonTarget Entity",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT1079",
+        "property_name": "Target Direction",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT70",
+        "property_name": "Match Unique Value",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT1427",
+        "property_name": "SourceItemId",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT1584",
+        "property_name": "APN",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      }
+    ]
+  },
+  {
+    "link_id": "LT10",
+    "link_name": "IP to IP Link",
+    "properties": [
+      {
+        "property_id": "PT168",
+        "property_name": "Start Date and Time",
+        "logical_type": "DATE_AND_TIME",
+        "mandatory": "false",
+        "max_len": "",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT226",
+        "property_name": "3x5x2",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "3",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT352",
+        "property_name": "3x5x2 Action",
+        "logical_type": "SELECTED_FROM",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": [
+          "A1: Covert Development.  May be combined or corroborated with other intelligence but action cannot be taken directly. Permission must be sought from the originator",
+          "A2: Covert Use. Covert action may be taken on this intelligence although the source or techniques must be protected. May not be used in isolation as evidence",
+          "A3: Overt Use. Overt action is permitted on this intelligence.  See additional notes for what this information can be used for."
+        ]
+      },
+      {
+        "property_id": "PT402",
+        "property_name": "3x5x2 Sanitisation",
+        "logical_type": "SELECTED_FROM",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": [
+          "S1. Delegate Authority. The originator of the intelligence DOES PERMIT the unsupervised sanitisation of the material in order to allow dissemination to a wider audience",
+          "S2. Consult Originator. The originator of the intelligence DOES NOT PERMIT the sanitisation of the material for a wider dissemination without consultation being sought"
+        ]
+      },
+      {
+        "property_id": "PT454",
+        "property_name": "3x5x2 Notes",
+        "logical_type": "MULTIPLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT506",
+        "property_name": "Intelligence Date",
+        "logical_type": "DATE",
+        "mandatory": "false",
+        "max_len": "",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT561",
+        "property_name": "IR or Reference",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT864",
+        "property_name": "Redacted IP",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT77",
+        "property_name": "Match Unique Value",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT551",
+        "property_name": "Link Strength",
+        "logical_type": "SELECTED_FROM",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": [
+          "Confirmed",
+          "Unconfirmed",
+          "Hypothetical"
+        ]
+      },
+      {
+        "property_id": "PT1433",
+        "property_name": "SourceItemId",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      }
+    ]
+  },
+  {
+    "link_id": "LT11",
+    "link_name": "Location Link",
+    "properties": [
+      {
+        "property_id": "PT728",
+        "property_name": "Operation",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT697",
+        "property_name": "Link Strength",
+        "logical_type": "SELECTED_FROM",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": [
+          "Confirmed",
+          "Unconfirmed",
+          "Hypothetical"
+        ]
+      },
+      {
+        "property_id": "PT194",
+        "property_name": "Link Type",
+        "logical_type": "SUGGESTED_FROM",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": [
+          "Address: Home",
+          "Address: Company/Organisation",
+          "Arrived",
+          "ANPR",
+          "Based at",
+          "Cell Site START",
+          "Cell Site END",
+          "Departed",
+          "Delivery Address",
+          "Disembarked",
+          "Embarked",
+          "Event",
+          "Loaded",
+          "Location",
+          "Maritime Event",
+          "Origin",
+          "Permanent Mooring",
+          "Purchased At",
+          "Seized from",
+          "Transited",
+          "Unloaded",
+          "Visited",
+          "WiFi Access Point"
+        ]
+      },
+      {
+        "property_id": "PT215",
+        "property_name": "Target Entity",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT216",
+        "property_name": "Target IMEI",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT217",
+        "property_name": "Target IMSI",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT214",
+        "property_name": "Start or End",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT213",
+        "property_name": "Start Date and Time",
+        "logical_type": "DATE_AND_TIME",
+        "mandatory": "false",
+        "max_len": "",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT762",
+        "property_name": "Duration",
+        "logical_type": "TIME",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "guid601C0497-849D-471b-A7B1-EB033EF874D4",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT5",
+        "property_name": "Event Type",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT755",
+        "property_name": "Entity A (Calling)",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT756",
+        "property_name": "Entity B (Called)",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT761",
+        "property_name": "Entity C (Diverted)",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT993",
+        "property_name": "Communication Content",
+        "logical_type": "MULTIPLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT779",
+        "property_name": "End Date and Time",
+        "logical_type": "DATE_AND_TIME",
+        "mandatory": "false",
+        "max_len": "",
+        "semantic_type_id": "guid9f0adde3-bdcd-4f36-b657-fc0bdf7a10d5",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT778",
+        "property_name": "Ringing Time",
+        "logical_type": "TIME",
+        "mandatory": "false",
+        "max_len": "",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT46",
+        "property_name": "Charging ID",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT45",
+        "property_name": "Tech",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT33",
+        "property_name": "Azimuth",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT114",
+        "property_name": "MCC",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT31",
+        "property_name": "Address",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT32",
+        "property_name": "Postcode",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT218",
+        "property_name": "Comms Data Reference",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT750",
+        "property_name": "Cell ID",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT751",
+        "property_name": "LAC",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT752",
+        "property_name": "CGI",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT753",
+        "property_name": "Cell(Hex)",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT754",
+        "property_name": "SAC",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT757",
+        "property_name": "Easting",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT758",
+        "property_name": "Northing",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT759",
+        "property_name": "Latitude",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT760",
+        "property_name": "Longitude",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT763",
+        "property_name": "Geographic Location",
+        "logical_type": "GEOSPATIAL",
+        "mandatory": "false",
+        "max_len": "",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT764",
+        "property_name": "Cell Centroid Latitude",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT765",
+        "property_name": "Cell Centroid Longitude",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT766",
+        "property_name": "Comments",
+        "logical_type": "MULTIPLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT767",
+        "property_name": "Reference",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT768",
+        "property_name": "GPRS Confidence",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT769",
+        "property_name": "Cleansing Application",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT770",
+        "property_name": "Application Version",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT771",
+        "property_name": "Same Data Other Refs",
+        "logical_type": "MULTIPLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT772",
+        "property_name": "Target IMEI TAC (8 Digit)",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT773",
+        "property_name": "Target IMEI Manufacturer",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT774",
+        "property_name": "Target IMEI Model",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT775",
+        "property_name": "Target IMSI Country",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT776",
+        "property_name": "Target IMSI Network",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT777",
+        "property_name": "Intel Record?",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT619",
+        "property_name": "Additional Information",
+        "logical_type": "MULTIPLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT65",
+        "property_name": "BSSID (WiFi)",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT66",
+        "property_name": "SSID (WiFi)",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT836",
+        "property_name": "VRM",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT837",
+        "property_name": "Make",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT838",
+        "property_name": "Model",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT2",
+        "property_name": "Telematics: Vehicle State",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT34",
+        "property_name": "Telematics: Speed",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT51",
+        "property_name": "Telematics: Ping",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT839",
+        "property_name": "Colour",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT227",
+        "property_name": "3x5x2 Grading",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "3",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT353",
+        "property_name": "3x5x2 Action",
+        "logical_type": "SELECTED_FROM",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": [
+          "A1: Covert Development.  May be combined or corroborated with other intelligence but action cannot be taken directly. Permission must be sought from the originator",
+          "A2: Covert Use. Covert action may be taken on this intelligence although the source or techniques must be protected. May not be used in isolation as evidence",
+          "A3: Overt Use. Overt action is permitted on this intelligence.  See additional notes for what this information can be used for."
+        ]
+      },
+      {
+        "property_id": "PT403",
+        "property_name": "3x5x2 Sanitisation",
+        "logical_type": "SELECTED_FROM",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": [
+          "S1. Delegate Authority. The originator of the intelligence DOES PERMIT the unsupervised sanitisation of the material in order to allow dissemination to a wider audience",
+          "S2. Consult Originator. The originator of the intelligence DOES NOT PERMIT the sanitisation of the material for a wider dissemination without consultation being sought"
+        ]
+      },
+      {
+        "property_id": "PT455",
+        "property_name": "3x5x2 Notes",
+        "logical_type": "MULTIPLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT507",
+        "property_name": "Intelligence Date",
+        "logical_type": "DATE",
+        "mandatory": "false",
+        "max_len": "",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT562",
+        "property_name": "IR or Reference",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT867",
+        "property_name": "Redacted Target Entity",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT868",
+        "property_name": "Redacted IMEI",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT869",
+        "property_name": "Redacted IMSI",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT870",
+        "property_name": "Redacted ICCID",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT871",
+        "property_name": "Redacted Entity A (Calling)",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT872",
+        "property_name": "Redacted Entity B (Called)",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT873",
+        "property_name": "Redacted Entity C (Diverted)",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT1077",
+        "property_name": "Non Target Entity",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT1078",
+        "property_name": "Target Direction",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT78",
+        "property_name": "Match Unique Value",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT1434",
+        "property_name": "SourceItemId",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT1587",
+        "property_name": "APN",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      }
+    ]
+  },
+  {
+    "link_id": "LT13",
+    "link_name": "ICCID Link",
+    "properties": [
+      {
+        "property_id": "PT418",
+        "property_name": "Operation",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT47",
+        "property_name": "Start Date and Time",
+        "logical_type": "DATE_AND_TIME",
+        "mandatory": "false",
+        "max_len": "",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT38",
+        "property_name": "End Date and Time",
+        "logical_type": "DATE_AND_TIME",
+        "mandatory": "false",
+        "max_len": "",
+        "semantic_type_id": "guid9f0adde3-bdcd-4f36-b657-fc0bdf7a10d5",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT456",
+        "property_name": "Target ICCID",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT48",
+        "property_name": "Target Entity",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT223",
+        "property_name": "3x5x2",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "3",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT349",
+        "property_name": "3x5x2 Action",
+        "logical_type": "SELECTED_FROM",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": [
+          "A1: Covert Development.  May be combined or corroborated with other intelligence but action cannot be taken directly. Permission must be sought from the originator",
+          "A2: Covert Use. Covert action may be taken on this intelligence although the source or techniques must be protected. May not be used in isolation as evidence",
+          "A3: Overt Use. Overt action is permitted on this intelligence.  See additional notes for what this information can be used for."
+        ]
+      },
+      {
+        "property_id": "PT399",
+        "property_name": "3x5x2 Sanitisation",
+        "logical_type": "SELECTED_FROM",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": [
+          "S1. Delegate Authority. The originator of the intelligence DOES PERMIT the unsupervised sanitisation of the material in order to allow dissemination to a wider audience",
+          "S2. Consult Originator. The originator of the intelligence DOES NOT PERMIT the sanitisation of the material for a wider dissemination without consultation being sought"
+        ]
+      },
+      {
+        "property_id": "PT452",
+        "property_name": "3x5x2 Notes",
+        "logical_type": "MULTIPLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT503",
+        "property_name": "Intelligence Date",
+        "logical_type": "DATE",
+        "mandatory": "false",
+        "max_len": "",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT558",
+        "property_name": "IR or Reference",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT861",
+        "property_name": "Redacted ICCID",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT74",
+        "property_name": "Match Unique Value",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT500",
+        "property_name": "Link Strength",
+        "logical_type": "SELECTED_FROM",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": [
+          "Confirmed",
+          "Unconfirmed",
+          "Hypothetical"
+        ]
+      },
+      {
+        "property_id": "PT1430",
+        "property_name": "SourceItemId",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      }
+    ]
+  },
+  {
+    "link_id": "LT14",
+    "link_name": "Travel Link",
+    "properties": [
+      {
+        "property_id": "PT699",
+        "property_name": "Link Strength",
+        "logical_type": "SELECTED_FROM",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": [
+          "Confirmed",
+          "Unconfirmed",
+          "Hypothetical"
+        ]
+      },
+      {
+        "property_id": "PT580",
+        "property_name": "Travel Type",
+        "logical_type": "SELECTED_FROM",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": [
+          "Travel - Air",
+          "Travel - Land",
+          "Travel - Sea"
+        ]
+      },
+      {
+        "property_id": "PT583",
+        "property_name": "Start Date and Time",
+        "logical_type": "DATE_AND_TIME",
+        "mandatory": "false",
+        "max_len": "",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT584",
+        "property_name": "Additional notes",
+        "logical_type": "MULTIPLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT305",
+        "property_name": "3x5x2",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "3",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT358",
+        "property_name": "3x5x2 Action",
+        "logical_type": "SELECTED_FROM",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": [
+          "A1: Covert Development.  May be combined or corroborated with other intelligence but action cannot be taken directly. Permission must be sought from the originator",
+          "A2: Covert Use. Covert action may be taken on this intelligence although the source or techniques must be protected. May not be used in isolation as evidence",
+          "A3: Overt Use. Overt action is permitted on this intelligence.  See additional notes for what this information can be used for."
+        ]
+      },
+      {
+        "property_id": "PT408",
+        "property_name": "3x5x2 Sanitisation",
+        "logical_type": "SELECTED_FROM",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": [
+          "S1. Delegate Authority. The originator of the intelligence DOES PERMIT the unsupervised sanitisation of the material in order to allow dissemination to a wider audience",
+          "S2. Consult Originator. The originator of the intelligence DOES NOT PERMIT the sanitisation of the material for a wider dissemination without consultation being sought"
+        ]
+      },
+      {
+        "property_id": "PT460",
+        "property_name": "3x5x2 Notes",
+        "logical_type": "MULTIPLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT512",
+        "property_name": "Intelligence Date",
+        "logical_type": "DATE",
+        "mandatory": "false",
+        "max_len": "",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT567",
+        "property_name": "IR or Reference",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT786",
+        "property_name": "Voyage Code (eg flight number)",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT787",
+        "property_name": "Scheduled Departure Date",
+        "logical_type": "DATE",
+        "mandatory": "false",
+        "max_len": "",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT788",
+        "property_name": "Scheduled Departure Time",
+        "logical_type": "TIME",
+        "mandatory": "false",
+        "max_len": "",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT789",
+        "property_name": "Actual Departure Date",
+        "logical_type": "DATE",
+        "mandatory": "false",
+        "max_len": "",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT790",
+        "property_name": "Actual Departure Time",
+        "logical_type": "TIME",
+        "mandatory": "false",
+        "max_len": "",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT791",
+        "property_name": "Scheduled Arrival Date",
+        "logical_type": "DATE",
+        "mandatory": "false",
+        "max_len": "",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT792",
+        "property_name": "Scheduled Arrival Time",
+        "logical_type": "TIME",
+        "mandatory": "false",
+        "max_len": "",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT793",
+        "property_name": "Actual Arrival Date",
+        "logical_type": "DATE",
+        "mandatory": "false",
+        "max_len": "",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT794",
+        "property_name": "Actual Arrival Time",
+        "logical_type": "TIME",
+        "mandatory": "false",
+        "max_len": "",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT795",
+        "property_name": "Embark Port (Code)",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT796",
+        "property_name": "Embark (Name)",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT797",
+        "property_name": "Embark (Lat)",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT798",
+        "property_name": "Embark (Lon)",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT799",
+        "property_name": "Departure Port (code)",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT800",
+        "property_name": "Departure Port (name)",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT801",
+        "property_name": "Arrival Port (code)",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT802",
+        "property_name": "Arrival Port (name)",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT803",
+        "property_name": "Arrival (Lat)",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT804",
+        "property_name": "Arrival (Lon)",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT805",
+        "property_name": "Disembark (code)",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT806",
+        "property_name": "Disembark (name)",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT807",
+        "property_name": "Dismebark (Lat)",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT808",
+        "property_name": "Disembark (Lon)",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT83",
+        "property_name": "Match Unique Value",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT1438",
+        "property_name": "SourceItemId",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      }
+    ]
+  },
+  {
+    "link_id": "LT15",
+    "link_name": "Communication Link",
+    "properties": [
+      {
+        "property_id": "PT858",
+        "property_name": "Link Type",
+        "logical_type": "SUGGESTED_FROM",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": [
+          "ANPR",
+          "Comms Data",
+          "Device Event",
+          "Message"
+        ]
+      },
+      {
+        "property_id": "PT1044",
+        "property_name": "Weekday",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT966",
+        "property_name": "Start Date and Time",
+        "logical_type": "DATE_AND_TIME",
+        "mandatory": "false",
+        "max_len": "",
+        "semantic_type_id": "guid770074b2-0235-4ade-aca0-f64f9d1986f9",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT967",
+        "property_name": "Duration",
+        "logical_type": "TIME",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "guid601C0497-849D-471b-A7B1-EB033EF874D4",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT972",
+        "property_name": "End Date and Time",
+        "logical_type": "DATE_AND_TIME",
+        "mandatory": "false",
+        "max_len": "",
+        "semantic_type_id": "guid9f0adde3-bdcd-4f36-b657-fc0bdf7a10d5",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT300",
+        "property_name": "Event Direction",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT968",
+        "property_name": "Event Type",
+        "logical_type": "SUGGESTED_FROM",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": [
+          "Voice",
+          "SMS",
+          "MMS",
+          "Data",
+          "ANPR",
+          "Forwarded",
+          "Failed Call",
+          "Network",
+          "NET",
+          "Email",
+          "Message",
+          "WiFi",
+          "<Unknown>"
+        ]
+      },
+      {
+        "property_id": "PT969",
+        "property_name": "Entity A Calling",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT1089",
+        "property_name": "Attribution A",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT970",
+        "property_name": "Entity B Called",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT1090",
+        "property_name": "Attribution B",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT971",
+        "property_name": "Entity C Diverted",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT1091",
+        "property_name": "Attribution C",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT973",
+        "property_name": "Communication Content",
+        "logical_type": "MULTIPLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT1040",
+        "property_name": "A Target",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT1030",
+        "property_name": "A IMEI",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT1032",
+        "property_name": "A Make/Model",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT1028",
+        "property_name": "A IMSI",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT1034",
+        "property_name": "A IMSI Country/Network",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT368",
+        "property_name": "A Start Raw",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT1045",
+        "property_name": "A Start LAC TAC",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT1048",
+        "property_name": "A Start SAC",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT633",
+        "property_name": "A Start Cell CGI ",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT639",
+        "property_name": "A Start Cell Azimuth",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT330",
+        "property_name": "A Start Cell Tech",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT666",
+        "property_name": "A Start Cell Site",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT694",
+        "property_name": "A Start Cell Postcode",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT983",
+        "property_name": "A Start Latitude",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT985",
+        "property_name": "A Start Longitude",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT1020",
+        "property_name": "A Start Easting",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT1024",
+        "property_name": "A Start Northing",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT394",
+        "property_name": "A End Raw",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT1046",
+        "property_name": "A End LAC TAC",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT1049",
+        "property_name": "A End SAC",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT636",
+        "property_name": "A End Cell CGI",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT640",
+        "property_name": "A End Cell Azimuth",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT342",
+        "property_name": "A End Cell Tech",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT676",
+        "property_name": "A End Cell Site",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT855",
+        "property_name": "A End Cell Postcode",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT984",
+        "property_name": "A End Latitude",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT986",
+        "property_name": "A End Longitude",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT1022",
+        "property_name": "A End Easting",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT1023",
+        "property_name": "A End Northing",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT995",
+        "property_name": "A Start Geographic Location",
+        "logical_type": "GEOSPATIAL",
+        "mandatory": "false",
+        "max_len": "",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT996",
+        "property_name": "A End Geographic Location",
+        "logical_type": "GEOSPATIAL",
+        "mandatory": "false",
+        "max_len": "",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT228",
+        "property_name": "A Start Cell Country",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT1026",
+        "property_name": "A GPRS Charging ID",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT1037",
+        "property_name": "A GPRS Confidence",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT1041",
+        "property_name": "B Target",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT1031",
+        "property_name": "B IMEI",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT1033",
+        "property_name": "B Make/Model",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT1029",
+        "property_name": "B IMSI",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT1035",
+        "property_name": "B IMSI Country/Network",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT447",
+        "property_name": "B Start Raw",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT1047",
+        "property_name": "B Start LAC TAC",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT1050",
+        "property_name": "B Start SAC",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT637",
+        "property_name": "B Start Cell CGI",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT641",
+        "property_name": "B Start Cell Azimuth",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT354",
+        "property_name": "B Start Cell Tech",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT677",
+        "property_name": "B Start Cell Site",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT856",
+        "property_name": "B Start Cell Postcode",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT997",
+        "property_name": "B Start Latitude",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT999",
+        "property_name": "B Start Longitude",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT1025",
+        "property_name": "B Start Easting",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT1021",
+        "property_name": "B Start Northing",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT498",
+        "property_name": "B End Raw",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT1052",
+        "property_name": "B End LAC TAC",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT1051",
+        "property_name": "B End SAC",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT638",
+        "property_name": "B End Cell CGI",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT642",
+        "property_name": "B End Cell Azimuth",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT344",
+        "property_name": "B End Cell Tech",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT693",
+        "property_name": "B End Cell Site",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT857",
+        "property_name": "B End Cell Postcode",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT998",
+        "property_name": "B End Latitude",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT1000",
+        "property_name": "B End Longitude",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT1027",
+        "property_name": "B End Easting",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT1036",
+        "property_name": "B End Northing",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT1001",
+        "property_name": "B Start Geographic Location",
+        "logical_type": "GEOSPATIAL",
+        "mandatory": "false",
+        "max_len": "",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT1002",
+        "property_name": "B End Geographic Location",
+        "logical_type": "GEOSPATIAL",
+        "mandatory": "false",
+        "max_len": "",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT275",
+        "property_name": "B Start Cell Country",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT627",
+        "property_name": "A CDR Ref",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT628",
+        "property_name": "B CDR Ref",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT52",
+        "property_name": "A is Int Roaming",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT81",
+        "property_name": "B is Int Roaming",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT994",
+        "property_name": "A Calling UK",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT980",
+        "property_name": "Redacted Entity A (Calling)",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT1038",
+        "property_name": "B Called UK",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT981",
+        "property_name": "Redacted Entity B (Called)",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT1039",
+        "property_name": "C Diverted UK",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT982",
+        "property_name": "Redacted Entity C (Diverted)",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT553",
+        "property_name": "B Orig Start Time",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT563",
+        "property_name": "B Orig End Time",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT696",
+        "property_name": "A Filename",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT865",
+        "property_name": "B Filename",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT67",
+        "property_name": "Match Unique Value",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT860",
+        "property_name": "Service Type",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT859",
+        "property_name": "Event Status",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT1043",
+        "property_name": "UK Timezone",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT974",
+        "property_name": "3x5x2 Grading",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "3",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT220",
+        "property_name": "Link Strength",
+        "logical_type": "SELECTED_FROM",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": [
+          "Confirmed",
+          "Unconfirmed",
+          "Hypothetical"
+        ]
+      },
+      {
+        "property_id": "PT979",
+        "property_name": "IR or Reference",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT978",
+        "property_name": "Intelligence Date",
+        "logical_type": "DATE",
+        "mandatory": "false",
+        "max_len": "",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT975",
+        "property_name": "3x5x2 Action",
+        "logical_type": "SELECTED_FROM",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": [
+          "A1: Covert Development.  May be combined or corroborated with other intelligence but action cannot be taken directly. Permission must be sought from the originator",
+          "A2: Covert Use. Covert action may be taken on this intelligence although the source or techniques must be protected. May not be used in isolation as evidence",
+          "A3: Overt Use. Overt action is permitted on this intelligence.  See additional notes for what this information can be used for."
+        ]
+      },
+      {
+        "property_id": "PT976",
+        "property_name": "3x5x2 Sanitisation",
+        "logical_type": "SELECTED_FROM",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": [
+          "S1. Delegate Authority. The originator of the intelligence DOES PERMIT the unsupervised sanitisation of the material in order to allow dissemination to a wider audience",
+          "S2. Consult Originator. The originator of the intelligence DOES NOT PERMIT the sanitisation of the material for a wider dissemination without consultation being sought"
+        ]
+      },
+      {
+        "property_id": "PT977",
+        "property_name": "3x5x2 Notes",
+        "logical_type": "MULTIPLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT1054",
+        "property_name": "A Local Roaming Start",
+        "logical_type": "DATE_AND_TIME",
+        "mandatory": "false",
+        "max_len": "",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT1053",
+        "property_name": "B Local Roaming Start",
+        "logical_type": "DATE_AND_TIME",
+        "mandatory": "false",
+        "max_len": "",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT1055",
+        "property_name": "A Local Roaming End",
+        "logical_type": "DATE_AND_TIME",
+        "mandatory": "false",
+        "max_len": "",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT1056",
+        "property_name": "B Local Roaming End",
+        "logical_type": "DATE_AND_TIME",
+        "mandatory": "false",
+        "max_len": "",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT1057",
+        "property_name": "Roaming Info",
+        "logical_type": "SELECTED_FROM",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": [
+          "A",
+          "B",
+          "BOTH",
+          "NONE - CHECK",
+          "MATCHED ROAMING"
+        ]
+      },
+      {
+        "property_id": "PT288",
+        "property_name": "Additional Info",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "500",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT1092",
+        "property_name": "Attribution Info",
+        "logical_type": "MULTIPLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT1428",
+        "property_name": "SourceItemId",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT1585",
+        "property_name": "A-APN",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      },
+      {
+        "property_id": "PT1586",
+        "property_name": "B-APN",
+        "logical_type": "SINGLE_LINE_STRING",
+        "mandatory": "false",
+        "max_len": "250",
+        "semantic_type_id": "",
+        "possible_values": []
+      }
+    ]
+  }
+]

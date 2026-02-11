@@ -1,0 +1,106 @@
+[
+  {
+    "file": "Enlarge & Color Frames by Social Network Analysis Eigenvector.cfs",
+    "subject": "Use Social Network Analysis Eigenvector values to add and enlarge icon frames",
+    "rule_count": 2,
+    "rules": [
+      {
+        "target": "AllEntitiesTarget",
+        "style": "IconFrameMarginStyle",
+        "parameter": "AttributeParameter"
+      },
+      {
+        "target": "AllEntitiesTarget",
+        "style": "IconFrameColourStyle",
+        "parameter": "AttributeParameter"
+      }
+    ]
+  },
+  {
+    "file": "Enlarge Frames with the Most Links.cfs",
+    "subject": "Add an icon frame and set the icon frame margin width based on the number of links the entity has",
+    "rule_count": 1,
+    "rules": [
+      {
+        "target": "AllEntitiesTarget",
+        "style": "IconFrameMarginStyle",
+        "parameter": "AnalysisAttributeParameter"
+      }
+    ]
+  },
+  {
+    "file": "Enlarge Labels Containing Common Drug Names.cfs",
+    "subject": "Use a lookup table to check entity and link labels for common dug names",
+    "rule_count": 2,
+    "rules": [
+      {
+        "target": "AllEntitiesTarget",
+        "style": "LabelStyle",
+        "parameter": "AnalysisAttributeParameter"
+      },
+      {
+        "target": "AllLinksTarget",
+        "style": "LabelStyle",
+        "parameter": "AnalysisAttributeParameter"
+      }
+    ]
+  },
+  {
+    "file": "Link Width Based on Value of Transaction.cfs",
+    "subject": "Identify high value transactions by increasing thickness of links",
+    "rule_count": 2,
+    "rules": [
+      {
+        "target": "AllLinksTarget",
+        "style": "LabelStyle",
+        "parameter": "AnalysisAttributeParameter"
+      },
+      {
+        "target": "AllLinksTarget",
+        "style": "WidthStyle",
+        "parameter": "AnalysisAttributeParameter"
+      }
+    ]
+  },
+  {
+    "file": "Use Country Flags for Telephones with Calling Codes.cfs",
+    "subject": "Switch icons to flags to aid telephone analysis",
+    "rule_count": 2,
+    "rules": [
+      {
+        "target": "AllEntitiesTarget",
+        "style": "DisplayIconStyle",
+        "parameter": "AnalysisAttributeParameter"
+      },
+      {
+        "target": "AllEntitiesTarget",
+        "style": "DisplayIconStyle",
+        "parameter": "AnalysisAttributeParameter"
+      }
+    ]
+  },
+  {
+    "file": "Icon Formatting.cfs",
+    "subject": "",
+    "rule_count": 1,
+    "rules": [
+      {
+        "target": "AllEntitiesTarget",
+        "style": "DisplayIconStyle",
+        "parameter": "RecordPropertyParameter"
+      }
+    ]
+  },
+  {
+    "file": "Volume of calls.cfs",
+    "subject": "",
+    "rule_count": 1,
+    "rules": [
+      {
+        "target": "AllLinksTarget",
+        "style": "LineColourStyle",
+        "parameter": "RecordPropertyParameter"
+      }
+    ]
+  }
+]

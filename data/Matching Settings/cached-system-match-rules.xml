@@ -1,0 +1,1033 @@
+<?xml version="1.0" encoding="utf-8"?>
+<tns:matchRules xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.i2group.com/Schemas/2019-05-14/MatchRules MatchRules.xsd " version="2" enableSourceIdentifierMatching="false" xmlns:tns="http://www.i2group.com/Schemas/2019-05-14/MatchRules">
+  <matchRule id="2bdf3d56-36bf-45b8-8508-84fc220b7c0b" itemTypeId="LT15" displayName="muv" version="2" description="" active="true" linkDirectionOperator="EXACT_MATCH">
+    <matchAll>
+      <condition propertyTypeId="PT67">
+        <operator>EXACT_MATCH</operator>
+        <normalizations>
+          <normalization>IGNORE_CASE</normalization>
+          <normalization>SIMPLIFY_LIGATURES</normalization>
+          <normalization>IGNORE_DIACRITICS</normalization>
+          <normalization>IGNORE_WHITESPACE_AROUND</normalization>
+        </normalizations>
+      </condition>
+    </matchAll>
+    <matchAny xsi:nil="true" />
+  </matchRule>
+  <matchRule id="43085db6-eeff-43c8-ac46-093639f27fdb" itemTypeId="ET44" displayName="ActionFraudCase" version="1" description="" active="true">
+    <matchAll>
+      <condition propertyTypeId="PT1133">
+        <operator>EXACT_MATCH</operator>
+        <normalizations>
+          <normalization>IGNORE_CASE</normalization>
+          <normalization>SIMPLIFY_LIGATURES</normalization>
+          <normalization>IGNORE_DIACRITICS</normalization>
+          <normalization>IGNORE_NONALPHANUMERIC</normalization>
+          <normalization>IGNORE_WHITESPACE_BETWEEN</normalization>
+          <normalization>IGNORE_WHITESPACE_AROUND</normalization>
+        </normalizations>
+      </condition>
+    </matchAll>
+    <matchAny xsi:nil="true" />
+  </matchRule>
+  <matchRule id="f2a84b3b-0260-4634-bc99-d46e1f26b606" itemTypeId="ET36" displayName="ActionFraudNFRC" version="1" description="" active="true">
+    <matchAll>
+      <condition propertyTypeId="PT1058">
+        <operator>EXACT_MATCH_END</operator>
+        <value xsi:type="xsd:int">12</value>
+        <normalizations>
+          <normalization>IGNORE_CASE</normalization>
+          <normalization>SIMPLIFY_LIGATURES</normalization>
+          <normalization>IGNORE_DIACRITICS</normalization>
+          <normalization>IGNORE_NONALPHANUMERIC</normalization>
+          <normalization>IGNORE_WHITESPACE_BETWEEN</normalization>
+          <normalization>IGNORE_WHITESPACE_AROUND</normalization>
+        </normalizations>
+      </condition>
+    </matchAll>
+    <matchAny xsi:nil="true" />
+  </matchRule>
+  <matchRule id="e8cb1c89-0005-4e44-8cb4-e327dfb7e082" itemTypeId="ET25" displayName="Aircraft" version="1" description="" active="true">
+    <matchAll>
+      <condition propertyTypeId="PT173">
+        <operator>EXACT_MATCH</operator>
+        <normalizations>
+          <normalization>IGNORE_CASE</normalization>
+          <normalization>SIMPLIFY_LIGATURES</normalization>
+          <normalization>IGNORE_DIACRITICS</normalization>
+          <normalization>IGNORE_NONALPHANUMERIC</normalization>
+          <normalization>IGNORE_WHITESPACE_BETWEEN</normalization>
+          <normalization>IGNORE_WHITESPACE_AROUND</normalization>
+        </normalizations>
+      </condition>
+    </matchAll>
+    <matchAny xsi:nil="true" />
+  </matchRule>
+  <matchRule id="9885ad1b-f6c8-4f1d-81db-73eb14f0be73" itemTypeId="ET23" displayName="Booking" version="1" description="" active="true">
+    <matchAll>
+      <condition propertyTypeId="PT821">
+        <operator>EXACT_MATCH</operator>
+        <normalizations>
+          <normalization>IGNORE_CASE</normalization>
+          <normalization>SIMPLIFY_LIGATURES</normalization>
+          <normalization>IGNORE_DIACRITICS</normalization>
+          <normalization>IGNORE_NONALPHANUMERIC</normalization>
+          <normalization>IGNORE_WHITESPACE_BETWEEN</normalization>
+          <normalization>IGNORE_WHITESPACE_AROUND</normalization>
+        </normalizations>
+      </condition>
+    </matchAll>
+    <matchAny xsi:nil="true" />
+  </matchRule>
+  <matchRule id="08746c7e-f7cd-44ec-9424-4658a981a4e7" itemTypeId="ET30" displayName="Card" version="1" description="" active="true">
+    <matchAll>
+      <condition propertyTypeId="PT201">
+        <operator>EXACT_MATCH</operator>
+        <normalizations>
+          <normalization>IGNORE_CASE</normalization>
+          <normalization>SIMPLIFY_LIGATURES</normalization>
+          <normalization>IGNORE_DIACRITICS</normalization>
+          <normalization>IGNORE_NONALPHANUMERIC</normalization>
+          <normalization>IGNORE_WHITESPACE_BETWEEN</normalization>
+          <normalization>IGNORE_WHITESPACE_AROUND</normalization>
+        </normalizations>
+      </condition>
+    </matchAll>
+    <matchAny xsi:nil="true" />
+  </matchRule>
+  <matchRule id="992df280-bf94-4b9b-808e-dd378b8e51d7" itemTypeId="ET19" displayName="CommsDataRecord" version="1" description="" active="true">
+    <matchAll>
+      <condition propertyTypeId="PT152">
+        <operator>EXACT_MATCH</operator>
+        <normalizations>
+          <normalization>IGNORE_CASE</normalization>
+          <normalization>SIMPLIFY_LIGATURES</normalization>
+          <normalization>IGNORE_DIACRITICS</normalization>
+          <normalization>IGNORE_NONALPHANUMERIC</normalization>
+          <normalization>IGNORE_WHITESPACE_BETWEEN</normalization>
+          <normalization>IGNORE_WHITESPACE_AROUND</normalization>
+        </normalizations>
+      </condition>
+    </matchAll>
+    <matchAny xsi:nil="true" />
+  </matchRule>
+  <matchRule id="93f496a7-6fdb-42dc-9d0c-50832552878f" itemTypeId="ET8" displayName="Email" version="1" description="" active="true">
+    <matchAll>
+      <condition propertyTypeId="PT123">
+        <operator>EXACT_MATCH</operator>
+        <normalizations>
+          <normalization>IGNORE_CASE</normalization>
+          <normalization>SIMPLIFY_LIGATURES</normalization>
+          <normalization>IGNORE_DIACRITICS</normalization>
+          <normalization>IGNORE_NONALPHANUMERIC</normalization>
+          <normalization>IGNORE_WHITESPACE_BETWEEN</normalization>
+          <normalization>IGNORE_WHITESPACE_AROUND</normalization>
+        </normalizations>
+      </condition>
+      <condition propertyTypeId="COM2">
+        <operator>EQUAL_TO</operator>
+        <value xsi:type="xsd:string">E-Mail</value>
+        <normalizations>
+          <normalization>IGNORE_CASE</normalization>
+          <normalization>SIMPLIFY_LIGATURES</normalization>
+          <normalization>IGNORE_DIACRITICS</normalization>
+          <normalization>IGNORE_WHITESPACE_AROUND</normalization>
+        </normalizations>
+      </condition>
+    </matchAll>
+    <matchAny xsi:nil="true" />
+  </matchRule>
+  <matchRule id="ce4a3b8a-4dc2-4d44-95f5-001492073457" itemTypeId="ET8" displayName="Username" version="1" description="" active="true">
+    <matchAll>
+      <condition propertyTypeId="PT123">
+        <operator>EXACT_MATCH</operator>
+        <normalizations>
+          <normalization>IGNORE_CASE</normalization>
+          <normalization>SIMPLIFY_LIGATURES</normalization>
+          <normalization>IGNORE_DIACRITICS</normalization>
+          <normalization>IGNORE_NONALPHANUMERIC</normalization>
+          <normalization>IGNORE_WHITESPACE_BETWEEN</normalization>
+          <normalization>IGNORE_WHITESPACE_AROUND</normalization>
+        </normalizations>
+      </condition>
+      <condition propertyTypeId="COM2">
+        <operator>EQUAL_TO</operator>
+        <value xsi:type="xsd:string">Username</value>
+        <normalizations>
+          <normalization>IGNORE_CASE</normalization>
+          <normalization>SIMPLIFY_LIGATURES</normalization>
+          <normalization>IGNORE_DIACRITICS</normalization>
+          <normalization>IGNORE_WHITESPACE_AROUND</normalization>
+        </normalizations>
+      </condition>
+    </matchAll>
+    <matchAny xsi:nil="true" />
+  </matchRule>
+  <matchRule id="c821d73f-f618-4c56-8301-3886035b4852" itemTypeId="ET8" displayName="Phone Number" version="1" description="" active="true">
+    <matchAll>
+      <condition propertyTypeId="PT123">
+        <operator>EXACT_MATCH_END</operator>
+        <value xsi:type="xsd:int">9</value>
+        <normalizations>
+          <normalization>IGNORE_CASE</normalization>
+          <normalization>SIMPLIFY_LIGATURES</normalization>
+          <normalization>IGNORE_DIACRITICS</normalization>
+          <normalization>IGNORE_NONALPHANUMERIC</normalization>
+          <normalization>IGNORE_WHITESPACE_BETWEEN</normalization>
+          <normalization>IGNORE_WHITESPACE_AROUND</normalization>
+        </normalizations>
+      </condition>
+      <condition propertyTypeId="COM2">
+        <operator>EQUAL_TO</operator>
+        <value xsi:type="xsd:string">Telephone Number</value>
+        <normalizations>
+          <normalization>IGNORE_CASE</normalization>
+          <normalization>SIMPLIFY_LIGATURES</normalization>
+          <normalization>IGNORE_DIACRITICS</normalization>
+          <normalization>IGNORE_WHITESPACE_AROUND</normalization>
+        </normalizations>
+      </condition>
+    </matchAll>
+    <matchAny xsi:nil="true" />
+  </matchRule>
+  <matchRule id="b495cdf1-47d6-4b96-bc40-029ad3781afe" itemTypeId="ET8" displayName="Other" version="1" description="" active="true">
+    <matchAll>
+      <condition propertyTypeId="PT123">
+        <operator>EXACT_MATCH</operator>
+        <normalizations>
+          <normalization>IGNORE_CASE</normalization>
+          <normalization>SIMPLIFY_LIGATURES</normalization>
+          <normalization>IGNORE_DIACRITICS</normalization>
+          <normalization>IGNORE_NONALPHANUMERIC</normalization>
+          <normalization>IGNORE_WHITESPACE_BETWEEN</normalization>
+          <normalization>IGNORE_WHITESPACE_AROUND</normalization>
+        </normalizations>
+      </condition>
+      <condition propertyTypeId="COM2">
+        <operator>EQUAL_TO</operator>
+        <value xsi:type="xsd:string">Other</value>
+        <normalizations>
+          <normalization>IGNORE_CASE</normalization>
+          <normalization>SIMPLIFY_LIGATURES</normalization>
+          <normalization>IGNORE_DIACRITICS</normalization>
+          <normalization>IGNORE_WHITESPACE_AROUND</normalization>
+        </normalizations>
+      </condition>
+    </matchAll>
+    <matchAny xsi:nil="true" />
+  </matchRule>
+  <matchRule id="87220fe0-add3-4111-a598-06307b860795" itemTypeId="ET20" displayName="Contact" version="1" description="" active="true">
+    <matchAll>
+      <condition propertyTypeId="PT155">
+        <operator>EXACT_MATCH_END</operator>
+        <value xsi:type="xsd:int">8</value>
+        <normalizations>
+          <normalization>IGNORE_CASE</normalization>
+          <normalization>SIMPLIFY_LIGATURES</normalization>
+          <normalization>IGNORE_DIACRITICS</normalization>
+          <normalization>IGNORE_NONALPHANUMERIC</normalization>
+          <normalization>IGNORE_WHITESPACE_BETWEEN</normalization>
+          <normalization>IGNORE_WHITESPACE_AROUND</normalization>
+        </normalizations>
+      </condition>
+    </matchAll>
+    <matchAny xsi:nil="true" />
+  </matchRule>
+  <matchRule id="a26a9735-7b17-4779-a490-4fcbbf741a28" itemTypeId="ET26" displayName="Container" version="1" description="" active="true">
+    <matchAll>
+      <condition propertyTypeId="PT197">
+        <operator>EXACT_MATCH_END</operator>
+        <value xsi:type="xsd:int">7</value>
+        <normalizations>
+          <normalization>IGNORE_CASE</normalization>
+          <normalization>SIMPLIFY_LIGATURES</normalization>
+          <normalization>IGNORE_DIACRITICS</normalization>
+          <normalization>IGNORE_NONALPHANUMERIC</normalization>
+          <normalization>IGNORE_WHITESPACE_BETWEEN</normalization>
+          <normalization>IGNORE_WHITESPACE_AROUND</normalization>
+        </normalizations>
+      </condition>
+    </matchAll>
+    <matchAny xsi:nil="true" />
+  </matchRule>
+  <matchRule id="36b18df7-ffd8-4790-b823-e3b11358c542" itemTypeId="ET6" displayName="Document" version="1" description="" active="true">
+    <matchAll>
+      <condition propertyTypeId="INT1">
+        <operator>EXACT_MATCH</operator>
+        <normalizations>
+          <normalization>IGNORE_CASE</normalization>
+          <normalization>SIMPLIFY_LIGATURES</normalization>
+          <normalization>IGNORE_DIACRITICS</normalization>
+          <normalization>IGNORE_NONALPHANUMERIC</normalization>
+          <normalization>IGNORE_WHITESPACE_BETWEEN</normalization>
+          <normalization>IGNORE_WHITESPACE_AROUND</normalization>
+        </normalizations>
+      </condition>
+      <condition propertyTypeId="INT14">
+        <operator>EXACT_MATCH</operator>
+        <normalizations>
+          <normalization>IGNORE_CASE</normalization>
+          <normalization>SIMPLIFY_LIGATURES</normalization>
+          <normalization>IGNORE_DIACRITICS</normalization>
+          <normalization>IGNORE_WHITESPACE_AROUND</normalization>
+        </normalizations>
+      </condition>
+    </matchAll>
+    <matchAny xsi:nil="true" />
+  </matchRule>
+  <matchRule id="22964c7e-244b-41cc-ae1a-2041d9a63855" itemTypeId="ET14" displayName="DrivingLicence" version="1" description="" active="true">
+    <matchAll>
+      <condition propertyTypeId="PT612">
+        <operator>EXACT_MATCH</operator>
+        <normalizations>
+          <normalization>IGNORE_CASE</normalization>
+          <normalization>SIMPLIFY_LIGATURES</normalization>
+          <normalization>IGNORE_DIACRITICS</normalization>
+          <normalization>IGNORE_NONALPHANUMERIC</normalization>
+          <normalization>IGNORE_WHITESPACE_BETWEEN</normalization>
+          <normalization>IGNORE_WHITESPACE_AROUND</normalization>
+        </normalizations>
+      </condition>
+    </matchAll>
+    <matchAny xsi:nil="true" />
+  </matchRule>
+  <matchRule id="20f847fd-a0cb-4a5c-bfca-0f48a4914045" itemTypeId="ET17" displayName="ExhibitRef" version="1" description="" active="true">
+    <matchAll>
+      <condition propertyTypeId="PT148">
+        <operator>EXACT_MATCH</operator>
+        <normalizations>
+          <normalization>IGNORE_CASE</normalization>
+          <normalization>SIMPLIFY_LIGATURES</normalization>
+          <normalization>IGNORE_DIACRITICS</normalization>
+          <normalization>IGNORE_NONALPHANUMERIC</normalization>
+          <normalization>IGNORE_WHITESPACE_BETWEEN</normalization>
+          <normalization>IGNORE_WHITESPACE_AROUND</normalization>
+        </normalizations>
+      </condition>
+      <condition propertyTypeId="PT151">
+        <operator>EXACT_MATCH</operator>
+        <normalizations>
+          <normalization>IGNORE_CASE</normalization>
+          <normalization>SIMPLIFY_LIGATURES</normalization>
+          <normalization>IGNORE_DIACRITICS</normalization>
+          <normalization>IGNORE_NONALPHANUMERIC</normalization>
+          <normalization>IGNORE_WHITESPACE_BETWEEN</normalization>
+          <normalization>IGNORE_WHITESPACE_AROUND</normalization>
+        </normalizations>
+      </condition>
+    </matchAll>
+    <matchAny xsi:nil="true" />
+  </matchRule>
+  <matchRule id="022dbbd2-c0ea-4da8-b86a-a9e87b706b23" itemTypeId="ET10" displayName="BankAccandSC" version="1" description="" active="true">
+    <matchAll>
+      <condition propertyTypeId="PT681">
+        <operator>EQUAL_TO</operator>
+        <value xsi:type="xsd:string">Traditional Banking</value>
+        <normalizations>
+          <normalization>IGNORE_CASE</normalization>
+          <normalization>SIMPLIFY_LIGATURES</normalization>
+          <normalization>IGNORE_DIACRITICS</normalization>
+          <normalization>IGNORE_WHITESPACE_AROUND</normalization>
+        </normalizations>
+      </condition>
+      <condition propertyTypeId="ACC3">
+        <operator>EXACT_MATCH</operator>
+        <normalizations>
+          <normalization>IGNORE_CASE</normalization>
+          <normalization>SIMPLIFY_LIGATURES</normalization>
+          <normalization>IGNORE_DIACRITICS</normalization>
+          <normalization>IGNORE_NONALPHANUMERIC</normalization>
+          <normalization>IGNORE_WHITESPACE_BETWEEN</normalization>
+          <normalization>IGNORE_WHITESPACE_AROUND</normalization>
+        </normalizations>
+      </condition>
+      <condition propertyTypeId="ACC4">
+        <operator>EXACT_MATCH</operator>
+        <normalizations>
+          <normalization>IGNORE_CASE</normalization>
+          <normalization>SIMPLIFY_LIGATURES</normalization>
+          <normalization>IGNORE_DIACRITICS</normalization>
+          <normalization>IGNORE_NONALPHANUMERIC</normalization>
+          <normalization>IGNORE_WHITESPACE_BETWEEN</normalization>
+          <normalization>IGNORE_WHITESPACE_AROUND</normalization>
+        </normalizations>
+      </condition>
+    </matchAll>
+    <matchAny xsi:nil="true" />
+  </matchRule>
+  <matchRule id="b9fa370b-4f63-4283-b314-fe1097cc85ec" itemTypeId="ET10" displayName="Crypto" version="1" description="" active="true">
+    <matchAll>
+      <condition propertyTypeId="PT681">
+        <operator>EQUAL_TO</operator>
+        <value xsi:type="xsd:string">Cryptocurrency</value>
+        <normalizations>
+          <normalization>IGNORE_CASE</normalization>
+          <normalization>SIMPLIFY_LIGATURES</normalization>
+          <normalization>IGNORE_DIACRITICS</normalization>
+          <normalization>IGNORE_WHITESPACE_AROUND</normalization>
+        </normalizations>
+      </condition>
+      <condition propertyTypeId="ACC3">
+        <operator>EXACT_MATCH</operator>
+        <normalizations>
+          <normalization>IGNORE_CASE</normalization>
+          <normalization>SIMPLIFY_LIGATURES</normalization>
+          <normalization>IGNORE_DIACRITICS</normalization>
+          <normalization>IGNORE_WHITESPACE_AROUND</normalization>
+        </normalizations>
+      </condition>
+    </matchAll>
+    <matchAny xsi:nil="true" />
+  </matchRule>
+  <matchRule id="4e914d1c-0282-43a5-831a-d358b88daa9d" itemTypeId="ET10" displayName="IBAN" version="1" description="" active="true">
+    <matchAll>
+      <condition propertyTypeId="PT681">
+        <operator>EQUAL_TO</operator>
+        <value xsi:type="xsd:string">Traditional Banking</value>
+        <normalizations>
+          <normalization>IGNORE_CASE</normalization>
+          <normalization>SIMPLIFY_LIGATURES</normalization>
+          <normalization>IGNORE_DIACRITICS</normalization>
+          <normalization>IGNORE_WHITESPACE_AROUND</normalization>
+        </normalizations>
+      </condition>
+      <condition propertyTypeId="PT1086">
+        <operator>EXACT_MATCH</operator>
+        <normalizations>
+          <normalization>IGNORE_CASE</normalization>
+          <normalization>SIMPLIFY_LIGATURES</normalization>
+          <normalization>IGNORE_DIACRITICS</normalization>
+          <normalization>IGNORE_NONALPHANUMERIC</normalization>
+          <normalization>IGNORE_WHITESPACE_BETWEEN</normalization>
+          <normalization>IGNORE_WHITESPACE_AROUND</normalization>
+        </normalizations>
+      </condition>
+    </matchAll>
+    <matchAny xsi:nil="true" />
+  </matchRule>
+  <matchRule id="1d4463fe-0c06-45a9-8c9f-2d4fb98b2379" itemTypeId="ET9" displayName="Firearm" version="1" description="" active="true">
+    <matchAll>
+      <condition propertyTypeId="PT15">
+        <operator>EXACT_MATCH</operator>
+        <normalizations>
+          <normalization>IGNORE_CASE</normalization>
+          <normalization>SIMPLIFY_LIGATURES</normalization>
+          <normalization>IGNORE_DIACRITICS</normalization>
+          <normalization>IGNORE_NONALPHANUMERIC</normalization>
+          <normalization>IGNORE_WHITESPACE_BETWEEN</normalization>
+          <normalization>IGNORE_WHITESPACE_AROUND</normalization>
+        </normalizations>
+      </condition>
+    </matchAll>
+    <matchAny xsi:nil="true" />
+  </matchRule>
+  <matchRule id="7d54b739-86ba-4987-a827-27121678dab6" itemTypeId="ET29" displayName="ICCID" version="1" description="" active="true">
+    <matchAll>
+      <condition propertyTypeId="PT112">
+        <operator>EXACT_MATCH</operator>
+        <normalizations>
+          <normalization>IGNORE_CASE</normalization>
+          <normalization>SIMPLIFY_LIGATURES</normalization>
+          <normalization>IGNORE_DIACRITICS</normalization>
+          <normalization>IGNORE_NONALPHANUMERIC</normalization>
+          <normalization>IGNORE_WHITESPACE_BETWEEN</normalization>
+          <normalization>IGNORE_WHITESPACE_AROUND</normalization>
+        </normalizations>
+      </condition>
+    </matchAll>
+    <matchAny xsi:nil="true" />
+  </matchRule>
+  <matchRule id="19e50c23-586a-47b4-bede-4df9ae846447" itemTypeId="ET31" displayName="ID Document" version="1" description="" active="true">
+    <matchAll xsi:nil="true" />
+    <matchAny>
+      <condition propertyTypeId="PT582">
+        <operator>EXACT_MATCH</operator>
+        <normalizations>
+          <normalization>SIMPLIFY_LIGATURES</normalization>
+          <normalization>IGNORE_DIACRITICS</normalization>
+          <normalization>IGNORE_NONALPHANUMERIC</normalization>
+          <normalization>IGNORE_WHITESPACE_BETWEEN</normalization>
+          <normalization>IGNORE_WHITESPACE_AROUND</normalization>
+        </normalizations>
+      </condition>
+      <condition propertyTypeId="PT887">
+        <operator>EXACT_MATCH</operator>
+        <normalizations xsi:nil="true" />
+      </condition>
+    </matchAny>
+  </matchRule>
+  <matchRule id="ecf0115d-3eac-46e8-aa42-018ce701f8c4" itemTypeId="ET16" displayName="IMEI" version="1" description="" active="true">
+    <matchAll>
+      <condition propertyTypeId="PT141">
+        <operator>EXACT_MATCH_START</operator>
+        <value xsi:type="xsd:int">14</value>
+        <normalizations>
+          <normalization>IGNORE_CASE</normalization>
+          <normalization>SIMPLIFY_LIGATURES</normalization>
+          <normalization>IGNORE_DIACRITICS</normalization>
+          <normalization>IGNORE_NONALPHANUMERIC</normalization>
+          <normalization>IGNORE_WHITESPACE_BETWEEN</normalization>
+          <normalization>IGNORE_WHITESPACE_AROUND</normalization>
+        </normalizations>
+      </condition>
+    </matchAll>
+    <matchAny xsi:nil="true" />
+  </matchRule>
+  <matchRule id="c56ca6f5-d7cf-4ca7-b72c-c3c45a35527f" itemTypeId="ET18" displayName="IMSI" version="1" description="" active="true">
+    <matchAll>
+      <condition propertyTypeId="PT109">
+        <operator>EXACT_MATCH_START</operator>
+        <value xsi:type="xsd:int">14</value>
+        <normalizations>
+          <normalization>IGNORE_CASE</normalization>
+          <normalization>SIMPLIFY_LIGATURES</normalization>
+          <normalization>IGNORE_DIACRITICS</normalization>
+          <normalization>IGNORE_NONALPHANUMERIC</normalization>
+          <normalization>IGNORE_WHITESPACE_BETWEEN</normalization>
+          <normalization>IGNORE_WHITESPACE_AROUND</normalization>
+        </normalizations>
+      </condition>
+    </matchAll>
+    <matchAny xsi:nil="true" />
+  </matchRule>
+  <matchRule id="9b3fd161-4061-4934-bc95-e7a70e1ab502" itemTypeId="ET41" displayName="IntelRef" version="1" description="" active="true">
+    <matchAll>
+      <condition propertyTypeId="PT1074">
+        <operator>EXACT_MATCH</operator>
+        <normalizations>
+          <normalization>IGNORE_CASE</normalization>
+          <normalization>SIMPLIFY_LIGATURES</normalization>
+          <normalization>IGNORE_DIACRITICS</normalization>
+          <normalization>IGNORE_NONALPHANUMERIC</normalization>
+          <normalization>IGNORE_WHITESPACE_BETWEEN</normalization>
+          <normalization>IGNORE_WHITESPACE_AROUND</normalization>
+        </normalizations>
+      </condition>
+    </matchAll>
+    <matchAny xsi:nil="true" />
+  </matchRule>
+  <matchRule id="c177bcc4-e885-4a03-ac6a-4df0b783d8c6" itemTypeId="ET22" displayName="IPAddress" version="1" description="" active="true">
+    <matchAll>
+      <condition propertyTypeId="PT164">
+        <operator>EXACT_MATCH</operator>
+        <normalizations>
+          <normalization>IGNORE_CASE</normalization>
+          <normalization>SIMPLIFY_LIGATURES</normalization>
+          <normalization>IGNORE_DIACRITICS</normalization>
+          <normalization>IGNORE_NONALPHANUMERIC</normalization>
+          <normalization>IGNORE_WHITESPACE_BETWEEN</normalization>
+          <normalization>IGNORE_WHITESPACE_AROUND</normalization>
+        </normalizations>
+      </condition>
+    </matchAll>
+    <matchAny xsi:nil="true" />
+  </matchRule>
+  <matchRule id="75c2f32a-8a45-4fd1-85e0-87091679fff7" itemTypeId="ET1" displayName="LocationCellSite" version="1" description="" active="true">
+    <matchAll>
+      <condition propertyTypeId="ADD25">
+        <operator>EQUAL_TO</operator>
+        <value xsi:type="xsd:string">Cell Site</value>
+        <normalizations>
+          <normalization>IGNORE_CASE</normalization>
+          <normalization>SIMPLIFY_LIGATURES</normalization>
+          <normalization>IGNORE_DIACRITICS</normalization>
+          <normalization>IGNORE_WHITESPACE_BETWEEN</normalization>
+          <normalization>IGNORE_WHITESPACE_AROUND</normalization>
+        </normalizations>
+      </condition>
+      <condition propertyTypeId="PT231">
+        <operator>EXACT_MATCH</operator>
+        <normalizations>
+          <normalization>IGNORE_CASE</normalization>
+          <normalization>SIMPLIFY_LIGATURES</normalization>
+          <normalization>IGNORE_DIACRITICS</normalization>
+          <normalization>IGNORE_NONALPHANUMERIC</normalization>
+          <normalization>IGNORE_WHITESPACE_BETWEEN</normalization>
+          <normalization>IGNORE_WHITESPACE_AROUND</normalization>
+        </normalizations>
+      </condition>
+      <condition propertyTypeId="PT233">
+        <operator>EXACT_MATCH</operator>
+        <normalizations>
+          <normalization>IGNORE_CASE</normalization>
+          <normalization>SIMPLIFY_LIGATURES</normalization>
+          <normalization>IGNORE_DIACRITICS</normalization>
+          <normalization>IGNORE_WHITESPACE_BETWEEN</normalization>
+          <normalization>IGNORE_WHITESPACE_AROUND</normalization>
+        </normalizations>
+      </condition>
+    </matchAll>
+    <matchAny xsi:nil="true" />
+  </matchRule>
+  <matchRule id="d4ad1513-9116-4661-a939-aa5a6566102c" itemTypeId="ET35" displayName="MAC" version="1" description="" active="true">
+    <matchAll>
+      <condition propertyTypeId="PT262">
+        <operator>EXACT_MATCH</operator>
+        <normalizations>
+          <normalization>IGNORE_CASE</normalization>
+          <normalization>SIMPLIFY_LIGATURES</normalization>
+          <normalization>IGNORE_DIACRITICS</normalization>
+          <normalization>IGNORE_NONALPHANUMERIC</normalization>
+          <normalization>IGNORE_WHITESPACE_BETWEEN</normalization>
+          <normalization>IGNORE_WHITESPACE_AROUND</normalization>
+        </normalizations>
+      </condition>
+    </matchAll>
+    <matchAny xsi:nil="true" />
+  </matchRule>
+  <matchRule id="af7b8d8d-3d88-4a9f-8cc8-bca232c4a024" itemTypeId="ET42" displayName="Message" version="1" description="" active="true">
+    <matchAll>
+      <condition propertyTypeId="PT1099">
+        <operator>EXACT_MATCH</operator>
+        <normalizations xsi:nil="true" />
+      </condition>
+      <condition propertyTypeId="PT1101">
+        <operator>EXACT_MATCH</operator>
+        <normalizations>
+          <normalization>IGNORE_CASE</normalization>
+          <normalization>SIMPLIFY_LIGATURES</normalization>
+          <normalization>IGNORE_DIACRITICS</normalization>
+          <normalization>IGNORE_NONALPHANUMERIC</normalization>
+          <normalization>IGNORE_WHITESPACE_BETWEEN</normalization>
+          <normalization>IGNORE_WHITESPACE_AROUND</normalization>
+        </normalizations>
+      </condition>
+      <condition propertyTypeId="PT1100">
+        <operator>EXACT_MATCH</operator>
+        <normalizations>
+          <normalization>IGNORE_CASE</normalization>
+          <normalization>SIMPLIFY_LIGATURES</normalization>
+          <normalization>IGNORE_DIACRITICS</normalization>
+          <normalization>IGNORE_NONALPHANUMERIC</normalization>
+          <normalization>IGNORE_WHITESPACE_BETWEEN</normalization>
+          <normalization>IGNORE_WHITESPACE_AROUND</normalization>
+        </normalizations>
+      </condition>
+    </matchAll>
+    <matchAny xsi:nil="true" />
+  </matchRule>
+  <matchRule id="6fb24c1d-a007-437a-bd9f-17fb780e7771" itemTypeId="ET12" displayName="Operation" version="1" description="" active="true">
+    <matchAll>
+      <condition propertyTypeId="PT23">
+        <operator>EXACT_MATCH</operator>
+        <normalizations>
+          <normalization>IGNORE_CASE</normalization>
+          <normalization>SIMPLIFY_LIGATURES</normalization>
+          <normalization>IGNORE_DIACRITICS</normalization>
+          <normalization>IGNORE_NONALPHANUMERIC</normalization>
+          <normalization>IGNORE_WHITESPACE_BETWEEN</normalization>
+          <normalization>IGNORE_WHITESPACE_AROUND</normalization>
+        </normalizations>
+      </condition>
+    </matchAll>
+    <matchAny xsi:nil="true" />
+  </matchRule>
+  <matchRule id="51c4267e-6d63-4636-9caa-409a405849d5" itemTypeId="ET27" displayName="PPT" version="1" description="" active="true">
+    <matchAll xsi:nil="true" />
+    <matchAny>
+      <condition propertyTypeId="PT122">
+        <operator>EXACT_MATCH</operator>
+        <normalizations>
+          <normalization>IGNORE_CASE</normalization>
+          <normalization>SIMPLIFY_LIGATURES</normalization>
+          <normalization>IGNORE_DIACRITICS</normalization>
+          <normalization>IGNORE_NONALPHANUMERIC</normalization>
+          <normalization>IGNORE_WHITESPACE_BETWEEN</normalization>
+          <normalization>IGNORE_WHITESPACE_AROUND</normalization>
+        </normalizations>
+      </condition>
+      <condition propertyTypeId="PT120">
+        <operator>EXACT_MATCH</operator>
+        <normalizations xsi:nil="true" />
+      </condition>
+    </matchAny>
+  </matchRule>
+  <matchRule id="bed20f33-f477-4874-bbe9-bf4cb4673bcf" itemTypeId="ET5" displayName="Person" version="1" description="" active="true">
+    <matchAll>
+      <condition propertyTypeId="PER6">
+        <operator>EXACT_MATCH</operator>
+        <normalizations>
+          <normalization>IGNORE_CASE</normalization>
+          <normalization>SIMPLIFY_LIGATURES</normalization>
+          <normalization>IGNORE_DIACRITICS</normalization>
+          <normalization>IGNORE_NONALPHANUMERIC</normalization>
+          <normalization>IGNORE_WHITESPACE_BETWEEN</normalization>
+          <normalization>IGNORE_WHITESPACE_AROUND</normalization>
+        </normalizations>
+      </condition>
+      <condition propertyTypeId="PER4">
+        <operator>EXACT_MATCH</operator>
+        <normalizations>
+          <normalization>IGNORE_CASE</normalization>
+          <normalization>SIMPLIFY_LIGATURES</normalization>
+          <normalization>IGNORE_DIACRITICS</normalization>
+          <normalization>IGNORE_NONALPHANUMERIC</normalization>
+          <normalization>IGNORE_WHITESPACE_BETWEEN</normalization>
+          <normalization>IGNORE_WHITESPACE_AROUND</normalization>
+        </normalizations>
+      </condition>
+    </matchAll>
+    <matchAny xsi:nil="true" />
+  </matchRule>
+  <matchRule id="e8569c74-e82c-4c9a-b9fa-41f7889d7cad" itemTypeId="ET38" displayName="SurvOpLog" version="1" description="" active="true">
+    <matchAll>
+      <condition propertyTypeId="PT701">
+        <operator>EXACT_MATCH</operator>
+        <normalizations>
+          <normalization>IGNORE_CASE</normalization>
+          <normalization>SIMPLIFY_LIGATURES</normalization>
+          <normalization>IGNORE_DIACRITICS</normalization>
+          <normalization>IGNORE_NONALPHANUMERIC</normalization>
+          <normalization>IGNORE_WHITESPACE_BETWEEN</normalization>
+          <normalization>IGNORE_WHITESPACE_AROUND</normalization>
+        </normalizations>
+      </condition>
+      <condition propertyTypeId="PT702">
+        <operator>EXACT_MATCH</operator>
+        <normalizations>
+          <normalization>IGNORE_CASE</normalization>
+          <normalization>SIMPLIFY_LIGATURES</normalization>
+          <normalization>IGNORE_DIACRITICS</normalization>
+          <normalization>IGNORE_NONALPHANUMERIC</normalization>
+          <normalization>IGNORE_WHITESPACE_BETWEEN</normalization>
+          <normalization>IGNORE_WHITESPACE_AROUND</normalization>
+        </normalizations>
+      </condition>
+    </matchAll>
+    <matchAny xsi:nil="true" />
+  </matchRule>
+  <matchRule id="6eb3c15f-c487-4e4f-8da7-b9b93f60c726" itemTypeId="ET28" displayName="Trailer" version="1" description="" active="true">
+    <matchAll>
+      <condition propertyTypeId="PT840">
+        <operator>EXACT_MATCH</operator>
+        <normalizations>
+          <normalization>IGNORE_CASE</normalization>
+          <normalization>SIMPLIFY_LIGATURES</normalization>
+          <normalization>IGNORE_DIACRITICS</normalization>
+          <normalization>IGNORE_NONALPHANUMERIC</normalization>
+          <normalization>IGNORE_WHITESPACE_BETWEEN</normalization>
+          <normalization>IGNORE_WHITESPACE_AROUND</normalization>
+        </normalizations>
+      </condition>
+    </matchAll>
+    <matchAny xsi:nil="true" />
+  </matchRule>
+  <matchRule id="0491a119-8160-4a9e-acd3-00bd8cd02272" itemTypeId="ET40" displayName="URL" version="1" description="" active="true">
+    <matchAll>
+      <condition propertyTypeId="PT269">
+        <operator>EXACT_MATCH</operator>
+        <normalizations>
+          <normalization>IGNORE_CASE</normalization>
+          <normalization>SIMPLIFY_LIGATURES</normalization>
+          <normalization>IGNORE_DIACRITICS</normalization>
+          <normalization>IGNORE_NONALPHANUMERIC</normalization>
+          <normalization>IGNORE_WHITESPACE_BETWEEN</normalization>
+          <normalization>IGNORE_WHITESPACE_AROUND</normalization>
+        </normalizations>
+      </condition>
+    </matchAll>
+    <matchAny xsi:nil="true" />
+  </matchRule>
+  <matchRule id="07383302-0b19-4136-8fa7-85549012b838" itemTypeId="ET3" displayName="Vehicle" version="1" description="" active="true">
+    <matchAll>
+      <condition propertyTypeId="VEH2">
+        <operator>EXACT_MATCH</operator>
+        <normalizations>
+          <normalization>IGNORE_CASE</normalization>
+          <normalization>SIMPLIFY_LIGATURES</normalization>
+          <normalization>IGNORE_DIACRITICS</normalization>
+          <normalization>IGNORE_NONALPHANUMERIC</normalization>
+          <normalization>IGNORE_WHITESPACE_BETWEEN</normalization>
+          <normalization>IGNORE_WHITESPACE_AROUND</normalization>
+        </normalizations>
+      </condition>
+    </matchAll>
+    <matchAny xsi:nil="true" />
+  </matchRule>
+  <matchRule id="518f7b3d-bdf1-497c-bd2d-f099d0da6942" itemTypeId="ET24" displayName="Vessel" version="1" description="" active="true">
+    <matchAll xsi:nil="true" />
+    <matchAny>
+      <condition propertyTypeId="PT246">
+        <operator>EXACT_MATCH</operator>
+        <normalizations>
+          <normalization>IGNORE_CASE</normalization>
+          <normalization>SIMPLIFY_LIGATURES</normalization>
+          <normalization>IGNORE_DIACRITICS</normalization>
+          <normalization>IGNORE_NONALPHANUMERIC</normalization>
+          <normalization>IGNORE_WHITESPACE_BETWEEN</normalization>
+          <normalization>IGNORE_WHITESPACE_AROUND</normalization>
+        </normalizations>
+      </condition>
+      <condition propertyTypeId="PT251">
+        <operator>EXACT_MATCH</operator>
+        <normalizations>
+          <normalization>IGNORE_CASE</normalization>
+          <normalization>SIMPLIFY_LIGATURES</normalization>
+          <normalization>IGNORE_DIACRITICS</normalization>
+          <normalization>IGNORE_NONALPHANUMERIC</normalization>
+          <normalization>IGNORE_WHITESPACE_BETWEEN</normalization>
+          <normalization>IGNORE_WHITESPACE_AROUND</normalization>
+        </normalizations>
+      </condition>
+    </matchAny>
+  </matchRule>
+  <matchRule id="26c4b29e-a183-44f3-9693-2f2302f73e5e" itemTypeId="ET39" displayName="WiFiAccessPoint" version="1" description="" active="true">
+    <matchAll xsi:nil="true" />
+    <matchAny>
+      <condition propertyTypeId="PT39">
+        <operator>EXACT_MATCH</operator>
+        <normalizations>
+          <normalization>IGNORE_CASE</normalization>
+          <normalization>SIMPLIFY_LIGATURES</normalization>
+          <normalization>IGNORE_DIACRITICS</normalization>
+          <normalization>IGNORE_NONALPHANUMERIC</normalization>
+          <normalization>IGNORE_WHITESPACE_BETWEEN</normalization>
+          <normalization>IGNORE_WHITESPACE_AROUND</normalization>
+        </normalizations>
+      </condition>
+      <condition propertyTypeId="PT40">
+        <operator>EXACT_MATCH</operator>
+        <normalizations>
+          <normalization>IGNORE_CASE</normalization>
+          <normalization>SIMPLIFY_LIGATURES</normalization>
+          <normalization>IGNORE_DIACRITICS</normalization>
+          <normalization>IGNORE_NONALPHANUMERIC</normalization>
+          <normalization>IGNORE_WHITESPACE_BETWEEN</normalization>
+          <normalization>IGNORE_WHITESPACE_AROUND</normalization>
+        </normalizations>
+      </condition>
+      <condition propertyTypeId="PT1111">
+        <operator>EXACT_MATCH</operator>
+        <normalizations>
+          <normalization>IGNORE_CASE</normalization>
+          <normalization>SIMPLIFY_LIGATURES</normalization>
+          <normalization>IGNORE_DIACRITICS</normalization>
+          <normalization>IGNORE_NONALPHANUMERIC</normalization>
+          <normalization>IGNORE_WHITESPACE_BETWEEN</normalization>
+          <normalization>IGNORE_WHITESPACE_AROUND</normalization>
+        </normalizations>
+      </condition>
+    </matchAny>
+  </matchRule>
+  <matchRule id="20cc65fe-4304-44f5-82c6-b9c4cc9434b7" itemTypeId="LAS1" displayName="AssociationLink" version="2" description="" active="true" linkDirectionOperator="EXACT_MATCH">
+    <matchAll xsi:nil="true" />
+    <matchAny>
+      <condition propertyTypeId="LAS4">
+        <operator>EXACT_MATCH</operator>
+        <normalizations>
+          <normalization>IGNORE_CASE</normalization>
+          <normalization>SIMPLIFY_LIGATURES</normalization>
+          <normalization>IGNORE_DIACRITICS</normalization>
+          <normalization>IGNORE_WHITESPACE_BETWEEN</normalization>
+          <normalization>IGNORE_WHITESPACE_AROUND</normalization>
+        </normalizations>
+      </condition>
+      <condition propertyTypeId="PT552">
+        <operator>EXACT_MATCH</operator>
+        <normalizations>
+          <normalization>IGNORE_CASE</normalization>
+          <normalization>SIMPLIFY_LIGATURES</normalization>
+          <normalization>IGNORE_DIACRITICS</normalization>
+          <normalization>IGNORE_WHITESPACE_BETWEEN</normalization>
+          <normalization>IGNORE_WHITESPACE_AROUND</normalization>
+        </normalizations>
+      </condition>
+      <condition propertyTypeId="LAS5">
+        <operator>EXACT_MATCH</operator>
+        <normalizations xsi:nil="true" />
+      </condition>
+    </matchAny>
+  </matchRule>
+  <matchRule id="b2def623-e381-4a71-ba14-1e86d00b783d" itemTypeId="LT3" displayName="CDRLink" version="2" description="" active="true" linkDirectionOperator="EXACT_MATCH">
+    <matchAll>
+      <condition propertyTypeId="PT172">
+        <operator>EXACT_MATCH</operator>
+        <normalizations xsi:nil="true" />
+      </condition>
+      <condition propertyTypeId="PT914">
+        <operator>EXACT_MATCH_END</operator>
+        <value xsi:type="xsd:int">9</value>
+        <normalizations>
+          <normalization>IGNORE_CASE</normalization>
+          <normalization>SIMPLIFY_LIGATURES</normalization>
+          <normalization>IGNORE_DIACRITICS</normalization>
+          <normalization>IGNORE_NONALPHANUMERIC</normalization>
+          <normalization>IGNORE_WHITESPACE_BETWEEN</normalization>
+          <normalization>IGNORE_WHITESPACE_AROUND</normalization>
+        </normalizations>
+      </condition>
+      <condition propertyTypeId="PT915">
+        <operator>EXACT_MATCH_END</operator>
+        <value xsi:type="xsd:int">9</value>
+        <normalizations>
+          <normalization>IGNORE_CASE</normalization>
+          <normalization>SIMPLIFY_LIGATURES</normalization>
+          <normalization>IGNORE_DIACRITICS</normalization>
+          <normalization>IGNORE_NONALPHANUMERIC</normalization>
+          <normalization>IGNORE_WHITESPACE_BETWEEN</normalization>
+          <normalization>IGNORE_WHITESPACE_AROUND</normalization>
+        </normalizations>
+      </condition>
+    </matchAll>
+    <matchAny xsi:nil="true" />
+  </matchRule>
+  <matchRule id="faff6fe4-9ebc-4905-bb2a-178fc8d21c62" itemTypeId="LT15" displayName="CommsLink" version="2" description="" active="true" linkDirectionOperator="EXACT_MATCH">
+    <matchAll>
+      <condition propertyTypeId="PT966">
+        <operator>EXACT_MATCH</operator>
+        <normalizations xsi:nil="true" />
+      </condition>
+      <condition propertyTypeId="PT969">
+        <operator>EXACT_MATCH_END</operator>
+        <value xsi:type="xsd:int">9</value>
+        <normalizations>
+          <normalization>IGNORE_CASE</normalization>
+          <normalization>SIMPLIFY_LIGATURES</normalization>
+          <normalization>IGNORE_DIACRITICS</normalization>
+          <normalization>IGNORE_NONALPHANUMERIC</normalization>
+          <normalization>IGNORE_WHITESPACE_BETWEEN</normalization>
+          <normalization>IGNORE_WHITESPACE_AROUND</normalization>
+        </normalizations>
+      </condition>
+      <condition propertyTypeId="PT970">
+        <operator>EXACT_MATCH_END</operator>
+        <value xsi:type="xsd:int">9</value>
+        <normalizations>
+          <normalization>IGNORE_CASE</normalization>
+          <normalization>SIMPLIFY_LIGATURES</normalization>
+          <normalization>IGNORE_DIACRITICS</normalization>
+          <normalization>IGNORE_NONALPHANUMERIC</normalization>
+          <normalization>IGNORE_WHITESPACE_BETWEEN</normalization>
+          <normalization>IGNORE_WHITESPACE_AROUND</normalization>
+        </normalizations>
+      </condition>
+      <condition propertyTypeId="PT968">
+        <operator>EXACT_MATCH</operator>
+        <normalizations>
+          <normalization>IGNORE_CASE</normalization>
+          <normalization>SIMPLIFY_LIGATURES</normalization>
+          <normalization>IGNORE_DIACRITICS</normalization>
+          <normalization>IGNORE_WHITESPACE_AROUND</normalization>
+        </normalizations>
+      </condition>
+    </matchAll>
+    <matchAny xsi:nil="true" />
+  </matchRule>
+  <matchRule id="494e3b71-65a8-494c-a62b-76d36e34851b" itemTypeId="LT11" displayName="LocationLinkCell" version="2" description="" active="true" linkDirectionOperator="EXACT_MATCH">
+    <matchAll>
+      <condition propertyTypeId="PT213">
+        <operator>EXACT_MATCH</operator>
+        <normalizations xsi:nil="true" />
+      </condition>
+      <condition propertyTypeId="PT755">
+        <operator>EXACT_MATCH_END</operator>
+        <value xsi:type="xsd:int">9</value>
+        <normalizations>
+          <normalization>IGNORE_CASE</normalization>
+          <normalization>SIMPLIFY_LIGATURES</normalization>
+          <normalization>IGNORE_DIACRITICS</normalization>
+          <normalization>IGNORE_WHITESPACE_BETWEEN</normalization>
+          <normalization>IGNORE_WHITESPACE_AROUND</normalization>
+        </normalizations>
+      </condition>
+      <condition propertyTypeId="PT756">
+        <operator>EXACT_MATCH_END</operator>
+        <value xsi:type="xsd:int">9</value>
+        <normalizations>
+          <normalization>IGNORE_CASE</normalization>
+          <normalization>SIMPLIFY_LIGATURES</normalization>
+          <normalization>IGNORE_DIACRITICS</normalization>
+          <normalization>IGNORE_WHITESPACE_BETWEEN</normalization>
+          <normalization>IGNORE_WHITESPACE_AROUND</normalization>
+        </normalizations>
+      </condition>
+      <condition propertyTypeId="PT752">
+        <operator>EXACT_MATCH</operator>
+        <normalizations>
+          <normalization>IGNORE_CASE</normalization>
+          <normalization>SIMPLIFY_LIGATURES</normalization>
+          <normalization>IGNORE_DIACRITICS</normalization>
+          <normalization>IGNORE_NONALPHANUMERIC</normalization>
+          <normalization>IGNORE_WHITESPACE_BETWEEN</normalization>
+          <normalization>IGNORE_WHITESPACE_AROUND</normalization>
+        </normalizations>
+      </condition>
+    </matchAll>
+    <matchAny xsi:nil="true" />
+  </matchRule>
+  <matchRule id="5889bf8f-87d4-47f0-ac83-cd1b8367efa0" itemTypeId="ET1" displayName="LocationANPR" version="1" description="" active="true">
+    <matchAll>
+      <condition propertyTypeId="ADD25">
+        <operator>EQUAL_TO</operator>
+        <value xsi:type="xsd:string">ANPR Camera</value>
+        <normalizations>
+          <normalization>IGNORE_CASE</normalization>
+          <normalization>SIMPLIFY_LIGATURES</normalization>
+          <normalization>IGNORE_DIACRITICS</normalization>
+          <normalization>IGNORE_WHITESPACE_BETWEEN</normalization>
+          <normalization>IGNORE_WHITESPACE_AROUND</normalization>
+        </normalizations>
+      </condition>
+      <condition propertyTypeId="PT239">
+        <operator>EXACT_MATCH</operator>
+        <normalizations>
+          <normalization>IGNORE_CASE</normalization>
+          <normalization>SIMPLIFY_LIGATURES</normalization>
+          <normalization>IGNORE_DIACRITICS</normalization>
+          <normalization>IGNORE_WHITESPACE_BETWEEN</normalization>
+          <normalization>IGNORE_WHITESPACE_AROUND</normalization>
+        </normalizations>
+      </condition>
+      <condition propertyTypeId="PT240">
+        <operator>EXACT_MATCH</operator>
+        <normalizations>
+          <normalization>IGNORE_CASE</normalization>
+          <normalization>SIMPLIFY_LIGATURES</normalization>
+          <normalization>IGNORE_DIACRITICS</normalization>
+          <normalization>IGNORE_WHITESPACE_BETWEEN</normalization>
+          <normalization>IGNORE_WHITESPACE_AROUND</normalization>
+        </normalizations>
+      </condition>
+    </matchAll>
+    <matchAny xsi:nil="true" />
+  </matchRule>
+  <matchRule id="46ef21ce-df55-4e05-b777-06c3e8b930f8" itemTypeId="LT11" displayName="LocationLinkANPR" version="2" description="" active="true" linkDirectionOperator="EXACT_MATCH">
+    <matchAll>
+      <condition propertyTypeId="PT213">
+        <operator>EXACT_MATCH</operator>
+        <normalizations xsi:nil="true" />
+      </condition>
+      <condition propertyTypeId="PT194">
+        <operator>EQUAL_TO</operator>
+        <value xsi:type="xsd:string">ANPR</value>
+        <normalizations>
+          <normalization>IGNORE_CASE</normalization>
+          <normalization>SIMPLIFY_LIGATURES</normalization>
+          <normalization>IGNORE_DIACRITICS</normalization>
+          <normalization>IGNORE_WHITESPACE_AROUND</normalization>
+        </normalizations>
+      </condition>
+      <condition propertyTypeId="PT215">
+        <operator>EXACT_MATCH</operator>
+        <normalizations>
+          <normalization>IGNORE_CASE</normalization>
+          <normalization>SIMPLIFY_LIGATURES</normalization>
+          <normalization>IGNORE_DIACRITICS</normalization>
+          <normalization>IGNORE_WHITESPACE_BETWEEN</normalization>
+          <normalization>IGNORE_WHITESPACE_AROUND</normalization>
+        </normalizations>
+      </condition>
+      <condition propertyTypeId="PT31">
+        <operator>EXACT_MATCH</operator>
+        <normalizations>
+          <normalization>IGNORE_CASE</normalization>
+          <normalization>SIMPLIFY_LIGATURES</normalization>
+          <normalization>IGNORE_DIACRITICS</normalization>
+          <normalization>IGNORE_WHITESPACE_BETWEEN</normalization>
+          <normalization>IGNORE_WHITESPACE_AROUND</normalization>
+        </normalizations>
+      </condition>
+    </matchAll>
+    <matchAny xsi:nil="true" />
+  </matchRule>
+</tns:matchRules>

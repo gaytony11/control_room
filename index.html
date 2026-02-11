@@ -20,13 +20,14 @@
     <div class="cp-body" id="cp-body">
       <!-- Tabs -->
       <div class="cp-tabs">
-        <button class="cp-tab active" data-tab="search" title="Search and plot companies on map">🏢 Companies</button>
-        <button class="cp-tab" data-tab="people" title="Search for people and PSC data">👥 People</button>
-        <button class="cp-tab" data-tab="entities" title="Add custom entities to map">📍 Entities</button>
-        <button class="cp-tab" data-tab="layers" title="Toggle map layers and base map">🗺️ Layers</button>
+        <button class="cp-tab active" data-tab="search" title="Search and plot companies on map">Companies</button>
+        <button class="cp-tab" data-tab="people" title="Search for people and PSC data">People</button>
+        <button class="cp-tab" data-tab="entities" title="Add custom entities to map">Entities</button>
+        <button class="cp-tab" data-tab="layers" title="Toggle map layers and base map">Layers</button>
+        <button class="cp-tab" data-tab="i2" title="i2 planning, schema and import template intelligence">I2</button>
       </div>
 
-      <!-- ═══ Company Search Tab ═══ -->
+      <!-- â•â•â• Company Search Tab â•â•â• -->
       <div class="cp-tab-pane active" id="tab-search">
         <div id="data-progress" class="cp-progress done">
           <div class="cp-progress-label">
@@ -44,45 +45,48 @@
         <label for="ch_number">Company Number</label>
         <input id="ch_number" type="text" placeholder="e.g. 03230871" />
 
-        <label for="ch_postcode">Postcode (filter)</label>
-        <input id="ch_postcode" type="text" placeholder="e.g. BS3 2EJ" />
+        <details class="panel-disclosure">
+          <summary>Advanced Company Filters</summary>
+          <label for="ch_postcode">Postcode (filter)</label>
+          <input id="ch_postcode" type="text" placeholder="e.g. BS3 2EJ" />
 
-        <label for="ch_town">Post Town (filter)</label>
-        <input id="ch_town" type="text" placeholder="e.g. Bristol" />
+          <label for="ch_town">Post Town (filter)</label>
+          <input id="ch_town" type="text" placeholder="e.g. Bristol" />
 
-        <label for="ch_status">Company Status</label>
-        <select id="ch_status">
-          <option value="">All Statuses</option>
-          <option value="active">Active</option>
-          <option value="dissolved">Dissolved</option>
-          <option value="liquidation">In Liquidation</option>
-          <option value="administration">In Administration</option>
-        </select>
+          <label for="ch_status">Company Status</label>
+          <select id="ch_status">
+            <option value="">All Statuses</option>
+            <option value="active">Active</option>
+            <option value="dissolved">Dissolved</option>
+            <option value="liquidation">In Liquidation</option>
+            <option value="administration">In Administration</option>
+          </select>
 
-        <label for="ch_sic">SIC Code (filter)</label>
-        <select id="ch_sic">
-          <option value="">All SIC Codes</option>
-          <option value="93120">93120 - Activities of sport clubs</option>
-          <option value="93110">93110 - Operation of sports facilities</option>
-          <option value="64191">64191 - Banks</option>
-          <option value="64192">64192 - Building societies</option>
-          <option value="64209">64209 - Other financial service activities</option>
-          <option value="64303">64303 - Activities of investment trusts</option>
-          <option value="68100">68100 - Buying and selling of own real estate</option>
-          <option value="68209">68209 - Other letting and operating of own/leased real estate</option>
-          <option value="70100">70100 - Activities of head offices</option>
-          <option value="64110">64110 - Central banking</option>
-          <option value="86101">86101 - Hospital activities</option>
-          <option value="86210">86210 - General medical practice activities</option>
-          <option value="47110">47110 - Retail sale in non-specialised stores</option>
-          <option value="56101">56101 - Licensed restaurants</option>
-          <option value="56103">56103 - Take-away food shops and mobile food stands</option>
-          <option value="56210">56210 - Event catering activities</option>
-          <option value="62012">62012 - Business and domestic software development</option>
-          <option value="62020">62020 - Information technology consultancy activities</option>
-          <option value="41100">41100 - Development of building projects</option>
-          <option value="41201">41201 - Construction of commercial buildings</option>
-        </select>
+          <label for="ch_sic">SIC Code (filter)</label>
+          <select id="ch_sic">
+            <option value="">All SIC Codes</option>
+            <option value="93120">93120 - Activities of sport clubs</option>
+            <option value="93110">93110 - Operation of sports facilities</option>
+            <option value="64191">64191 - Banks</option>
+            <option value="64192">64192 - Building societies</option>
+            <option value="64209">64209 - Other financial service activities</option>
+            <option value="64303">64303 - Activities of investment trusts</option>
+            <option value="68100">68100 - Buying and selling of own real estate</option>
+            <option value="68209">68209 - Other letting and operating of own/leased real estate</option>
+            <option value="70100">70100 - Activities of head offices</option>
+            <option value="64110">64110 - Central banking</option>
+            <option value="86101">86101 - Hospital activities</option>
+            <option value="86210">86210 - General medical practice activities</option>
+            <option value="47110">47110 - Retail sale in non-specialised stores</option>
+            <option value="56101">56101 - Licensed restaurants</option>
+            <option value="56103">56103 - Take-away food shops and mobile food stands</option>
+            <option value="56210">56210 - Event catering activities</option>
+            <option value="62012">62012 - Business and domestic software development</option>
+            <option value="62020">62020 - Information technology consultancy activities</option>
+            <option value="41100">41100 - Development of building projects</option>
+            <option value="41201">41201 - Construction of commercial buildings</option>
+          </select>
+        </details>
 
         <div class="cp-btn-row">
           <button id="ch_search" class="btn-primary">Search API</button>
@@ -91,9 +95,9 @@
 
         <div id="ch_results"></div>
 
-        <!-- ═══ QUICK SEARCH (AUTOCOMPLETE) ═══ -->
+        <!-- â•â•â• QUICK SEARCH (AUTOCOMPLETE) â•â•â• -->
         <div class="api-search-divider">
-          <span>── OR QUICK SEARCH ──</span>
+          <span>-- OR QUICK SEARCH --</span>
         </div>
 
         <label for="ch_api_search">Type-ahead Search</label>
@@ -103,11 +107,11 @@
         </div>
 
         <div id="ch_api_selected"></div>
-        <!-- ═══ END QUICK SEARCH ═══ -->
+        <!-- â•â•â• END QUICK SEARCH â•â•â• -->
 
       </div>
 
-      <!-- ═══ People (PSC) Tab ═══ -->
+      <!-- â•â•â• People (PSC) Tab â•â•â• -->
       <div class="cp-tab-pane" id="tab-people">
         <div id="psc-progress" class="cp-progress done">
           <div class="cp-progress-label">
@@ -126,24 +130,36 @@
         <input id="psc_company" type="text" placeholder="e.g. 08209948" title="View PSC data for a specific company" />
 
         <div class="cp-btn-row">
-          <button id="psc_search" class="btn-primary" title="Search for PSC or officers via API">🔍 Search API</button>
+          <button id="psc_search" class="btn-primary" title="Search for PSC or officers via API">Search API</button>
           <button id="psc_clear" class="btn-secondary">Clear</button>
         </div>
 
         <div class="psc-help-text">
-          💡 Enter a person's name to search for officer appointments, or a company number to view PSC records with PDF download.
+          Enter a person's name to search for officer appointments, or a company number to view PSC records with PDF download.
         </div>
 
         <div id="psc_results"></div>
       </div>
 
-      <!-- ═══ Entities Tab ═══ -->
+      <!-- â•â•â• Entities Tab â•â•â• -->
       <div class="cp-tab-pane" id="tab-entities">
         <div class="entity-help">
-          <strong>📍 Add Custom Entities to Map</strong>
-          <p><strong>To place:</strong> Click a category below → Click on map → Enter details (name, address, notes)</p>
-          <p><strong>To connect:</strong> Click 🔗 Connect on any entity → Click target entity → Enter label</p>
-          <p>Icons auto-suggest based on name (e.g., "HSBC" → HSBC icon)</p>
+          <strong>Add Custom Entities to Map</strong>
+          <p><strong>To place:</strong> Click a category below -> click on map -> enter details (name, address, notes)</p>
+          <p><strong>To connect:</strong> Click Connect on any entity -> click target entity -> enter label</p>
+          <p>Icons auto-suggest based on name (e.g., "HSBC" -> HSBC icon)</p>
+        </div>
+
+        <div class="entity-import-panel">
+          <div class="entity-import-title">Bulk Import (i2-style)</div>
+          <input id="entity-import-file" type="file" accept=".xlsx,.xls,.csv,.tsv,.txt" />
+          <div class="cp-btn-row">
+            <button id="entity-import-run" class="btn-primary">Import And Plot</button>
+            <button id="entity-import-clear" class="btn-secondary">Clear Imported</button>
+          </div>
+          <div id="entity-import-summary" class="entity-import-summary">
+            Upload Excel/CSV. The importer auto-detects names, DOB, addresses, postcodes, coordinates and relationship columns.
+          </div>
         </div>
         
         <div id="entity_selector" class="entity-grid">
@@ -162,7 +178,7 @@
         </div>
       </div>
 
-      <!-- ═══ Layers Tab ═══ -->
+      <!-- â•â•â• Layers Tab â•â•â• -->
       <div class="cp-tab-pane" id="tab-layers">
 
         <div class="layer-section-title">Base Map</div>
@@ -226,6 +242,43 @@
           <span class="layer-name">Live Flights (OpenSky)</span>
         </label>
 
+        <details class="panel-disclosure layer-tool-block" data-layer-tools="flights" open>
+          <summary>Flight Intelligence Filters</summary>
+          <div class="flight-intel-tools">
+            <label for="flight-airport-q">Airport (IATA/ICAO/Name/City)</label>
+            <input id="flight-airport-q" type="text" placeholder="e.g. LHR, EGLL, Heathrow, London" />
+
+            <label for="flight-origin-q">Origin Airport</label>
+            <input id="flight-origin-q" type="text" placeholder="IATA/ICAO/Name/City" />
+
+            <label for="flight-destination-q">Destination Airport</label>
+            <input id="flight-destination-q" type="text" placeholder="IATA/ICAO/Name/City" />
+
+            <label for="flight-aircraft-q">Aircraft (ICAO24)</label>
+            <input id="flight-aircraft-q" type="text" placeholder="e.g. 40621a" />
+
+            <label for="flight-number-q">Flight Number / Callsign</label>
+            <input id="flight-number-q" type="text" placeholder="e.g. BAW130" />
+
+            <div class="flight-intel-time-row">
+              <div>
+                <label for="flight-time-from">Seen From</label>
+                <input id="flight-time-from" type="time" />
+              </div>
+              <div>
+                <label for="flight-time-to">Seen To</label>
+                <input id="flight-time-to" type="time" />
+              </div>
+            </div>
+
+            <div class="flight-intel-actions">
+              <button id="flight-filter-btn" class="btn-secondary btn-sm" type="button">Apply Flight Filter</button>
+              <button id="flight-filter-clear-btn" class="btn-secondary btn-sm" type="button">Clear Filter</button>
+            </div>
+            <div id="flight-filter-results" class="flight-filter-results"></div>
+          </div>
+        </details>
+
         <label class="layer-row">
           <input type="checkbox" class="layer-cb" data-layer="bikes">
           <span class="toggle-track"><span class="toggle-thumb"></span></span>
@@ -233,10 +286,112 @@
           <span class="layer-name">Santander Cycles</span>
         </label>
 
-        <!-- TfL Line Status -->
-        <div class="layer-section-title">TfL Line Status</div>
-        <div id="tfl-status-grid"></div>
+        <label class="layer-row">
+          <input type="checkbox" class="layer-cb" data-layer="national_rail">
+          <span class="toggle-track"><span class="toggle-thumb"></span></span>
+          <span class="layer-dot" style="background:#38bdf8"></span>
+          <span class="layer-name">National Rail (Live Boards)</span>
+        </label>
 
+        <details class="panel-disclosure layer-tool-block" data-layer-tools="underground">
+          <summary>
+            TfL Line Status
+            <span id="tfl-status-time" class="tfl-status-time">--:--</span>
+          </summary>
+          <div id="tfl-selected-line" class="tfl-selected-line">Selected: None</div>
+          <div id="tfl-status-grid"></div>
+        </details>
+
+        <details class="panel-disclosure layer-tool-block" data-layer-tools="underground">
+          <summary>TfL StopPoint Ops</summary>
+          <div class="tfl-stop-tools">
+            <label for="tfl-stop-query">Search Stops / Stations</label>
+            <div class="tfl-stop-row">
+              <input id="tfl-stop-query" type="text" placeholder="e.g. Baker Street or 490008660N" />
+              <button id="tfl-stop-search-btn" class="btn-secondary btn-sm" type="button">Search</button>
+            </div>
+
+            <label for="tfl-stop-mode">Mode Filter</label>
+            <select id="tfl-stop-mode">
+              <option value="">All modes</option>
+              <option value="tube">Tube</option>
+              <option value="overground">Overground</option>
+              <option value="elizabeth-line">Elizabeth line</option>
+              <option value="dlr">DLR</option>
+              <option value="tram">Tram</option>
+              <option value="bus">Bus</option>
+              <option value="national-rail">National Rail</option>
+            </select>
+
+            <div class="tfl-stop-row">
+              <button id="tfl-stop-nearby-btn" class="btn-secondary btn-sm" type="button">Nearby (Map Center)</button>
+              <button id="tfl-stop-clear-btn" class="btn-secondary btn-sm" type="button">Clear</button>
+            </div>
+          <div id="tfl-stop-results" class="tfl-stop-results"></div>
+          </div>
+        </details>
+
+        <details class="panel-disclosure layer-tool-block" data-layer-tools="national_rail">
+          <summary>National Rail Ops</summary>
+          <div class="nr-tools">
+            <label for="nr-crs-input">CRS Station Code</label>
+          <div class="nr-row">
+            <input id="nr-crs-input" type="text" list="nr-crs-list" placeholder="Type station or CRS (e.g. KGX, Kings Cross)" />
+            <button id="nr-fetch-btn" class="btn-secondary btn-sm" type="button">Fetch</button>
+          </div>
+          <datalist id="nr-crs-list"></datalist>
+
+            <label for="nr-board-type">Board Type</label>
+            <select id="nr-board-type">
+              <option value="departures">Departures</option>
+              <option value="arrivals">Arrivals</option>
+            </select>
+
+            <div class="nr-row">
+              <button id="nr-refresh-btn" class="btn-secondary btn-sm" type="button">Refresh</button>
+              <button id="nr-clear-btn" class="btn-secondary btn-sm" type="button">Clear</button>
+            </div>
+            <div id="nr-results" class="nr-results"></div>
+          </div>
+        </details>
+
+      </div>
+
+      <!-- I2 Workspace Tab -->
+      <div class="cp-tab-pane" id="tab-i2">
+        <div class="entity-help">
+          <strong>I2 Operations Workspace</strong>
+          <p>Uses parsed local i2 specifications to drive import planning, schema search, and Excel collaboration.</p>
+        </div>
+
+        <div class="i2-stats-grid">
+          <div class="i2-stat-card">
+            <span class="i2-stat-label">Import Templates</span>
+            <span id="i2-template-count" class="i2-stat-value">--</span>
+          </div>
+          <div class="i2-stat-card">
+            <span class="i2-stat-label">Entity Types</span>
+            <span id="i2-entity-count" class="i2-stat-value">--</span>
+          </div>
+          <div class="i2-stat-card">
+            <span class="i2-stat-label">Link Types</span>
+            <span id="i2-link-count" class="i2-stat-value">--</span>
+          </div>
+          <div class="i2-stat-card">
+            <span class="i2-stat-label">Match Rules</span>
+            <span id="i2-rule-count" class="i2-stat-value">--</span>
+          </div>
+        </div>
+
+        <label for="i2-template-select">Import Template</label>
+        <select id="i2-template-select">
+          <option value="">Loading templates...</option>
+        </select>
+        <div id="i2-template-details" class="i2-panel-block">Select a template to inspect mappings.</div>
+
+        <label for="i2-entity-search">Entity Type Search</label>
+        <input id="i2-entity-search" type="text" placeholder="e.g. Communication Entity, Aircraft, Person" />
+        <div id="i2-entity-results" class="i2-panel-block">Loading catalog...</div>
       </div>
     </div>
   </div>
@@ -254,8 +409,8 @@
     </div>
     <div class="entity-panel-body">
       <form id="entity-placement-form">
-        <label for="entity-label">Name / Label</label>
-        <input type="text" id="entity-label" placeholder="e.g. John Smith" required />
+        <label for="entity-label">Display Label <span style="opacity: 0.5; font-weight: 400;">(optional override)</span></label>
+        <input type="text" id="entity-label" placeholder="Leave blank to derive from i2 fields" />
         
         <label for="entity-category">Category</label>
         <select id="entity-category" required>
@@ -267,21 +422,29 @@
           <option value="">Select icon...</option>
         </select>
         
-        <label for="entity-address">Address <span style="opacity: 0.5; font-weight: 400;">(optional)</span></label>
-        <input type="text" id="entity-address" placeholder="e.g. 123 Main St, London" />
-        
-        <label for="entity-notes">Notes <span style="opacity: 0.5; font-weight: 400;">(optional)</span></label>
-        <textarea id="entity-notes" placeholder="Additional information..." rows="3"></textarea>
+        <label for="entity-i2-type">i2 Entity Type</label>
+        <select id="entity-i2-type">
+          <option value="">Loading i2 entity types...</option>
+        </select>
+
+        <div class="cp-btn-row entity-panel-actions-top">
+          <button type="submit" class="btn-primary">PLACE ENTITY</button>
+          <button type="button" class="btn-secondary" id="entity-cancel-btn">CANCEL</button>
+        </div>
+
+        <div id="entity-i2-fields" class="entity-i2-fields">
+          <div class="entity-i2-fields-empty">Loading i2 properties...</div>
+        </div>
+
+        <label for="entity-placement-address">Placement Address / Postcode <span style="opacity: 0.5; font-weight: 400;">(optional)</span></label>
+        <input type="text" id="entity-placement-address" placeholder="e.g. 1 Osmond Drive, Wells, BA5 2JX" />
+        <div class="entity-i2-meta">Used for map geocoding when postcode/address is not present in i2 fields.</div>
         
         <div class="entity-panel-coords">
           <span class="popup-label">Coordinates</span>
           <span id="entity-coords">--</span>
         </div>
         
-        <div class="cp-btn-row">
-          <button type="submit" class="btn-primary">PLACE ENTITY</button>
-          <button type="button" class="btn-secondary" id="entity-cancel-btn">CANCEL</button>
-        </div>
       </form>
     </div>
   </div>
@@ -290,6 +453,7 @@
   <div id="flight-info" class="flight-info-panel" style="display:none;">
     <div class="flight-info-header">
       <span>LIVE FLIGHTS</span>
+      <span id="flight-info-time" class="flight-info-time">--:--</span>
       <button id="flight-refresh-btn" class="flight-refresh-btn" title="Refresh now">&#x21bb;</button>
     </div>
     <div id="flight-stats" class="flight-stats"></div>
@@ -300,8 +464,9 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
-  <!-- API Keys (gitignored — copy api_keys.example.js to api_keys.js) -->
+  <!-- API Keys (gitignored â€” copy api_keys.example.js to api_keys.js) -->
   <script src="js/api_keys.js"></script>
 
   <!-- Core Config -->
@@ -319,7 +484,9 @@
 
   <!-- Live Data Layers -->
   <script src="js/tfl_live.js"></script>
+  <script src="js/national_rail.js"></script>
   <script src="js/opensky.js"></script>
+  <script src="js/i2_workspace.js"></script>
 
 </body>
 </html>
