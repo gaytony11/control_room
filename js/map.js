@@ -206,7 +206,7 @@ async function geocodeViaPostcodesIo(rawPostcode) {
     const formatted = encodeURIComponent(variant);
     let resp = null;
     try {
-      resp = await fetch(`/postcodes/postcodes/${formatted}`);
+      resp = await fetch(apiUrl(`/postcodes/postcodes/${formatted}`));
     } catch (_) {
       // ignore
     }
@@ -231,7 +231,7 @@ async function geocodeViaPostcodesIo(rawPostcode) {
     const q = encodeURIComponent(variant);
     let resp = null;
     try {
-      resp = await fetch(`/postcodes/postcodes?q=${q}`);
+      resp = await fetch(apiUrl(`/postcodes/postcodes?q=${q}`));
     } catch (_) {
       // ignore
     }
@@ -262,7 +262,7 @@ async function geocodeViaOsPlaces(rawPostcode) {
     const formatted = encodeURIComponent(variant);
     let resp = null;
     try {
-      resp = await fetch(`/osplaces/postcode?postcode=${formatted}`);
+      resp = await fetch(apiUrl(`/osplaces/postcode?postcode=${formatted}`));
     } catch (_) {
       resp = null;
     }
@@ -529,6 +529,7 @@ const layers = {
   seaports:        L.featureGroup(),
   underground:     L.featureGroup(),
   national_rail:   L.featureGroup(),
+  roads:           L.featureGroup(),
   flights:         L.featureGroup(),
   bikes:           L.featureGroup()
 };

@@ -3,3 +3,5 @@
 // Get a free API key from: https://developer.company-information.service.gov.uk/
 
 window.CH_API_KEY = "your_api_key_here";
+window.SIGNALBOX_API_KEY = "your_signalbox_bearer_token_here";
+window.CONTROL_ROOM_API_BASE = "";

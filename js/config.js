@@ -41,6 +41,7 @@ const CONTROL_ROOM_CONFIG = {
     seaports:        "#2dd4bf",
     underground:     "#f43f5e",
     national_rail:   "#38bdf8",
+    roads:           "#f97316",
     flights:         "#f59e0b",
     bikes:           "#22c55e"
   },
@@ -71,5 +72,24 @@ const CONTROL_ROOM_CONFIG = {
   nationalRail: {
     refreshInterval: 60000,
     defaultRows: 12
+  },
+
+  // Signalbox rail API (preferred over Darwin; currently often requires server-side proxy due CORS/auth)
+  signalbox: {
+    enabled: true,
+    baseUrl: "https://api.signalbox.io/v2.5",
+    apiKey: window.SIGNALBOX_API_KEY || "",
+    boardPath: "/trains",
+    // If true: try direct browser call first. If Signalbox blocks CORS, client falls back to /signalbox/* proxy.
+    preferDirect: true
+  },
+
+  // National Highways WebTRIS traffic API (roads)
+  webtris: {
+    baseUrl: "https://webtris.highwaysengland.co.uk/api",
+    version: "v1.0",
+    refreshInterval: 300000, // 5 mins
+    defaultWindowDays: 1,
+    maxPlottedSites: 600
   }
 };

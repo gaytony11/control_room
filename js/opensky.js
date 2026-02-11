@@ -264,7 +264,7 @@ async function fetchFlightScheduleHints(flight) {
   if (callsign) q.set("callsign", callsign);
   if (icao24) q.set("icao24", icao24);
   try {
-    const r = await fetch(`/flight/schedule?${q.toString()}`, { headers: { Accept: "application/json" } });
+    const r = await fetch(apiUrl(`/flight/schedule?${q.toString()}`), { headers: { Accept: "application/json" } });
     if (!r.ok) return null;
     const data = await r.json();
     OPENSKY.scheduleCache.set(key, { ts: Date.now(), data });
@@ -644,7 +644,7 @@ async function fetchOpenSkyStates(url) {
   // Try local proxy first to avoid browser CORS variance.
   try {
     const u = new URL(url);
-    const proxyUrl = `/opensky/states/all?${u.searchParams.toString()}`;
+    const proxyUrl = apiUrl(`/opensky/states/all?${u.searchParams.toString()}`);
     const proxyResp = await fetch(proxyUrl);
     if (proxyResp.ok) return proxyResp;
     if (proxyResp.status !== 404 && proxyResp.status < 500) return proxyResp;

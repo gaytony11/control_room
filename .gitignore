@@ -69,6 +69,7 @@ __pycache__/
 # OS
 .DS_Store
 Thumbs.db
+deploy/cloudflare-worker/node_modules/
 
 gfx/gta-v-map-leaflet-main/mapStyles.rar
 gfx/gta-v-map-leaflet-main/

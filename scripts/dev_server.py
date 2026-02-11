@@ -19,6 +19,8 @@ NRE_LDBWS_URL = "https://lite.realtime.nationalrail.co.uk/OpenLDBWS/ldb11.asmx"
 NOMINATIM_BASE = "https://nominatim.openstreetmap.org/search"
 AVIATIONSTACK_BASE = "http://api.aviationstack.com/v1"
 UK_RAIL_STATIONS_URL = "https://raw.githubusercontent.com/davwheat/uk-railway-stations/main/stations.json"
+WEBTRIS_API_BASE = "https://webtris.highwaysengland.co.uk/api"
+SIGNALBOX_API_BASE = "https://api.signalbox.io/v2.5"
 
 _station_catalog_cache = {
     "loaded": False,
@@ -46,6 +48,8 @@ def load_env_file():
                         print(f"OS_PLACES_API_KEY loaded: {value.strip()[:8]}...")
                     if key.strip() == "NRE_LDBWS_TOKEN":
                         print(f"NRE_LDBWS_TOKEN loaded: {value.strip()[:8]}...")
+                    if key.strip() == "SIGNALBOX_API_KEY":
+                        print(f"SIGNALBOX_API_KEY loaded: {value.strip()[:8]}...")
     else:
         print(f"Warning: No .env file found at {env_path}")
         print("Set CH_API_KEY environment variable or create .env file")
@@ -316,6 +320,33 @@ class Handler(SimpleHTTPRequestHandler):
         if self.path.startswith("/postcodes/"):
             upstream_url = POSTCODES_API_BASE + self.path.replace("/postcodes", "", 1)
             self._proxy_get(upstream_url, headers={"Accept": "application/json"})
+            return
+
+        if self.path.startswith("/webtris/"):
+            upstream_url = WEBTRIS_API_BASE + "/" + self.path.replace("/webtris/", "", 1)
+            self._proxy_get(upstream_url, headers={"Accept": "application/json"})
+            return
+
+        if self.path.startswith("/signalbox/health"):
+            key = os.environ.get("SIGNALBOX_API_KEY", "").strip()
+            self._send_json({"ok": True, "configured": bool(key), "endpoint": SIGNALBOX_API_BASE})
+            return
+
+        if self.path.startswith("/signalbox/trains"):
+            key = os.environ.get("SIGNALBOX_API_KEY", "").strip()
+            if not key:
+                self._send_json({"error": "SIGNALBOX_API_KEY env var not set"}, status=500)
+                return
+            parsed = urlsplit(self.path)
+            query = f"?{parsed.query}" if parsed.query else ""
+            upstream_url = SIGNALBOX_API_BASE + "/trains" + query
+            self._proxy_get(
+                upstream_url,
+                headers={
+                    "Accept": "application/json",
+                    "Authorization": f"Bearer {key}",
+                },
+            )
             return
 
         if self.path.startswith("/opensky/states/all"):
@@ -596,6 +627,7 @@ def main():
     print(f"Proxy:  /ch/* -> {CH_API_BASE}")
     print(f"Proxy:  /tfl/* -> {TFL_API_BASE}")
     print(f"Proxy:  /postcodes/* -> {POSTCODES_API_BASE}")
+    print(f"Proxy:  /webtris/* -> {WEBTRIS_API_BASE}")
     print(f"Proxy:  /opensky/states/all -> {OPENSKY_API_BASE}/states/all")
     print(f"Proxy:  /osplaces/postcode?postcode=... -> {OS_PLACES_API_BASE}/postcode")
     print(f"Proxy:  /nre/departures|arrivals?crs=KGX&rows=10 -> {NRE_LDBWS_URL}")
@@ -603,6 +635,7 @@ def main():
     print(f"Proxy:  /nre/stations?q=king&limit=20 -> {UK_RAIL_STATIONS_URL}")
     print(f"Proxy:  /geo/search?q=... -> {NOMINATIM_BASE}")
     print(f"Proxy:  /flight/schedule?callsign=BAW130&icao24=... -> {AVIATIONSTACK_BASE}/flights")
+    print(f"Proxy:  /signalbox/trains?... -> {SIGNALBOX_API_BASE}/trains")
     print(f"{'=' * 60}\n")
     server.serve_forever()
 

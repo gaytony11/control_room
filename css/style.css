@@ -1698,6 +1698,66 @@ body {
   background: rgba(127,29,29,0.22);
 }
 
+/* WebTRIS roads tools */
+.roads-tools {
+  margin-top: 8px;
+  margin-bottom: 12px;
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid rgba(249,115,22,0.24);
+  background: rgba(15,23,42,0.28);
+}
+
+.roads-tools label {
+  display: block;
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+  color: #94a3b8;
+  margin-bottom: 5px;
+}
+
+.roads-tools input {
+  margin-bottom: 8px;
+  font-size: 11px;
+}
+
+.roads-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 6px;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.roads-results {
+  max-height: 240px;
+  overflow: auto;
+  border-top: 1px solid rgba(255,255,255,0.07);
+  padding-top: 6px;
+}
+
+.roads-result-item {
+  border: 1px solid rgba(249,115,22,0.25);
+  border-radius: 6px;
+  padding: 6px;
+  margin-bottom: 6px;
+  background: rgba(124,45,18,0.18);
+}
+
+.roads-result-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: #fed7aa;
+}
+
+.roads-result-meta {
+  font-size: 10px;
+  color: #cbd5e1;
+  margin-top: 3px;
+}
+
 .nr-service-line {
   stroke-linecap: round;
   stroke-linejoin: round;

@@ -81,6 +81,19 @@ The following datasets ARE included and required for core functionality:
 
 4. Access at `http://localhost:8000`
 
+## Hosted (No Local Server)
+
+To run from GitHub Pages without `python scripts/dev_server.py`, deploy the Cloudflare Worker proxy:
+
+1. Deploy Worker from `deploy/cloudflare-worker/` (see `deploy/cloudflare-worker/README.md`)
+2. Add to `js/api_keys.js`:
+   ```js
+   window.CONTROL_ROOM_API_BASE = "https://control-room-proxy.<your-subdomain>.workers.dev";
+   ```
+3. Commit and push frontend changes
+
+This routes `/ch`, `/tfl`, `/signalbox`, `/webtris`, `/postcodes`, `/osplaces`, `/opensky`, and related endpoints through the hosted proxy.
+
 ## Usage
 
 ### Searching Companies

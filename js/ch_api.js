@@ -16,7 +16,7 @@ async function fetchCH(path) {
 
   // Try local proxy first (scripts/dev_server.py)
   try {
-    const proxyResp = await fetch(`/ch${normalized}`, {
+    const proxyResp = await fetch(apiUrl(`/ch${normalized}`), {
       headers: { "Accept": "application/json" }
     });
     if (proxyResp.ok) return proxyResp;
@@ -28,7 +28,7 @@ async function fetchCH(path) {
   }
 
   if (!window.CH_API_KEY) {
-    throw new Error("Companies House unavailable: run scripts/dev_server.py or set CH_API_KEY in js/api_keys.js");
+    throw new Error("Companies House unavailable: set CONTROL_ROOM_API_BASE (hosted proxy) or run scripts/dev_server.py, or set CH_API_KEY in js/api_keys.js");
   }
 
   return fetch(directBase + normalized, {

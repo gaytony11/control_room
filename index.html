@@ -293,6 +293,13 @@
           <span class="layer-name">National Rail (Live Boards)</span>
         </label>
 
+        <label class="layer-row">
+          <input type="checkbox" class="layer-cb" data-layer="roads">
+          <span class="toggle-track"><span class="toggle-thumb"></span></span>
+          <span class="layer-dot" style="background:#f97316"></span>
+          <span class="layer-name">Road Traffic (WebTRIS)</span>
+        </label>
+
         <details class="panel-disclosure layer-tool-block" data-layer-tools="underground">
           <summary>
             TfL Line Status
@@ -352,6 +359,26 @@
               <button id="nr-clear-btn" class="btn-secondary btn-sm" type="button">Clear</button>
             </div>
             <div id="nr-results" class="nr-results"></div>
+          </div>
+        </details>
+
+        <details class="panel-disclosure layer-tool-block" data-layer-tools="roads">
+          <summary>Road Traffic Ops (WebTRIS)</summary>
+          <div class="roads-tools">
+            <label for="roads-site-query">Site Search (ID / Name / Road)</label>
+            <div class="roads-row">
+              <input id="roads-site-query" type="text" placeholder="e.g. M25, A1M, site id 2" />
+              <button id="roads-site-search-btn" class="btn-secondary btn-sm" type="button">Search</button>
+            </div>
+
+            <label for="roads-date">Report Date</label>
+            <input id="roads-date" type="date" />
+
+            <div class="roads-row">
+              <button id="roads-refresh-btn" class="btn-secondary btn-sm" type="button">Refresh</button>
+              <button id="roads-clear-btn" class="btn-secondary btn-sm" type="button">Clear</button>
+            </div>
+            <div id="roads-results" class="roads-results"></div>
           </div>
         </details>
 
@@ -471,6 +498,7 @@
 
   <!-- Core Config -->
   <script src="js/config.js"></script>
+  <script src="js/api_base.js"></script>
 
   <!-- API Modules -->
   <script src="js/ch_api.js"></script>
@@ -485,6 +513,7 @@
   <!-- Live Data Layers -->
   <script src="js/tfl_live.js"></script>
   <script src="js/national_rail.js"></script>
+  <script src="js/roads_live.js"></script>
   <script src="js/opensky.js"></script>
   <script src="js/i2_workspace.js"></script>
 

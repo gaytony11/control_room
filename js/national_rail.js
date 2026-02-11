@@ -6,17 +6,22 @@ const NR = {
   timer: null,
   crs: "",
   boardType: "departures",
+  provider: "darwin",
   markers: new Map(), // crs -> marker
   stationGeoCache: new Map(), // stationName -> [lat, lon]
   stationSuggestTimer: null,
   stationLookupByKey: new Map(),
+  signalboxServiceCache: new Map(),
   routesLayer: null,
   routeLines: [],
   health: { configured: false, endpoint: "" }
 };
 
+const UK_RAIL_STATIONS_CATALOG_URL = "https://raw.githubusercontent.com/davwheat/uk-railway-stations/main/stations.json";
+let UK_RAIL_STATIONS_CACHE = null;
+
 async function fetchNrJson(path) {
-  const r = await fetch(path, { headers: { "Accept": "application/json" } });
+  const r = await fetch(apiUrl(path), { headers: { "Accept": "application/json" } });
   if (!r.ok) {
     let detail = "";
     try {
@@ -36,17 +41,170 @@ async function fetchNrJson(path) {
   return r.json();
 }
 
+async function fetchSignalboxJson(path) {
+  const cfg = CONTROL_ROOM_CONFIG?.signalbox || {};
+  const normalized = String(path || "").startsWith("/") ? path : `/${path}`;
+
+  // Try proxy first (recommended: Signalbox often blocks browser CORS).
+  try {
+    const proxyResp = await fetch(apiUrl(`/signalbox${normalized}`), { headers: { Accept: "application/json" } });
+    if (proxyResp.ok) return proxyResp.json();
+    if (proxyResp.status !== 404 && proxyResp.status < 500) {
+      const text = await proxyResp.text();
+      throw new Error(`Signalbox proxy HTTP ${proxyResp.status}: ${text.slice(0, 220)}`);
+    }
+  } catch (_) {
+    // fallback to direct
+  }
+
+  const base = String(cfg.baseUrl || "https://api.signalbox.io/v2.5").replace(/\/+$/, "");
+  const key = String(cfg.apiKey || "").trim();
+  if (!key) throw new Error("Signalbox key missing (set SIGNALBOX_API_KEY)");
+
+  const resp = await fetch(`${base}${normalized}`, {
+    headers: {
+      Accept: "application/json",
+      Authorization: `Bearer ${key}`
+    }
+  });
+  if (!resp.ok) {
+    const text = await resp.text();
+    throw new Error(`Signalbox HTTP ${resp.status}: ${text.slice(0, 220)}`);
+  }
+  return resp.json();
+}
+
+function pickFirstValue(obj, keys, fallback = "") {
+  for (const key of keys) {
+    const val = obj?.[key];
+    if (val !== undefined && val !== null && String(val).trim() !== "") return val;
+  }
+  return fallback;
+}
+
+function normalizeSignalboxBoard(raw, crs, type) {
+  const rows = Array.isArray(raw?.trains)
+    ? raw.trains
+    : Array.isArray(raw?.data)
+      ? raw.data
+      : Array.isArray(raw?.results)
+        ? raw.results
+        : Array.isArray(raw)
+          ? raw
+          : [];
+
+  const services = rows.slice(0, 60).map((t) => {
+    const serviceID = String(pickFirstValue(t, ["id", "train_id", "service_id", "uid", "headcode"], ""));
+    const std = String(pickFirstValue(t, ["std", "scheduled_departure", "planned_departure", "departure_scheduled"], ""));
+    const etd = String(pickFirstValue(t, ["etd", "estimated_departure", "departure_estimated", "expected_departure"], ""));
+    const sta = String(pickFirstValue(t, ["sta", "scheduled_arrival", "planned_arrival", "arrival_scheduled"], ""));
+    const eta = String(pickFirstValue(t, ["eta", "estimated_arrival", "arrival_estimated", "expected_arrival"], ""));
+    const platform = String(pickFirstValue(t, ["platform", "plat"], ""));
+    const operator = String(pickFirstValue(t, ["operator", "toc_name", "train_operator"], ""));
+
+    const originName = pickFirstValue(t, ["origin_name", "origin", "from", "from_name"], "");
+    const destinationName = pickFirstValue(t, ["destination_name", "destination", "to", "to_name"], "");
+
+    NR.signalboxServiceCache.set(serviceID, {
+      operator,
+      std, etd, sta, eta, platform,
+      serviceType: "rail",
+      locationName: String(pickFirstValue(t, ["location_name", "station_name"], crs))
+    });
+
+    return {
+      serviceID,
+      std, etd, sta, eta,
+      platform,
+      operator,
+      operatorCode: String(pickFirstValue(t, ["operator_code", "toc"], "")),
+      length: "",
+      origin: originName ? [String(originName)] : [],
+      destination: destinationName ? [String(destinationName)] : []
+    };
+  });
+
+  return {
+    ok: true,
+    provider: "signalbox",
+    type,
+    board: {
+      generatedAt: new Date().toISOString(),
+      locationName: String(raw?.locationName || crs),
+      crs: String(crs || ""),
+      nrccMessages: [],
+      services
+    }
+  };
+}
+
+async function fetchStationsCatalogDirect() {
+  if (Array.isArray(UK_RAIL_STATIONS_CACHE)) return UK_RAIL_STATIONS_CACHE;
+  const r = await fetch(UK_RAIL_STATIONS_CATALOG_URL, { headers: { Accept: "application/json" } });
+  if (!r.ok) throw new Error(`Stations catalog HTTP ${r.status}`);
+  const list = await r.json();
+  UK_RAIL_STATIONS_CACHE = Array.isArray(list) ? list : [];
+  return UK_RAIL_STATIONS_CACHE;
+}
+
 async function fetchBoard(crs, type) {
   const rows = CONTROL_ROOM_CONFIG?.nationalRail?.defaultRows || 12;
+  const signalboxCfg = CONTROL_ROOM_CONFIG?.signalbox || {};
+  let signalboxErr = null;
+
+  if (signalboxCfg.enabled) {
+    try {
+      const q = new URLSearchParams({
+        crs: String(crs || "").toUpperCase(),
+        board: type,
+        type,
+        rows: String(rows)
+      });
+      const path = `${signalboxCfg.boardPath || "/trains"}?${q.toString()}`;
+      const payload = await fetchSignalboxJson(path);
+      NR.provider = "signalbox";
+      return normalizeSignalboxBoard(payload, crs, type);
+    } catch (err) {
+      signalboxErr = err;
+      console.warn("Signalbox board failed, falling back to Darwin:", err);
+    }
+  }
+
   const endpoint = type === "arrivals" ? "/nre/arrivals" : "/nre/departures";
   const q = new URLSearchParams({ crs, rows: String(rows) });
-  return fetchNrJson(`${endpoint}?${q.toString()}`);
+  NR.provider = "darwin";
+  try {
+    return await fetchNrJson(`${endpoint}?${q.toString()}`);
+  } catch (darwinErr) {
+    if (signalboxErr) {
+      throw new Error(
+        `Signalbox unavailable (${String(signalboxErr?.message || signalboxErr)}); Darwin proxy unavailable (${String(darwinErr?.message || darwinErr)}).`
+      );
+    }
+    throw darwinErr;
+  }
 }
 
 async function fetchStationSuggestions(query, limit = 20) {
   const q = new URLSearchParams({ q: String(query || ""), limit: String(limit) });
-  const data = await fetchNrJson(`/nre/stations?${q.toString()}`);
-  return Array.isArray(data?.stations) ? data.stations : [];
+  try {
+    const data = await fetchNrJson(`/nre/stations?${q.toString()}`);
+    return Array.isArray(data?.stations) ? data.stations : [];
+  } catch (_) {
+    const needle = String(query || "").trim().toLowerCase();
+    if (needle.length < 2) return [];
+    const list = await fetchStationsCatalogDirect();
+    return list
+      .map((r) => ({
+        crs: String(r?.crsCode || "").toUpperCase(),
+        name: String(r?.stationName || ""),
+        lat: r?.lat,
+        lon: r?.long
+      }))
+      .filter((s) => s.crs && s.name)
+      .filter((s) => s.crs.toLowerCase().includes(needle) || s.name.toLowerCase().includes(needle))
+      .slice(0, limit);
+  }
 }
 
 function parseCrsFromInput(raw) {
@@ -72,11 +230,36 @@ function hydrateCrsDatalist(stations) {
 }
 
 async function fetchServiceDetails(serviceId) {
+  if (NR.provider === "signalbox") {
+    const cached = NR.signalboxServiceCache.get(String(serviceId || ""));
+    return { ok: true, service: cached || {} };
+  }
   const q = new URLSearchParams({ service_id: serviceId });
   return fetchNrJson(`/nre/service?${q.toString()}`);
 }
 
 async function fetchNrHealth() {
+  const signalboxCfg = CONTROL_ROOM_CONFIG?.signalbox || {};
+  if (signalboxCfg.enabled) {
+    try {
+      const health = await fetchSignalboxJson("/health");
+      if (health?.configured || signalboxCfg.apiKey) {
+        NR.health = {
+          configured: true,
+          endpoint: String(health?.endpoint || signalboxCfg.baseUrl || "")
+        };
+        return NR.health;
+      }
+    } catch (_) {
+      if (signalboxCfg.apiKey) {
+        NR.health = {
+          configured: true,
+          endpoint: String(signalboxCfg.baseUrl || "")
+        };
+        return NR.health;
+      }
+    }
+  }
   try {
     const health = await fetchNrJson("/nre/health");
     NR.health = {
@@ -336,7 +519,7 @@ async function refreshNrBoard() {
       const detail = String(e?.message || "National Rail feed unavailable");
       wrap.innerHTML = `<div class="nr-empty">${escapeHtml(detail)}</div>`;
       if (!NR.health.configured) {
-        wrap.innerHTML += '<div class="nr-alert">Live board token missing (`NRE_LDBWS_TOKEN`).</div>';
+        wrap.innerHTML += '<div class="nr-alert">Rail live feed credentials not configured (Signalbox or Darwin).</div>';
       }
     }
     if (!NR.health.configured && NR.crs) {
@@ -373,7 +556,7 @@ function initNationalRail() {
   fetchNrHealth().then((health) => {
     if (!wrap) return;
     if (!health.configured) {
-      wrap.innerHTML = '<div class="nr-empty">National Rail token not configured</div><div class="nr-alert">Live board updates require Darwin token. You can still use station search and CRS selection.</div>';
+      wrap.innerHTML = '<div class="nr-empty">Rail provider not fully configured</div><div class="nr-alert">Set `SIGNALBOX_API_KEY` (preferred) or `NRE_LDBWS_TOKEN`. Station search still works.</div>';
     }
   });
 
