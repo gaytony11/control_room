@@ -2207,3 +2207,90 @@ button.flight-filter-item span {
   }
 }
 
+@media (max-width: 680px) {
+  #control-panel {
+    width: calc(100vw - 10px);
+    left: 5px;
+    top: 5px;
+    max-height: 58vh;
+    border-radius: 10px;
+  }
+
+  .cp-header {
+    padding: 9px 10px;
+  }
+
+  .cp-title {
+    font-size: 10px;
+    letter-spacing: 2px;
+  }
+
+  .cp-body {
+    padding: 0 10px 10px;
+  }
+
+  .cp-tabs {
+    margin: 0 -10px;
+    padding: 0 10px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+  }
+
+  .cp-tab {
+    flex: 0 0 auto;
+    min-width: 72px;
+    padding: 10px 8px;
+    font-size: 10px;
+  }
+
+  #control-panel input[type="text"],
+  #control-panel select,
+  #control-panel input[type="date"],
+  #control-panel input[type="time"] {
+    font-size: 14px;
+    min-height: 38px;
+  }
+
+  .btn-primary,
+  .btn-secondary {
+    min-height: 38px;
+    font-size: 12px;
+  }
+
+  .cp-btn-row {
+    gap: 7px;
+  }
+
+  #ch_results,
+  #psc_results,
+  .nr-results,
+  .roads-results,
+  .tfl-stop-results {
+    max-height: 180px;
+  }
+
+  .entity-panel {
+    width: calc(100vw - 10px);
+    right: calc(-100vw - 20px);
+    bottom: 5px;
+    max-height: 62vh;
+    border-radius: 10px;
+  }
+
+  .entity-panel.open {
+    right: 5px;
+  }
+
+  .flight-info-panel {
+    width: calc(100vw - 10px);
+    right: 5px;
+    bottom: 58px;
+  }
+
+  #status-bar {
+    padding: 4px 8px;
+    font-size: 9.5px;
+  }
+}
+

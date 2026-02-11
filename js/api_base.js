@@ -4,7 +4,8 @@
 // to route all internal API calls through a hosted proxy.
 
 (function bootstrapApiBase() {
-  const raw = String(window.CONTROL_ROOM_API_BASE || "").trim();
+  const defaultHostedProxy = "https://control-room-proxy.ben-wilson2092.workers.dev";
+  const raw = String(window.CONTROL_ROOM_API_BASE || defaultHostedProxy).trim();
   const normalized = raw.replace(/\/+$/, "");
   window.__CONTROL_ROOM_API_BASE = normalized;
 })();
