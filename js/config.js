@@ -1,0 +1,62 @@
+const CONTROL_ROOM_CONFIG = {
+  map: {
+    center: [54.5, -3.5],
+    zoom: 6,
+    minZoom: 3,
+    maxZoom: 18
+  },
+
+  tiles: {
+    dark: {
+      name: "Dark",
+      url: "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
+      attribution: '&copy; <a href="https://carto.com/">CARTO</a>',
+      options: { subdomains: "abcd", maxZoom: 20, className: "dark-tiles-boosted" }
+    },
+    grey: {
+      name: "Grey",
+      url: "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
+      attribution: '&copy; <a href="https://carto.com/">CARTO</a>',
+      options: { subdomains: "abcd", maxZoom: 20 }
+    },
+    street: {
+      name: "Street",
+      url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+      attribution: "&copy; OpenStreetMap contributors",
+      options: { maxZoom: 19 }
+    },
+    satellite: {
+      name: "Satellite",
+      url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+      attribution: "&copy; Esri",
+      options: { maxZoom: 18 }
+    }
+  },
+
+  // Overlay display colours (used by layer dots + markers)
+  layerColours: {
+    areas:           "#818cf8",
+    airports_uk:     "#38bdf8",
+    airports_global: "#0284c7",
+    seaports:        "#2dd4bf",
+    underground:     "#f43f5e",
+    flights:         "#f59e0b",
+    bikes:           "#22c55e"
+  },
+
+  // OpenSky Network flight tracking
+  opensky: {
+    baseUrl: "https://opensky-network.org/api",
+    corsProxy: "https://corsproxy.io/?url=",
+    refreshInterval: 480000,  // 8 minutes (stays within 200 req/day anonymous budget)
+    bbox: { lamin: 49.5, lamax: 59.0, lomin: -8.0, lomax: 2.0 }  // UK
+  },
+
+  // TfL API
+  tfl: {
+    baseUrl: "https://api.tfl.gov.uk",
+    statusRefresh: 60000,     // 60 seconds
+    bikesRefresh: 300000,     // 5 minutes
+    arrivalCache: 30000       // cache arrivals for 30s
+  }
+};

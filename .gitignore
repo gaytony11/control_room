@@ -1,0 +1,70 @@
+# Environment variables (SECURITY: Never commit API keys)
+.env
+.env.local
+.env.*.local
+
+# Claude Code
+.claude/
+
+# Windows artifacts
+nul
+
+# Large datasets
+data/postcode_data/
+data/postcodes/
+data/companies_house_basic_company_data/
+data/companies_house_subsets/
+data/psc_by_company/
+data/psc_names/
+data/companies_house_posc/
+data/companies_house/
+data/points_of_interest/
+data/bellingcat*/
+
+# Large individual files (GitHub 100MB limit)
+data/postcodes.json
+data/companies_house_subset.csv
+data/police_force_areas_wgs84.geojson
+data/railways/
+
+# Large GeoJSON source data
+_geojson/hotosm_gbr_buildings_polygons_geojson/
+_geojson/hotosm_gbr_roads_lines_geojson/
+_geojson/hotosm_gbr_waterways_points_geojson/
+_geojson/hotosm_gbr_points_of_interest_points_geojson/
+_geojson/hotosm_gbr_railways_lines_geojson/
+
+# Keep README.md files that explain where data went
+!data/postcode_data/README.md
+!data/postcodes/README.md
+!data/companies_house_basic_company_data/README.md
+!data/companies_house_subsets/README.md
+!data/psc_by_company/README.md
+!data/psc_names/README.md
+!data/companies_house_posc/README.md
+!data/companies_house/README.md
+
+# Large file types
+*.zip
+*.tar.gz
+*.7z
+*.mov
+*.mp4
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db

@@ -1,0 +1,344 @@
+[
+  {
+    "start": 0,
+    "end": 99999,
+    "file": "data/companies_house_subsets/companies_000000_099999.json",
+    "rows": 100000
+  },
+  {
+    "start": 100000,
+    "end": 199999,
+    "file": "data/companies_house_subsets/companies_100000_199999.json",
+    "rows": 100000
+  },
+  {
+    "start": 200000,
+    "end": 299999,
+    "file": "data/companies_house_subsets/companies_200000_299999.json",
+    "rows": 100000
+  },
+  {
+    "start": 300000,
+    "end": 399999,
+    "file": "data/companies_house_subsets/companies_300000_399999.json",
+    "rows": 100000
+  },
+  {
+    "start": 400000,
+    "end": 499999,
+    "file": "data/companies_house_subsets/companies_400000_499999.json",
+    "rows": 100000
+  },
+  {
+    "start": 500000,
+    "end": 599999,
+    "file": "data/companies_house_subsets/companies_500000_599999.json",
+    "rows": 100000
+  },
+  {
+    "start": 600000,
+    "end": 699999,
+    "file": "data/companies_house_subsets/companies_600000_699999.json",
+    "rows": 100000
+  },
+  {
+    "start": 700000,
+    "end": 799999,
+    "file": "data/companies_house_subsets/companies_700000_799999.json",
+    "rows": 100000
+  },
+  {
+    "start": 800000,
+    "end": 899999,
+    "file": "data/companies_house_subsets/companies_800000_899999.json",
+    "rows": 100000
+  },
+  {
+    "start": 900000,
+    "end": 999999,
+    "file": "data/companies_house_subsets/companies_900000_999999.json",
+    "rows": 100000
+  },
+  {
+    "start": 1000000,
+    "end": 1099999,
+    "file": "data/companies_house_subsets/companies_1000000_1099999.json",
+    "rows": 100000
+  },
+  {
+    "start": 1100000,
+    "end": 1199999,
+    "file": "data/companies_house_subsets/companies_1100000_1199999.json",
+    "rows": 100000
+  },
+  {
+    "start": 1200000,
+    "end": 1299999,
+    "file": "data/companies_house_subsets/companies_1200000_1299999.json",
+    "rows": 100000
+  },
+  {
+    "start": 1300000,
+    "end": 1399999,
+    "file": "data/companies_house_subsets/companies_1300000_1399999.json",
+    "rows": 100000
+  },
+  {
+    "start": 1400000,
+    "end": 1499999,
+    "file": "data/companies_house_subsets/companies_1400000_1499999.json",
+    "rows": 100000
+  },
+  {
+    "start": 1500000,
+    "end": 1599999,
+    "file": "data/companies_house_subsets/companies_1500000_1599999.json",
+    "rows": 100000
+  },
+  {
+    "start": 1600000,
+    "end": 1699999,
+    "file": "data/companies_house_subsets/companies_1600000_1699999.json",
+    "rows": 100000
+  },
+  {
+    "start": 1700000,
+    "end": 1799999,
+    "file": "data/companies_house_subsets/companies_1700000_1799999.json",
+    "rows": 100000
+  },
+  {
+    "start": 1800000,
+    "end": 1899999,
+    "file": "data/companies_house_subsets/companies_1800000_1899999.json",
+    "rows": 100000
+  },
+  {
+    "start": 1900000,
+    "end": 1999999,
+    "file": "data/companies_house_subsets/companies_1900000_1999999.json",
+    "rows": 100000
+  },
+  {
+    "start": 2000000,
+    "end": 2099999,
+    "file": "data/companies_house_subsets/companies_2000000_2099999.json",
+    "rows": 100000
+  },
+  {
+    "start": 2100000,
+    "end": 2199999,
+    "file": "data/companies_house_subsets/companies_2100000_2199999.json",
+    "rows": 100000
+  },
+  {
+    "start": 2200000,
+    "end": 2299999,
+    "file": "data/companies_house_subsets/companies_2200000_2299999.json",
+    "rows": 100000
+  },
+  {
+    "start": 2300000,
+    "end": 2399999,
+    "file": "data/companies_house_subsets/companies_2300000_2399999.json",
+    "rows": 100000
+  },
+  {
+    "start": 2400000,
+    "end": 2499999,
+    "file": "data/companies_house_subsets/companies_2400000_2499999.json",
+    "rows": 100000
+  },
+  {
+    "start": 2500000,
+    "end": 2599999,
+    "file": "data/companies_house_subsets/companies_2500000_2599999.json",
+    "rows": 100000
+  },
+  {
+    "start": 2600000,
+    "end": 2699999,
+    "file": "data/companies_house_subsets/companies_2600000_2699999.json",
+    "rows": 100000
+  },
+  {
+    "start": 2700000,
+    "end": 2799999,
+    "file": "data/companies_house_subsets/companies_2700000_2799999.json",
+    "rows": 100000
+  },
+  {
+    "start": 2800000,
+    "end": 2899999,
+    "file": "data/companies_house_subsets/companies_2800000_2899999.json",
+    "rows": 100000
+  },
+  {
+    "start": 2900000,
+    "end": 2999999,
+    "file": "data/companies_house_subsets/companies_2900000_2999999.json",
+    "rows": 100000
+  },
+  {
+    "start": 3000000,
+    "end": 3099999,
+    "file": "data/companies_house_subsets/companies_3000000_3099999.json",
+    "rows": 100000
+  },
+  {
+    "start": 3100000,
+    "end": 3199999,
+    "file": "data/companies_house_subsets/companies_3100000_3199999.json",
+    "rows": 100000
+  },
+  {
+    "start": 3200000,
+    "end": 3299999,
+    "file": "data/companies_house_subsets/companies_3200000_3299999.json",
+    "rows": 100000
+  },
+  {
+    "start": 3300000,
+    "end": 3399999,
+    "file": "data/companies_house_subsets/companies_3300000_3399999.json",
+    "rows": 100000
+  },
+  {
+    "start": 3400000,
+    "end": 3499999,
+    "file": "data/companies_house_subsets/companies_3400000_3499999.json",
+    "rows": 100000
+  },
+  {
+    "start": 3500000,
+    "end": 3599999,
+    "file": "data/companies_house_subsets/companies_3500000_3599999.json",
+    "rows": 100000
+  },
+  {
+    "start": 3600000,
+    "end": 3699999,
+    "file": "data/companies_house_subsets/companies_3600000_3699999.json",
+    "rows": 100000
+  },
+  {
+    "start": 3700000,
+    "end": 3799999,
+    "file": "data/companies_house_subsets/companies_3700000_3799999.json",
+    "rows": 100000
+  },
+  {
+    "start": 3800000,
+    "end": 3899999,
+    "file": "data/companies_house_subsets/companies_3800000_3899999.json",
+    "rows": 100000
+  },
+  {
+    "start": 3900000,
+    "end": 3999999,
+    "file": "data/companies_house_subsets/companies_3900000_3999999.json",
+    "rows": 100000
+  },
+  {
+    "start": 4000000,
+    "end": 4099999,
+    "file": "data/companies_house_subsets/companies_4000000_4099999.json",
+    "rows": 100000
+  },
+  {
+    "start": 4100000,
+    "end": 4199999,
+    "file": "data/companies_house_subsets/companies_4100000_4199999.json",
+    "rows": 100000
+  },
+  {
+    "start": 4200000,
+    "end": 4299999,
+    "file": "data/companies_house_subsets/companies_4200000_4299999.json",
+    "rows": 100000
+  },
+  {
+    "start": 4300000,
+    "end": 4399999,
+    "file": "data/companies_house_subsets/companies_4300000_4399999.json",
+    "rows": 100000
+  },
+  {
+    "start": 4400000,
+    "end": 4499999,
+    "file": "data/companies_house_subsets/companies_4400000_4499999.json",
+    "rows": 100000
+  },
+  {
+    "start": 4500000,
+    "end": 4599999,
+    "file": "data/companies_house_subsets/companies_4500000_4599999.json",
+    "rows": 100000
+  },
+  {
+    "start": 4600000,
+    "end": 4699999,
+    "file": "data/companies_house_subsets/companies_4600000_4699999.json",
+    "rows": 100000
+  },
+  {
+    "start": 4700000,
+    "end": 4799999,
+    "file": "data/companies_house_subsets/companies_4700000_4799999.json",
+    "rows": 100000
+  },
+  {
+    "start": 4800000,
+    "end": 4899999,
+    "file": "data/companies_house_subsets/companies_4800000_4899999.json",
+    "rows": 100000
+  },
+  {
+    "start": 4900000,
+    "end": 4999999,
+    "file": "data/companies_house_subsets/companies_4900000_4999999.json",
+    "rows": 100000
+  },
+  {
+    "start": 5000000,
+    "end": 5099999,
+    "file": "data/companies_house_subsets/companies_5000000_5099999.json",
+    "rows": 100000
+  },
+  {
+    "start": 5100000,
+    "end": 5199999,
+    "file": "data/companies_house_subsets/companies_5100000_5199999.json",
+    "rows": 100000
+  },
+  {
+    "start": 5200000,
+    "end": 5299999,
+    "file": "data/companies_house_subsets/companies_5200000_5299999.json",
+    "rows": 100000
+  },
+  {
+    "start": 5300000,
+    "end": 5399999,
+    "file": "data/companies_house_subsets/companies_5300000_5399999.json",
+    "rows": 100000
+  },
+  {
+    "start": 5400000,
+    "end": 5499999,
+    "file": "data/companies_house_subsets/companies_5400000_5499999.json",
+    "rows": 100000
+  },
+  {
+    "start": 5500000,
+    "end": 5599999,
+    "file": "data/companies_house_subsets/companies_5500000_5599999.json",
+    "rows": 100000
+  },
+  {
+    "start": 5600000,
+    "end": 5678622,
+    "file": "data/companies_house_subsets/companies_5600000_5678622.json",
+    "rows": 78623
+  }
+]

@@ -1,0 +1,17 @@
+How to install better Plane Icons on the Map for Vatsim (xPilot).
+
+1. Open X-Plane main Folder
+
+2. go to X-Plane 11\Resources\plugins
+
+3. Open your xPilot Folder (X-Plane 11\Resources\plugins\xPilot)
+
+4. Go in Resources
+
+5. You will see an Picture called "MapIcons"
+
+6. Just drag the New "MapIcons" from my fodler into the (X-Plane 11\Resources\plugins\xPilot\Resources) folder and replace it. I would recommend to save the original "MapIcons".
+
+Have fun and if you like my mini addon please give it a rating.
+Michael
+

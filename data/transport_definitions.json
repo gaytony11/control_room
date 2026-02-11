@@ -1,0 +1,19 @@
+{
+  "airports": {
+    "Heathrow Airport": {
+      "type": "international",
+      "notes": "Major UK hub"
+    },
+    "Bristol Airport": {
+      "type": "regional"
+    }
+  },
+  "seaports": {
+    "Port of Felixstowe": {
+      "function": "container"
+    },
+    "Port of Dover": {
+      "function": "passenger"
+    }
+  }
+}
