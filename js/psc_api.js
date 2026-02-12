@@ -935,6 +935,44 @@ function formatPSCKind(kind) {
     .replace(/\b\w/g, l => l.toUpperCase());
 }
 
+function pscCanMap(psc) {
+  const addr = psc?.address || {};
+  return !!String(addr.postal_code || "").trim();
+}
+
+function toOfficerAddressFromPSC(psc) {
+  const addr = psc?.address || {};
+  return {
+    address_line_1: addr.address_line_1 || "",
+    address_line_2: addr.address_line_2 || "",
+    locality: addr.locality || "",
+    region: addr.region || "",
+    postal_code: addr.postal_code || "",
+    country: addr.country || ""
+  };
+}
+
+async function addPSCToMap(psc, companyNumber, companyName) {
+  if (!pscCanMap(psc)) {
+    alert("PSC record has no postcode/address suitable for mapping.");
+    return;
+  }
+  const addFn = window.addPersonToMap;
+  if (typeof addFn !== "function") {
+    alert("Map add function is unavailable. Refresh and try again.");
+    return;
+  }
+  const personName = String(psc?.name || "PSC");
+  const officerAddress = toOfficerAddressFromPSC(psc);
+  try {
+    await addFn(personName, officerAddress, [companyName || `Company #${companyNumber}`]);
+    setStatus(`Added PSC to map: ${personName}`);
+  } catch (err) {
+    console.error("Add PSC to map failed:", err);
+    alert("Could not add PSC to map.");
+  }
+}
+
 function renderPSCCard(psc, companyNumber, companyName) {
   const card = document.createElement('div');
   card.className = 'psc-card';
@@ -973,8 +1011,24 @@ function renderPSCCard(psc, companyNumber, companyName) {
     }
     html += `</div>`;
   }
+
+  html += `<div class="popup-btn-row">`;
+  if (pscCanMap(psc)) {
+    html += `<button class="popup-psc-btn psc-add-map-btn" type="button">Add PSC to Map</button>`;
+  } else {
+    html += `<button class="popup-psc-btn" type="button" disabled title="No postcode available">Add PSC to Map</button>`;
+  }
+  html += `</div>`;
   
   card.innerHTML = html;
+  const addBtn = card.querySelector(".psc-add-map-btn");
+  if (addBtn) {
+    addBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      addPSCToMap(psc, companyNumber, companyName);
+    });
+  }
   return card;
 }
 

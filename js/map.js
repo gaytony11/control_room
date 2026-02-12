@@ -2306,6 +2306,7 @@ window.startI2EntityPlacement = startI2EntityPlacement;
 window.registerCompanyMarkerAsEntity = registerCompanyMarkerAsEntity;
 window.connectCompanyEntity = connectCompanyEntity;
 window.createOrganisationMarker = createOrganisationMarker;
+window.addPersonToMap = addPersonToMap;
 
 // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // MANUAL CONNECTION DRAWING
