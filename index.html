@@ -14,7 +14,15 @@
   <div id="control-panel">
     <div class="cp-header">
       <span class="cp-title">CONTROL ROOM</span>
-      <button id="cp-toggle" title="Collapse panel">&minus;</button>
+      <div class="cp-header-actions">
+        <button id="cp-menu-btn" class="cp-menu-btn" type="button" title="Open panel menu">Menu</button>
+        <div id="cp-menu" class="cp-menu hidden" role="menu" aria-hidden="true">
+          <button class="cp-menu-item" type="button" data-tab-target="search" role="menuitem">Search</button>
+          <button class="cp-menu-item" type="button" data-tab-target="entities" role="menuitem">Entities</button>
+          <button class="cp-menu-item" type="button" data-tab-target="layers" role="menuitem">Layers</button>
+        </div>
+        <button id="cp-toggle" title="Collapse panel">&minus;</button>
+      </div>
     </div>
 
     <div class="cp-body" id="cp-body">

@@ -4100,6 +4100,7 @@ const OS_DERIVED_STATE = {
   warned: false,
   roadsData: null,
   railData: null,
+  railMergedRoutes: null,
   railStationData: null,
   roadsLayer: null,
   railLayer: null,
@@ -4304,9 +4305,90 @@ function staticRoadVisibleAtZoom(type = "", zoom = 0) {
 
 function staticRailVisibleAtZoom(type = "", zoom = 0) {
   const t = String(type || "").toLowerCase();
-  if (zoom <= 7) return t === "rail";
-  if (zoom <= 9) return t === "rail" || t === "light_rail" || t === "subway";
+  if (zoom <= 7) return t === "rail" || t === "light_rail" || t === "subway" || t === "tram";
+  if (zoom <= 9) return t === "rail" || t === "light_rail" || t === "subway" || t === "tram" || t === "narrow_gauge";
   return true;
+}
+
+function buildCoordKey(coord, precision = 4) {
+  if (!Array.isArray(coord) || coord.length < 2) return "";
+  const lat = Number(coord[0]);
+  const lon = Number(coord[1]);
+  if (!Number.isFinite(lat) || !Number.isFinite(lon)) return "";
+  return `${lat.toFixed(precision)},${lon.toFixed(precision)}`;
+}
+
+function normalizeRouteCoords(coords = []) {
+  const out = [];
+  let lastKey = "";
+  for (const c of coords) {
+    if (!Array.isArray(c) || c.length < 2) continue;
+    const lat = Number(c[0]);
+    const lon = Number(c[1]);
+    if (!Number.isFinite(lat) || !Number.isFinite(lon)) continue;
+    const key = buildCoordKey([lat, lon], 5);
+    if (!key || key === lastKey) continue;
+    out.push([lat, lon]);
+    lastKey = key;
+  }
+  return out;
+}
+
+function mergeStaticRailRoutes(rawRoutes = []) {
+  const buckets = new Map();
+  for (const r of rawRoutes) {
+    const coords = normalizeRouteCoords(Array.isArray(r?.coords) ? r.coords : []);
+    if (coords.length < 2) continue;
+    const type = String(r?.type || "rail");
+    const name = String(r?.name || "");
+    const key = `${type.toLowerCase()}|${name.toLowerCase()}`;
+    if (!buckets.has(key)) buckets.set(key, []);
+    buckets.get(key).push({ ...r, type, name, coords });
+  }
+
+  const merged = [];
+  for (const segments of buckets.values()) {
+    const pending = [...segments];
+    while (pending.length) {
+      const current = pending.pop();
+      const line = [...current.coords];
+      let changed = true;
+      while (changed) {
+        changed = false;
+        const lineStart = buildCoordKey(line[0]);
+        const lineEnd = buildCoordKey(line[line.length - 1]);
+        for (let i = pending.length - 1; i >= 0; i--) {
+          const seg = pending[i];
+          const segStart = buildCoordKey(seg.coords[0]);
+          const segEnd = buildCoordKey(seg.coords[seg.coords.length - 1]);
+          let consumed = false;
+          if (lineEnd && lineEnd === segStart) {
+            line.push(...seg.coords.slice(1));
+            consumed = true;
+          } else if (lineEnd && lineEnd === segEnd) {
+            line.push(...[...seg.coords].reverse().slice(1));
+            consumed = true;
+          } else if (lineStart && lineStart === segEnd) {
+            line.unshift(...seg.coords.slice(0, -1));
+            consumed = true;
+          } else if (lineStart && lineStart === segStart) {
+            line.unshift(...[...seg.coords].reverse().slice(0, -1));
+            consumed = true;
+          }
+          if (consumed) {
+            pending.splice(i, 1);
+            changed = true;
+          }
+        }
+      }
+      merged.push({
+        name: current.name,
+        type: current.type,
+        coords: normalizeRouteCoords(line)
+      });
+    }
+  }
+  return merged;
 }
 
 function renderOsRoadOverlayViewport() {
@@ -4397,9 +4479,11 @@ function renderStaticRailOverlay() {
   const sig = getStaticRenderSignature();
   if (sig === OS_DERIVED_STATE.railStaticRenderSig) return;
   OS_DERIVED_STATE.railStaticRenderSig = sig;
-  const routes = Array.isArray(OS_DERIVED_STATE.railData.routes) ? OS_DERIVED_STATE.railData.routes : [];
+  const routes = Array.isArray(OS_DERIVED_STATE.railMergedRoutes) && OS_DERIVED_STATE.railMergedRoutes.length
+    ? OS_DERIVED_STATE.railMergedRoutes
+    : (Array.isArray(OS_DERIVED_STATE.railData.routes) ? OS_DERIVED_STATE.railData.routes : []);
   const stations = Array.isArray(OS_DERIVED_STATE.railStationData?.stations) ? OS_DERIVED_STATE.railStationData.stations : [];
-  const bounds = getExpandedBounds(0.24);
+  const bounds = getExpandedBounds(0.5);
   const zoom = map.getZoom();
   OS_DERIVED_STATE.railLayer.clearLayers();
 
@@ -4495,6 +4579,7 @@ async function loadOsRailOverlay() {
         "data/transport_static/rail_stations_core.json"
       ]);
       OS_DERIVED_STATE.railData = staticRail.data;
+      OS_DERIVED_STATE.railMergedRoutes = mergeStaticRailRoutes(staticRail.data.routes || []);
       OS_DERIVED_STATE.railStationData = staticStations?.data || { stations: [] };
       OS_DERIVED_STATE.railLayer = L.featureGroup().addTo(layers.os_rail);
       OS_DERIVED_STATE.railLoaded = true;
@@ -4512,6 +4597,7 @@ async function loadOsRailOverlay() {
     ]);
     if (!picked) throw new Error("No OS rail dataset found");
     OS_DERIVED_STATE.railData = picked.data;
+    OS_DERIVED_STATE.railMergedRoutes = null;
     OS_DERIVED_STATE.railLayer = L.featureGroup().addTo(layers.os_rail);
     OS_DERIVED_STATE.railLoaded = true;
     OS_DERIVED_STATE.railStatic = false;
@@ -5954,6 +6040,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   const pscClearBtn = document.getElementById("psc_clear");
   const toggleBtn  = document.getElementById("cp-toggle");
   const body       = document.getElementById("cp-body");
+  const cpMenuBtn = document.getElementById("cp-menu-btn");
+  const cpMenu = document.getElementById("cp-menu");
   const controlPanel = document.getElementById("control-panel");
   const mobilePanelToggle = document.getElementById("mobile-panel-toggle");
   const mobileViewport = window.matchMedia("(max-width: 920px)");
@@ -6011,16 +6099,44 @@ document.addEventListener("DOMContentLoaded", async () => {
     toggleBtn.textContent = body.classList.contains("collapsed") ? "+" : "\u2212";
   });
 
-  // â”€â”€ Tabs â”€â”€
+  function activateControlPanelTab(tabId = "search") {
+    const tab = document.querySelector(`.cp-tab[data-tab="${tabId}"]`);
+    if (!tab) return;
+    document.querySelectorAll(".cp-tab").forEach(t => t.classList.remove("active"));
+    document.querySelectorAll(".cp-tab-pane").forEach(p => p.classList.remove("active"));
+    tab.classList.add("active");
+    document.getElementById("tab-" + tab.dataset.tab)?.classList.add("active");
+    controlPanel?.classList.remove("control-panel-layers-docked");
+  }
+
+  // Tabs
   document.querySelectorAll(".cp-tab").forEach(tab => {
-    tab.addEventListener("click", () => {
-      document.querySelectorAll(".cp-tab").forEach(t => t.classList.remove("active"));
-      document.querySelectorAll(".cp-tab-pane").forEach(p => p.classList.remove("active"));
-      tab.classList.add("active");
-      document.getElementById("tab-" + tab.dataset.tab)?.classList.add("active");
-      const panel = document.getElementById("control-panel");
-      panel?.classList.toggle("control-panel-layers-docked", tab.dataset.tab === "layers");
+    tab.addEventListener("click", () => activateControlPanelTab(tab.dataset.tab));
+  });
+
+  // Top menu dropdown
+  cpMenuBtn?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    const open = !cpMenu?.classList.contains("hidden");
+    cpMenu?.classList.toggle("hidden", open);
+    cpMenu?.setAttribute("aria-hidden", open ? "true" : "false");
+  });
+
+  cpMenu?.querySelectorAll("[data-tab-target]")?.forEach((btnEl) => {
+    btnEl.addEventListener("click", () => {
+      const tabId = btnEl.getAttribute("data-tab-target") || "search";
+      activateControlPanelTab(tabId);
+      cpMenu.classList.add("hidden");
+      cpMenu.setAttribute("aria-hidden", "true");
     });
+  });
+
+  document.addEventListener("click", (e) => {
+    if (!cpMenu || !cpMenuBtn) return;
+    if (cpMenu.classList.contains("hidden")) return;
+    if (cpMenu.contains(e.target) || cpMenuBtn.contains(e.target)) return;
+    cpMenu.classList.add("hidden");
+    cpMenu.setAttribute("aria-hidden", "true");
   });
 
   // â”€â”€ Base layer pills â”€â”€
