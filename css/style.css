@@ -2372,7 +2372,7 @@ body {
 .os-road-static-line {
   stroke-linecap: round;
   stroke-linejoin: round;
-  filter: drop-shadow(0 0 4px rgba(249,115,22,0.22));
+  filter: drop-shadow(0 0 6px rgba(249,115,22,0.3));
 }
 
 .os-rail-static-line {

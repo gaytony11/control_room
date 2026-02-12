@@ -4099,6 +4099,7 @@ const OS_DERIVED_STATE = {
   railFailed: false,
   warned: false,
   roadsData: null,
+  roadsMergedRoutes: null,
   railData: null,
   railMergedRoutes: null,
   railStationData: null,
@@ -4298,8 +4299,8 @@ function staticRouteInBounds(coords = [], bounds = null) {
 
 function staticRoadVisibleAtZoom(type = "", zoom = 0) {
   const t = String(type || "").toLowerCase();
-  if (zoom <= 7) return t === "motorway" || t === "trunk";
-  if (zoom <= 9) return t === "motorway" || t === "trunk" || t === "primary";
+  if (zoom <= 7) return t === "motorway" || t === "trunk" || t === "primary";
+  if (zoom <= 9) return t === "motorway" || t === "trunk" || t === "primary" || t === "secondary";
   return true;
 }
 
@@ -4391,6 +4392,14 @@ function mergeStaticRailRoutes(rawRoutes = []) {
   return merged;
 }
 
+function mergeStaticRoadRoutes(rawRoutes = []) {
+  return mergeStaticRailRoutes((rawRoutes || []).map((r) => ({
+    ...(r || {}),
+    type: String(r?.type || "road"),
+    name: String(r?.name || "")
+  })));
+}
+
 function renderOsRoadOverlayViewport() {
   if (!OS_DERIVED_STATE.roadsData || !OS_DERIVED_STATE.roadsLayer) return;
   const sig = getOsRenderSignature();
@@ -4453,8 +4462,10 @@ function renderStaticRoadOverlay() {
   const sig = getStaticRenderSignature();
   if (sig === OS_DERIVED_STATE.roadsStaticRenderSig) return;
   OS_DERIVED_STATE.roadsStaticRenderSig = sig;
-  const routes = Array.isArray(OS_DERIVED_STATE.roadsData.routes) ? OS_DERIVED_STATE.roadsData.routes : [];
-  const bounds = getExpandedBounds(0.25);
+  const routes = Array.isArray(OS_DERIVED_STATE.roadsMergedRoutes) && OS_DERIVED_STATE.roadsMergedRoutes.length
+    ? OS_DERIVED_STATE.roadsMergedRoutes
+    : (Array.isArray(OS_DERIVED_STATE.roadsData.routes) ? OS_DERIVED_STATE.roadsData.routes : []);
+  const bounds = getExpandedBounds(0.5);
   const zoom = map.getZoom();
   OS_DERIVED_STATE.roadsLayer.clearLayers();
   for (const r of routes) {
@@ -4464,8 +4475,9 @@ function renderStaticRoadOverlay() {
     if (!staticRouteInBounds(coords, bounds)) continue;
     const line = L.polyline(coords, {
       color: osRoadColorForFeature({ highway: r.type, name: r.name }),
-      weight: zoom <= 8 ? 1.6 : 2.1,
-      opacity: zoom <= 8 ? 0.62 : 0.74,
+      weight: zoom <= 8 ? 2.2 : 2.9,
+      opacity: zoom <= 8 ? 0.74 : 0.86,
+      smoothFactor: 1.2,
       className: "os-road-static-line"
     }).addTo(OS_DERIVED_STATE.roadsLayer);
     if (r.name && zoom >= 9) {
@@ -4533,6 +4545,7 @@ async function loadOsRoadOverlay() {
     ]);
     if (staticPicked && Array.isArray(staticPicked.data?.routes)) {
       OS_DERIVED_STATE.roadsData = staticPicked.data;
+      OS_DERIVED_STATE.roadsMergedRoutes = mergeStaticRoadRoutes(staticPicked.data.routes || []);
       OS_DERIVED_STATE.roadsLayer = L.featureGroup().addTo(layers.os_roads);
       OS_DERIVED_STATE.roadsLoaded = true;
       OS_DERIVED_STATE.roadsStatic = true;
@@ -4549,6 +4562,7 @@ async function loadOsRoadOverlay() {
     ]);
     if (!picked) throw new Error("No OS road dataset found");
     OS_DERIVED_STATE.roadsData = picked.data;
+    OS_DERIVED_STATE.roadsMergedRoutes = null;
     OS_DERIVED_STATE.roadsLayer = L.featureGroup().addTo(layers.os_roads);
     OS_DERIVED_STATE.roadsLoaded = true;
     OS_DERIVED_STATE.roadsStatic = false;
