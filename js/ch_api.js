@@ -307,6 +307,7 @@ async function plotCompanyFromAPI(profile) {
     <span class="popup-tag" style="background:rgba(34,197,94,0.15); color:#4ade80; border:1px solid rgba(34,197,94,0.3);">Live API</span>
     <div class="popup-btn-row">
       <button class="popup-psc-btn" onclick="viewCompanyPsc('${escapeHtml(number)}', '${escapeHtml(name).replace(/'/g, "\\'")}')">View PSC</button>
+      <button class="popup-psc-btn" onclick="connectCompanyEntity('${escapeHtml(number)}')">Connect</button>
       <button class="popup-psc-btn" onclick="downloadCompanyProfile('${escapeHtml(number)}', '${escapeHtml(name).replace(/'/g, "\\'")}')">Profile PDF</button>
       <button class="popup-psc-btn" onclick="downloadFilingHistory('${escapeHtml(number)}', '${escapeHtml(name).replace(/'/g, "\\'")}')">Filings PDF</button>
     </div>
@@ -316,6 +317,16 @@ async function plotCompanyFromAPI(profile) {
   const useCircle = window._useCircleMarkers !== false;
   const marker = createCustomMarker([coords.lat, coords.lon], 'company', 'api', useCircle);
   marker.bindPopup(popup).addTo(layers.companies);
+  if (typeof window.registerCompanyMarkerAsEntity === "function") {
+    window.registerCompanyMarkerAsEntity(marker, {
+      number,
+      name,
+      status,
+      address: formatFullAddress(address),
+      postcode: rawPostcode,
+      latLng: [coords.lat, coords.lon]
+    });
+  }
 
   // Ensure layer is visible
   if (!map.hasLayer(layers.companies)) {

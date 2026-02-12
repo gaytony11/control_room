@@ -1913,6 +1913,114 @@ function buildEntityPopup(entityId, entity) {
   `;
 }
 
+function buildCompanyI2EntityData(companyData = {}) {
+  const orgEntity = getI2EntityByKey("ET4") || getI2EntityByKey("Organisation");
+  const values = [];
+  if (companyData.name) values.push({ propertyName: "Organisation Name", value: String(companyData.name) });
+  if (companyData.number) values.push({ propertyName: "Company/Registration Number", value: String(companyData.number) });
+  if (companyData.address) values.push({ propertyName: "Address String", value: String(companyData.address) });
+  if (companyData.postcode) values.push({ propertyName: "Post Code", value: String(companyData.postcode) });
+  if (companyData.status) values.push({ propertyName: "Status", value: String(companyData.status) });
+
+  return {
+    entityId: orgEntity?.entity_id || "ET4",
+    entityName: orgEntity?.entity_name || "Organisation",
+    values
+  };
+}
+
+function getCompanyEntityIconData() {
+  const buildings = ICON_CATEGORIES.buildings || {};
+  const officeIcon = (buildings.icons || []).find((ic) => ic.id === "office");
+  return {
+    id: "organisation",
+    name: "Organisation",
+    icon: officeIcon?.icon || buildings.defaultIcon || ICON_CATEGORIES.financial?.defaultIcon || ICON_CATEGORIES.people?.defaultIcon,
+    categoryColor: buildings.color || "#64748b",
+    categoryName: "Organisation"
+  };
+}
+
+function bindCompanyEntityMarkerClick(marker) {
+  if (!marker || marker._companyEntityClickBound) return;
+  marker.on("click", function(e) {
+    L.DomEvent.stopPropagation(e);
+    const entityId = marker._entityId;
+    if (connectionDrawingMode && entityId && connectionDrawingMode.fromId !== entityId) {
+      completeConnection(entityId);
+      return;
+    }
+    highlightConnections(marker.getLatLng());
+  });
+  marker._companyEntityClickBound = true;
+}
+
+function registerCompanyMarkerAsEntity(marker, companyData = {}) {
+  if (!marker) return null;
+  const numberKey = String(companyData.number || "").trim().toUpperCase();
+  if (!numberKey) return null;
+
+  if (!window._companyEntityIndex) window._companyEntityIndex = {};
+
+  const existingId = window._companyEntityIndex[numberKey];
+  if (existingId) {
+    const existing = getEntityById(existingId);
+    if (existing) {
+      marker._entityId = existingId;
+      bindCompanyEntityMarkerClick(marker);
+      return existingId;
+    }
+  }
+
+  const coords = normalizeLatLng(companyData.latLng || marker.getLatLng());
+  if (!Number.isFinite(coords[0]) || !Number.isFinite(coords[1])) return null;
+
+  const entityId = `company_entity_${numberKey}_${Date.now()}_${Math.random()}`;
+  const entity = {
+    id: entityId,
+    iconData: getCompanyEntityIconData(),
+    label: String(companyData.name || numberKey),
+    address: String(companyData.address || "").trim(),
+    notes: companyData.status ? `Status: ${companyData.status}` : "",
+    latLng: coords,
+    marker,
+    i2EntityData: buildCompanyI2EntityData(companyData),
+    sourceType: "company"
+  };
+
+  marker._entityId = entityId;
+  bindCompanyEntityMarkerClick(marker);
+  window._mapEntities.push(entity);
+  window._companyEntityIndex[numberKey] = entityId;
+  updateDashboardCounts();
+  return entityId;
+}
+
+function connectCompanyEntity(companyNumber) {
+  const key = String(companyNumber || "").trim().toUpperCase();
+  const entityId = window._companyEntityIndex ? window._companyEntityIndex[key] : null;
+  if (!entityId) {
+    setStatus(`Company ${key} is not yet registered as an Organisation entity`);
+    return;
+  }
+  drawConnectionFrom(entityId);
+}
+
+function removeCompanyEntitiesFromStore() {
+  if (!window._companyEntityIndex) return;
+  const removedIds = new Set(Object.values(window._companyEntityIndex));
+  if (!removedIds.size) return;
+
+  const toRemoveConnections = window._mapConnections
+    .filter((c) => removedIds.has(c?.metadata?.fromId) || removedIds.has(c?.metadata?.toId))
+    .map((c) => c.id);
+  toRemoveConnections.forEach((id) => removeConnection(id));
+
+  window._mapEntities = window._mapEntities.filter((e) => !removedIds.has(e.id));
+  window._companyEntityIndex = {};
+  updateDashboardCounts();
+}
+
 function placeEntity(latLng, iconData, label = '', address = '', notes = '', i2EntityData = null) {
   const entityId = `entity_${Date.now()}_${Math.random()}`;
   const coords = normalizeLatLng(latLng);
@@ -2029,6 +2137,8 @@ window.editConnection = editConnection;
 window.highlightConnections = highlightConnections;
 window.clearConnectionHighlights = clearConnectionHighlights;
 window.startI2EntityPlacement = startI2EntityPlacement;
+window.registerCompanyMarkerAsEntity = registerCompanyMarkerAsEntity;
+window.connectCompanyEntity = connectCompanyEntity;
 
 // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // MANUAL CONNECTION DRAWING
@@ -3097,6 +3207,7 @@ async function plotCompanies(rows, clearFirst = false) {
         (r["SICCode.SicText_1"] ? `<br><span class="popup-label">SIC</span> ${escapeHtml(r["SICCode.SicText_1"])}` : "") +
         `<div class="popup-btn-row">` +
         `<button class="popup-psc-btn" onclick="viewCompanyPsc('${coNum}', '${companyName.replace(/'/g, "\\'")}')">View PSC</button>` +
+        `<button class="popup-psc-btn" onclick="connectCompanyEntity('${coNum}')">Connect</button>` +
         `<button class="popup-psc-btn" onclick="downloadCompanyProfile('${coNum}', '${companyName.replace(/'/g, "\\'")}')">Profile PDF</button>` +
         `<button class="popup-psc-btn" onclick="downloadFilingHistory('${coNum}', '${companyName.replace(/'/g, "\\'")}')">Filings PDF</button>` +
         `</div>`;
@@ -3105,11 +3216,13 @@ async function plotCompanies(rows, clearFirst = false) {
       const useCircle = window._useCircleMarkers !== false;
       const marker = createCustomMarker([co.lat, co.lon], 'company', 'standard', useCircle);
       marker.bindPopup(popup).addTo(layers.companies);
-
-      // Add click handler to highlight connections
-      marker.on('click', function(e) {
-        L.DomEvent.stopPropagation(e);
-        highlightConnections(marker.getLatLng());
+      registerCompanyMarkerAsEntity(marker, {
+        number: r.CompanyNumber,
+        name: r.CompanyName,
+        status: r.CompanyStatus || "",
+        address: [r["RegAddress.AddressLine1"], r["RegAddress.PostTown"], raw].filter(Boolean).join(", "),
+        postcode: raw,
+        latLng: [co.lat, co.lon]
       });
 
       plotted++;
@@ -3195,6 +3308,7 @@ async function addCompanyToMap(companyNumber, companyName, personName = '', pers
       ${personName ? `<br><span class="popup-label">Connected to</span> ${escapeHtml(personName)}` : ''}
       <div class="popup-btn-row">
         <button class="popup-psc-btn" onclick="viewCompanyPsc('${escapeHtml(companyNumber)}', '${escapeHtml(companyName).replace(/'/g, "\\'")}')">View PSC</button>
+        <button class="popup-psc-btn" onclick="connectCompanyEntity('${escapeHtml(companyNumber)}')">Connect</button>
         <button class="popup-psc-btn" onclick="downloadCompanyProfile('${escapeHtml(companyNumber)}', '${escapeHtml(companyName).replace(/'/g, "\\'")}')">Profile PDF</button>
         <button class="popup-psc-btn" onclick="downloadFilingHistory('${escapeHtml(companyNumber)}', '${escapeHtml(companyName).replace(/'/g, "\\'")}')">Filings PDF</button>
       </div>
@@ -3205,11 +3319,13 @@ async function addCompanyToMap(companyNumber, companyName, personName = '', pers
     const useCircle = window._useCircleMarkers !== false;
     const marker = createCustomMarker(companyLatLng, 'company', 'api', useCircle);
     marker.bindPopup(popup).addTo(layers.companies);
-    
-    // Add click handler to highlight connections
-    marker.on('click', function(e) {
-      L.DomEvent.stopPropagation(e);
-      highlightConnections(marker.getLatLng());
+    registerCompanyMarkerAsEntity(marker, {
+      number: companyNumber,
+      name: companyName,
+      status: profile.company_status || "",
+      address: [addr.address_line_1, addr.address_line_2, addr.locality, postcode].filter(Boolean).join(", "),
+      postcode,
+      latLng: companyLatLng
     });
     
     // Store company data on marker
@@ -3395,6 +3511,7 @@ async function searchCompaniesViaAPI(criteria, limit = 100) {
 function clearAll() {
   _searchAbort = true;
   if (confirm('Clear all companies from map?')) {
+    removeCompanyEntitiesFromStore();
     layers.companies.clearLayers();
   }
   ["ch_name","ch_number","ch_postcode","ch_town","ch_status","ch_sic"].forEach(id => {
