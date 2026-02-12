@@ -5,7 +5,7 @@
   "outputs": {
     "major_roads": {
       "features": -1,
-      "bytes": 39669016,
+      "bytes": 7021065,
       "path": "data\\osm_derived\\gb_major_roads_lite.geojson"
     },
     "rail_lines": {

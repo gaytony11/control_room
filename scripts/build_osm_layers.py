@@ -47,8 +47,11 @@ MAJOR_ROAD_TAGS = [
 
 LITE_ROAD_TAGS = [
     "motorway",
+    "motorway_link",
     "trunk",
+    "trunk_link",
     "primary",
+    "primary_link",
 ]
 
 RAIL_TAGS = [
@@ -280,7 +283,7 @@ def build_with_ogr(src_pbf: Path, out_dir: Path, simplify: float, profile: str =
     roads_where = "highway IN (" + ",".join([f"'{t}'" for t in road_tags]) + ")"
     rail_where = "railway IN (" + ",".join([f"'{t}'" for t in rail_tags]) + ")"
     if profile == "lite":
-        roads_where += " AND (name IS NOT NULL)"
+        roads_where += " AND (highway IN ('motorway','motorway_link') OR name LIKE 'A%' OR name LIKE 'M%')"
         rail_where += " AND (name IS NOT NULL)"
     places_where = "place IN (" + ",".join([f"'{t}'" for t in PLACE_TAGS]) + ")"
 
