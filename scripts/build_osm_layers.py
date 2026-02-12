@@ -45,11 +45,22 @@ MAJOR_ROAD_TAGS = [
     "tertiary_link",
 ]
 
+LITE_ROAD_TAGS = [
+    "motorway",
+    "trunk",
+    "primary",
+]
+
 RAIL_TAGS = [
     "rail",
     "subway",
     "light_rail",
     "tram",
+]
+
+LITE_RAIL_TAGS = [
+    "rail",
+    "light_rail",
 ]
 
 PLACE_TAGS = [
@@ -80,6 +91,12 @@ def parse_args() -> argparse.Namespace:
         choices=["auto", "pyrosm", "ogr"],
         default="auto",
         help="Extraction backend. auto tries pyrosm first, then ogr2ogr.",
+    )
+    parser.add_argument(
+        "--profile",
+        choices=["lite", "full"],
+        default="lite",
+        help="lite keeps only key road/rail classes and smaller property sets.",
     )
     return parser.parse_args()
 
@@ -136,13 +153,21 @@ def write_geojson(gdf, path: Path) -> Dict[str, int]:
     }
 
 
-def run_ogr_extract(src_pbf: Path, out_path: Path, layer: str, where: str, select: str) -> Dict[str, int]:
+def run_ogr_extract(
+    src_pbf: Path,
+    out_path: Path,
+    layer: str,
+    where: str,
+    select: str,
+    simplify_m: float = 0.0,
+) -> Dict[str, int]:
     ogr2ogr = resolve_ogr2ogr()
     ogr_env = build_ogr_env(ogr2ogr)
     out_path = promote_temp_output_path(out_path)
     tmp_path = out_path.with_name(f".{out_path.stem}.tmp_{int(time.time())}{out_path.suffix}")
     cmd = [
         ogr2ogr,
+        "-skipfailures",
         "-overwrite",
         "-f",
         "GeoJSON",
@@ -158,6 +183,9 @@ def run_ogr_extract(src_pbf: Path, out_path: Path, layer: str, where: str, selec
         "-where",
         where,
     ]
+    if simplify_m > 0:
+        simplify_deg = max(0.0, simplify_m / 111320.0)
+        cmd.extend(["-simplify", f"{simplify_deg:.7f}"])
     subprocess.run(cmd, check=True, env=ogr_env)
     out_path = finalize_output_path(tmp_path, out_path)
     return {
@@ -236,39 +264,55 @@ def build_ogr_env(ogr2ogr_path: str) -> dict:
     return env
 
 
-def build_with_ogr(src_pbf: Path, out_dir: Path) -> dict:
+def build_with_ogr(src_pbf: Path, out_dir: Path, simplify: float, profile: str = "lite") -> dict:
     if not resolve_ogr2ogr():
         raise SystemExit(
             "ogr2ogr not found. Install GDAL first, e.g. `winget install GISInternals.GDAL`, "
             "or use Python 3.11 + pyrosm backend."
         )
 
-    roads_path = out_dir / "gb_major_roads.geojson"
-    rail_path = out_dir / "gb_rail_lines.geojson"
+    roads_path = out_dir / ("gb_major_roads_lite.geojson" if profile == "lite" else "gb_major_roads.geojson")
+    rail_path = out_dir / ("gb_rail_lines_lite.geojson" if profile == "lite" else "gb_rail_lines.geojson")
     places_path = out_dir / "gb_places.geojson"
 
-    roads_where = "highway IN (" + ",".join([f"'{t}'" for t in MAJOR_ROAD_TAGS]) + ")"
-    rail_where = "railway IN (" + ",".join([f"'{t}'" for t in RAIL_TAGS]) + ")"
+    road_tags = LITE_ROAD_TAGS if profile == "lite" else MAJOR_ROAD_TAGS
+    rail_tags = LITE_RAIL_TAGS if profile == "lite" else RAIL_TAGS
+    roads_where = "highway IN (" + ",".join([f"'{t}'" for t in road_tags]) + ")"
+    rail_where = "railway IN (" + ",".join([f"'{t}'" for t in rail_tags]) + ")"
+    if profile == "lite":
+        roads_where += " AND (name IS NOT NULL)"
+        rail_where += " AND (name IS NOT NULL)"
     places_where = "place IN (" + ",".join([f"'{t}'" for t in PLACE_TAGS]) + ")"
 
     manifest = {
         "source_pbf": str(src_pbf),
         "backend": "ogr",
+        "profile": profile,
         "outputs": {},
     }
     manifest["outputs"]["major_roads"] = run_ogr_extract(
-        src_pbf, roads_path, "lines", roads_where, "name,highway,other_tags"
+        src_pbf,
+        roads_path,
+        "lines",
+        roads_where,
+        "name,highway",
+        simplify_m=max(40.0, simplify),
     )
     manifest["outputs"]["rail_lines"] = run_ogr_extract(
-        src_pbf, rail_path, "lines", rail_where, "name,railway,other_tags"
+        src_pbf,
+        rail_path,
+        "lines",
+        rail_where,
+        "name,railway",
+        simplify_m=max(55.0, simplify),
     )
     manifest["outputs"]["places"] = run_ogr_extract(
-        src_pbf, places_path, "points", places_where, "name,place,ref,other_tags"
+        src_pbf, places_path, "points", places_where, "name,place"
     )
     return manifest
 
 
-def build_with_pyrosm(src_pbf: Path, out_dir: Path, simplify: float) -> dict:
+def build_with_pyrosm(src_pbf: Path, out_dir: Path, simplify: float, profile: str = "lite") -> dict:
     gpd, pd, OSM = import_pyrosm_stack()
     if not (gpd and pd and OSM):
         raise SystemExit(
@@ -279,10 +323,12 @@ def build_with_pyrosm(src_pbf: Path, out_dir: Path, simplify: float) -> dict:
 
     print(f"Loading OSM PBF: {src_pbf}")
     osm = OSM(str(src_pbf))
+    road_tags = LITE_ROAD_TAGS if profile == "lite" else MAJOR_ROAD_TAGS
+    rail_tags = LITE_RAIL_TAGS if profile == "lite" else RAIL_TAGS
 
     print("Extracting major roads...")
     roads = osm.get_data_by_custom_criteria(
-        custom_filter={"highway": MAJOR_ROAD_TAGS},
+        custom_filter={"highway": road_tags},
         filter_type="keep",
         keep_nodes=False,
         keep_ways=True,
@@ -290,11 +336,13 @@ def build_with_pyrosm(src_pbf: Path, out_dir: Path, simplify: float) -> dict:
     )
     roads = roads.set_crs(4326, allow_override=True)
     roads = compact_columns(roads, ["name", "ref", "highway", "maxspeed"])
-    roads = simplify_lines(roads, simplify, gpd, pd)
+    if profile == "lite" and not roads.empty:
+        roads = roads[(roads["name"].notna()) | (roads["ref"].notna())].copy()
+    roads = simplify_lines(roads, max(40.0, simplify), gpd, pd)
 
     print("Extracting rail lines...")
     rail = osm.get_data_by_custom_criteria(
-        custom_filter={"railway": RAIL_TAGS},
+        custom_filter={"railway": rail_tags},
         filter_type="keep",
         keep_nodes=False,
         keep_ways=True,
@@ -302,7 +350,9 @@ def build_with_pyrosm(src_pbf: Path, out_dir: Path, simplify: float) -> dict:
     )
     rail = rail.set_crs(4326, allow_override=True)
     rail = compact_columns(rail, ["name", "operator", "railway"])
-    rail = simplify_lines(rail, simplify, gpd, pd)
+    if profile == "lite" and not rail.empty:
+        rail = rail[rail["name"].notna()].copy()
+    rail = simplify_lines(rail, max(55.0, simplify), gpd, pd)
 
     print("Extracting populated places...")
     places = osm.get_data_by_custom_criteria(
@@ -318,11 +368,12 @@ def build_with_pyrosm(src_pbf: Path, out_dir: Path, simplify: float) -> dict:
     manifest = {
         "source_pbf": str(src_pbf),
         "backend": "pyrosm",
+        "profile": profile,
         "outputs": {},
     }
 
-    roads_path = out_dir / "gb_major_roads.geojson"
-    rail_path = out_dir / "gb_rail_lines.geojson"
+    roads_path = out_dir / ("gb_major_roads_lite.geojson" if profile == "lite" else "gb_major_roads.geojson")
+    rail_path = out_dir / ("gb_rail_lines_lite.geojson" if profile == "lite" else "gb_rail_lines.geojson")
     places_path = out_dir / "gb_places.geojson"
 
     manifest["outputs"]["major_roads"] = write_geojson(roads, roads_path)
@@ -341,15 +392,15 @@ def main() -> None:
         raise SystemExit(f"PBF not found: {pbf}")
 
     if args.backend == "pyrosm":
-        manifest = build_with_pyrosm(pbf, out_dir, args.simplify)
+        manifest = build_with_pyrosm(pbf, out_dir, args.simplify, args.profile)
     elif args.backend == "ogr":
-        manifest = build_with_ogr(pbf, out_dir)
+        manifest = build_with_ogr(pbf, out_dir, args.simplify, args.profile)
     else:
         gpd, pd, OSM = import_pyrosm_stack()
         if gpd and pd and OSM:
-            manifest = build_with_pyrosm(pbf, out_dir, args.simplify)
+            manifest = build_with_pyrosm(pbf, out_dir, args.simplify, args.profile)
         elif resolve_ogr2ogr():
-            manifest = build_with_ogr(pbf, out_dir)
+            manifest = build_with_ogr(pbf, out_dir, args.simplify, args.profile)
         else:
             raise SystemExit(
                 "No supported backend available.\n"
@@ -360,8 +411,8 @@ def main() -> None:
     manifest_path = out_dir / "manifest.json"
     manifest_path.write_text(json.dumps(manifest, indent=2), encoding="utf-8")
 
-    roads_path = out_dir / "gb_major_roads.geojson"
-    rail_path = out_dir / "gb_rail_lines.geojson"
+    roads_path = out_dir / ("gb_major_roads_lite.geojson" if args.profile == "lite" else "gb_major_roads.geojson")
+    rail_path = out_dir / ("gb_rail_lines_lite.geojson" if args.profile == "lite" else "gb_rail_lines.geojson")
     places_path = out_dir / "gb_places.geojson"
 
     print("\nDone.")

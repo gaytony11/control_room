@@ -1,7 +1,9 @@
 param(
   [string]$PbfPath = "data/OS Map/great-britain-260211.osm.pbf",
   [string]$OutDir = "data/osm_derived",
-  [double]$Simplify = 25
+  [double]$Simplify = 180,
+  [ValidateSet("lite", "full")]
+  [string]$Profile = "lite"
 )
 
 $ErrorActionPreference = "Stop"
@@ -63,7 +65,7 @@ if (-not (Test-Ogr)) {
 }
 
 Write-Host "Running OSM extraction with ogr backend..."
-python scripts/build_osm_layers.py --backend ogr --pbf "$PbfPath" --out "$OutDir" --simplify "$Simplify"
+python scripts/build_osm_layers.py --backend ogr --profile "$Profile" --pbf "$PbfPath" --out "$OutDir" --simplify "$Simplify"
 if ($LASTEXITCODE -ne 0) {
   throw "OSM extraction failed with exit code $LASTEXITCODE"
 }

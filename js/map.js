@@ -2798,7 +2798,9 @@ const OS_DERIVED_STATE = {
   railLoaded: false,
   roadsFailed: false,
   railFailed: false,
-  warned: false
+  warned: false,
+  roadsLayer: null,
+  railLayer: null
 };
 
 function markOsDerivedLayerUnavailable(layerKey, reason = "") {
@@ -2824,13 +2826,33 @@ function notifyOsDerivedUnavailableOnce(message) {
   setStatus(message || "OS-derived overlays unavailable in this build.");
 }
 
+async function fetchGeoJsonFromCandidates(paths) {
+  for (const p of paths) {
+    try {
+      const r = await fetch(p);
+      if (!r.ok) continue;
+      const data = await r.json();
+      if (data && data.type === "FeatureCollection") return { data, path: p };
+    } catch (_) {
+      // try next path
+    }
+  }
+  return null;
+}
+
 async function loadOsRoadOverlay() {
   if (OS_DERIVED_STATE.roadsLoaded || OS_DERIVED_STATE.roadsFailed) return;
+  if (map.getZoom() < 6) {
+    setStatus("Zoom in to level 6+ to load OS roads overlay.");
+    return;
+  }
   try {
-    const r = await fetch("data/osm_derived/gb_major_roads.geojson");
-    if (!r.ok) throw new Error(`HTTP ${r.status}`);
-    const data = await r.json();
-    L.geoJSON(data, {
+    const picked = await fetchGeoJsonFromCandidates([
+      "data/osm_derived/gb_major_roads_lite.geojson",
+      "data/osm_derived/gb_major_roads.geojson"
+    ]);
+    if (!picked) throw new Error("No OS road dataset found");
+    OS_DERIVED_STATE.roadsLayer = L.geoJSON(picked.data, {
       style: {
         color: "#fb923c",
         weight: 1.8,
@@ -2843,6 +2865,7 @@ async function loadOsRoadOverlay() {
       }
     }).addTo(layers.os_roads);
     OS_DERIVED_STATE.roadsLoaded = true;
+    setStatus(`OS roads overlay loaded (${picked.path.includes("_lite") ? "lite" : "full"}).`);
   } catch (err) {
     OS_DERIVED_STATE.roadsFailed = true;
     console.warn("OS major roads overlay unavailable:", err);
@@ -2853,11 +2876,17 @@ async function loadOsRoadOverlay() {
 
 async function loadOsRailOverlay() {
   if (OS_DERIVED_STATE.railLoaded || OS_DERIVED_STATE.railFailed) return;
+  if (map.getZoom() < 6) {
+    setStatus("Zoom in to level 6+ to load OS rail overlay.");
+    return;
+  }
   try {
-    const r = await fetch("data/osm_derived/gb_rail_lines.geojson");
-    if (!r.ok) throw new Error(`HTTP ${r.status}`);
-    const data = await r.json();
-    L.geoJSON(data, {
+    const picked = await fetchGeoJsonFromCandidates([
+      "data/osm_derived/gb_rail_lines_lite.geojson",
+      "data/osm_derived/gb_rail_lines.geojson"
+    ]);
+    if (!picked) throw new Error("No OS rail dataset found");
+    OS_DERIVED_STATE.railLayer = L.geoJSON(picked.data, {
       style: {
         color: "#60a5fa",
         weight: 1.9,
@@ -2870,6 +2899,7 @@ async function loadOsRailOverlay() {
       }
     }).addTo(layers.os_rail);
     OS_DERIVED_STATE.railLoaded = true;
+    setStatus(`OS rail overlay loaded (${picked.path.includes("_lite") ? "lite" : "full"}).`);
   } catch (err) {
     OS_DERIVED_STATE.railFailed = true;
     console.warn("OS rail overlay unavailable:", err);
@@ -4067,9 +4097,19 @@ document.addEventListener("DOMContentLoaded", async () => {
       const layer = layers[cb.dataset.layer];
       if (!layer) return;
       if (cb.checked && cb.dataset.layer === "os_roads") {
+        if (map.getZoom() < 6) {
+          cb.checked = false;
+          setStatus("Zoom in to level 6+ before enabling OS roads.");
+          return;
+        }
         await loadOsRoadOverlay();
       }
       if (cb.checked && cb.dataset.layer === "os_rail") {
+        if (map.getZoom() < 6) {
+          cb.checked = false;
+          setStatus("Zoom in to level 6+ before enabling OS rail.");
+          return;
+        }
         await loadOsRailOverlay();
       }
       if (cb.checked) { layer.addTo(map); }
