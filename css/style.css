@@ -1124,6 +1124,32 @@ body {
   color: #e2e8f0;
 }
 
+.entity-icon-preview {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 8px;
+  margin-bottom: 8px;
+  padding: 8px 10px;
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 8px;
+  background: rgba(15, 23, 42, 0.45);
+}
+
+.entity-icon-preview img {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  flex: 0 0 28px;
+  border-radius: 4px;
+}
+
+.entity-icon-preview span {
+  font-size: 11px;
+  color: #cbd5e1;
+  line-height: 1.35;
+}
+
 .entity-i2-fields {
   margin-top: 10px;
   border: 1px solid rgba(99, 102, 241, 0.2);

@@ -459,10 +459,15 @@
         <select id="entity-icon" required>
           <option value="">Select icon...</option>
         </select>
+        <div id="entity-icon-preview" class="entity-icon-preview">
+          <img id="entity-icon-preview-img" src="" alt="Selected icon preview" />
+          <span id="entity-icon-preview-label">No icon selected</span>
+        </div>
 
-        <label for="entity-mil-symbol">Military Symbol (SIDC/JMSML, optional)</label>
-        <input id="entity-mil-symbol" type="text" list="entity-mil-symbol-list" placeholder="e.g. 01110104 or Fighter" />
-        <datalist id="entity-mil-symbol-list"></datalist>
+        <label for="entity-mil-symbol-select">Military Symbol (SIDC/JMSML, optional)</label>
+        <select id="entity-mil-symbol-select">
+          <option value="">Select military symbol...</option>
+        </select>
 
         <label for="entity-i2-type">i2 Entity Type</label>
         <select id="entity-i2-type">
