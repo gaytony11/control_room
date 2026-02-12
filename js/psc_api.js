@@ -1009,6 +1009,29 @@ function normalizePersonName(name) {
     .trim();
 }
 
+function tokenSetFromName(name) {
+  return new Set(
+    normalizePersonName(name)
+      .split(" ")
+      .map((t) => t.trim())
+      .filter((t) => t.length >= 2)
+  );
+}
+
+function namesLikelyMatch(left, right) {
+  const a = normalizePersonName(left);
+  const b = normalizePersonName(right);
+  if (!a || !b) return false;
+  if (a === b) return true;
+  if (a.includes(b) || b.includes(a)) return true;
+  const aTokens = tokenSetFromName(a);
+  const bTokens = tokenSetFromName(b);
+  if (!aTokens.size || !bTokens.size) return false;
+  let overlap = 0;
+  aTokens.forEach((t) => { if (bTokens.has(t)) overlap += 1; });
+  return overlap >= 2;
+}
+
 function formatOfficerRole(role) {
   const raw = String(role || "").trim().toLowerCase();
   if (!raw) return "";
@@ -1050,11 +1073,12 @@ async function lookupCompanyOfficerRole(companyNumber, personName) {
 
 async function lookupCompanyOfficerMatch(companyNumber, personName) {
   const company = String(companyNumber || "").trim();
-  const person = normalizePersonName(personName);
+  const person = String(personName || "").trim();
   if (!company || !person) return null;
   try {
     const officers = await getOfficersForCompanyAPI(company);
-    const hit = officers.find((o) => normalizePersonName(o?.name) === person);
+    const exact = officers.find((o) => normalizePersonName(o?.name) === normalizePersonName(person));
+    const hit = exact || officers.find((o) => namesLikelyMatch(o?.name, person));
     if (!hit) return null;
     return {
       officerId: extractOfficerId(hit),

@@ -4584,10 +4584,25 @@ map.on("moveend zoomend", () => {
   if (map.hasLayer(layers.os_rail) && OS_DERIVED_STATE.railLoaded) scheduleOsRailViewportRender();
 });
 
+function extractOfficerIdFromPath(rawPath = "") {
+  const path = String(rawPath || "").trim();
+  const match = path.match(/\/officers\/([^/]+)\/appointments/i);
+  return match ? match[1] : "";
+}
+
 async function expandOfficerCompanies(entityId) {
   const entity = getEntityById(entityId);
   if (!entity) return;
-  const officerId = String(entity.officerId || "").trim();
+  let officerId = String(entity.officerId || "").trim();
+  if (!officerId && entity.companyNumber && typeof lookupCompanyOfficerMatch === "function") {
+    try {
+      const resolved = await lookupCompanyOfficerMatch(entity.companyNumber, entity.label);
+      officerId = String(resolved?.officerId || "").trim();
+      if (officerId) entity.officerId = officerId;
+    } catch (err) {
+      console.warn("Officer ID resolve fallback failed:", err);
+    }
+  }
   if (!officerId) {
     alert("No officer ID is stored for this person, so appointments cannot be expanded.");
     return;
@@ -4780,9 +4795,13 @@ async function runPscSearch() {
       results.slice(0, 30).forEach(officer => {
         const card = document.createElement('div');
         card.className = 'ch-result-item officer-card';
-        card.dataset.officerId = officer.links?.self || '';
+        card.dataset.officerPath = officer.links?.self || '';
+        card.dataset.officerId = extractOfficerIdFromPath(officer.links?.self || '');
         card.dataset.officerName = officer.title || officer.name || 'Unknown';
         card.dataset.officerAddress = JSON.stringify(officer.address || {});
+        card.dataset.officerDob = JSON.stringify(officer.date_of_birth || null);
+        card.dataset.officerNationality = String(officer.nationality || "");
+        card.dataset.officerCountryOfResidence = String(officer.country_of_residence || "");
         
         card.innerHTML = `
           <div class="ch-r-name">${escapeHtml(officer.title || officer.name || 'Unknown')} <span class="expand-icon">></span></div>
@@ -4791,11 +4810,28 @@ async function runPscSearch() {
             ${officer.date_of_birth ? ` - Born ${officer.date_of_birth.month}/${officer.date_of_birth.year}` : ''}
             ${officer.address_snippet ? `<br>${escapeHtml(officer.address_snippet)}` : ''}
           </div>
-          ${officer.address?.postal_code ? `<button class="btn-add-company btn-sm" style="margin-top: 6px;" onclick='event.stopPropagation(); addPersonToMap("${escapeHtml(officer.title || officer.name || 'Unknown').replace(/"/g, '&quot;')}", ${JSON.stringify(officer.address)}, [])'>Add Person to Map</button>` : ''}
+          ${officer.address?.postal_code ? `<button class="btn-add-company btn-sm btn-add-officer-map" style="margin-top: 6px;">Add Person to Map</button>` : ''}
           <div class="officer-companies" style="display: none;">
             <div class="officer-loading">Loading appointments...</div>
           </div>
         `;
+
+        const addOfficerBtn = card.querySelector(".btn-add-officer-map");
+        if (addOfficerBtn) {
+          addOfficerBtn.addEventListener("click", async (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            const officerAddress = card.dataset.officerAddress ? JSON.parse(card.dataset.officerAddress) : null;
+            const officerDob = card.dataset.officerDob ? JSON.parse(card.dataset.officerDob) : null;
+            if (!officerAddress?.postal_code) return;
+            await addPersonToMap(card.dataset.officerName || "Unknown", officerAddress, [], {
+              officerId: card.dataset.officerId || "",
+              dob: officerDob || "",
+              nationality: card.dataset.officerNationality || "",
+              countryOfResidence: card.dataset.officerCountryOfResidence || ""
+            });
+          });
+        }
         
         // Click handler to expand/collapse
         card.addEventListener('click', async (e) => {
@@ -4814,9 +4850,11 @@ async function runPscSearch() {
             
             // Fetch appointments if not already loaded
             if (!companiesDiv.dataset.loaded) {
-              // Extract officer ID from links.self format: /officers/{officer_id}/appointments
-              const parts = card.dataset.officerId.split('/');
-              const officerId = parts[parts.length - 2]; // Get the ID (second-to-last element)
+              const officerId = card.dataset.officerId || extractOfficerIdFromPath(card.dataset.officerPath || "");
+              if (!officerId) {
+                companiesDiv.innerHTML = '<div class="officer-no-companies">Officer ID missing for appointments lookup</div>';
+                return;
+              }
               const appointments = await getOfficerAppointmentsAPI(officerId);
               
               companiesDiv.dataset.loaded = 'true';
@@ -4859,10 +4897,19 @@ async function runPscSearch() {
                     
                     // Try to add person first if they have address
                     const officerAddress = card.dataset.officerAddress ? JSON.parse(card.dataset.officerAddress) : null;
+                    const officerDob = card.dataset.officerDob ? JSON.parse(card.dataset.officerDob) : null;
                     let personLatLng = null;
                     
                     if (officerAddress && officerAddress.postal_code) {
-                      const personResult = await addPersonToMap(officerName, officerAddress, [companyName]);
+                      const personResult = await addPersonToMap(officerName, officerAddress, [companyName], {
+                        officerId: card.dataset.officerId || "",
+                        dob: officerDob || "",
+                        nationality: card.dataset.officerNationality || "",
+                        countryOfResidence: card.dataset.officerCountryOfResidence || "",
+                        relationship: officerRole,
+                        companyNumber,
+                        companyName
+                      });
                       personLatLng = personResult?.latLng;
                     }
                     
