@@ -2533,6 +2533,7 @@ function initializeEntitySelector() {
 // Import tracking for bulk uploads
 window._importedEntityIds = new Set();
 window._importedConnectionIds = new Set();
+window._importedOverlayLayers = [];
 
 function normalizeFieldName(value) {
   return String(value || "")
@@ -2637,6 +2638,110 @@ async function readSpreadsheetRows(file) {
   if (!wb.SheetNames.length) return [];
   const ws = wb.Sheets[wb.SheetNames[0]];
   return XLSX.utils.sheet_to_json(ws, { defval: "" });
+}
+
+function detectDelimiter(text) {
+  const sample = String(text || "").split(/\r?\n/).slice(0, 2).join("\n");
+  const counts = [
+    { d: "\t", c: (sample.match(/\t/g) || []).length },
+    { d: ",", c: (sample.match(/,/g) || []).length },
+    { d: ";", c: (sample.match(/;/g) || []).length },
+    { d: "|", c: (sample.match(/\|/g) || []).length }
+  ].sort((a, b) => b.c - a.c);
+  return counts[0]?.c > 0 ? counts[0].d : ",";
+}
+
+function parseDelimitedRows(text, delimiter = ",") {
+  const lines = String(text || "").split(/\r?\n/).filter((l) => l.trim());
+  if (!lines.length) return [];
+  const parseLine = (line) => {
+    const out = [];
+    let cur = "";
+    let inQuotes = false;
+    for (let i = 0; i < line.length; i++) {
+      const ch = line[i];
+      if (ch === '"') {
+        if (inQuotes && line[i + 1] === '"') {
+          cur += '"';
+          i++;
+        } else {
+          inQuotes = !inQuotes;
+        }
+      } else if (ch === delimiter && !inQuotes) {
+        out.push(cur);
+        cur = "";
+      } else {
+        cur += ch;
+      }
+    }
+    out.push(cur);
+    return out.map((v) => String(v || "").trim());
+  };
+  const headers = parseLine(lines[0]);
+  const rows = [];
+  for (let i = 1; i < lines.length; i++) {
+    const cols = parseLine(lines[i]);
+    const row = {};
+    headers.forEach((h, idx) => { row[h] = cols[idx] ?? ""; });
+    rows.push(row);
+  }
+  return rows;
+}
+
+async function readDelimitedRows(file) {
+  const txt = await file.text();
+  return parseDelimitedRows(txt, detectDelimiter(txt));
+}
+
+function propertiesPreviewHtml(props = {}) {
+  const entries = Object.entries(props).filter(([, v]) => v != null && String(v).trim() !== "").slice(0, 6);
+  if (!entries.length) return '<span class="popup-label">Imported overlay feature</span>';
+  return entries.map(([k, v]) => `<span class="popup-label">${escapeHtml(k)}</span> ${escapeHtml(String(v))}`).join("<br>");
+}
+
+async function importGeoJsonFile(file) {
+  const summaryEl = document.getElementById("entity-import-summary");
+  const text = await file.text();
+  let parsed;
+  try {
+    parsed = JSON.parse(text);
+  } catch (_) {
+    throw new Error("Invalid JSON/GeoJSON file");
+  }
+  if (!parsed || parsed.type !== "FeatureCollection" || !Array.isArray(parsed.features)) {
+    throw new Error("Expected GeoJSON FeatureCollection");
+  }
+  const layer = L.geoJSON(parsed, {
+    style: () => ({ color: "#38bdf8", weight: 2, opacity: 0.8, fillOpacity: 0.08 }),
+    pointToLayer: (f, ll) => L.circleMarker(ll, { radius: 5, color: "#22d3ee", fillColor: "#22d3ee", fillOpacity: 0.9, weight: 1.5 }),
+    onEachFeature: (f, l) => {
+      l.bindPopup(propertiesPreviewHtml(f.properties || {}));
+    }
+  }).addTo(entitiesLayer);
+  window._importedOverlayLayers.push(layer);
+  try {
+    const b = layer.getBounds?.();
+    if (b && b.isValid && b.isValid()) map.fitBounds(b, { padding: [24, 24], maxZoom: 13 });
+  } catch (_) {}
+  if (summaryEl) summaryEl.textContent = `Imported GeoJSON overlay: ${parsed.features.length} features from ${file.name}.`;
+  setStatus(`Imported overlay ${file.name}`);
+}
+
+async function importJsonRowsFile(file) {
+  const text = await file.text();
+  let parsed;
+  try {
+    parsed = JSON.parse(text);
+  } catch (_) {
+    throw new Error("Invalid JSON file");
+  }
+  if (parsed?.type === "FeatureCollection") {
+    await importGeoJsonFile(file);
+    return;
+  }
+  const rows = Array.isArray(parsed) ? parsed : (Array.isArray(parsed?.rows) ? parsed.rows : null);
+  if (!rows) throw new Error("JSON must be an array of row objects or GeoJSON FeatureCollection");
+  await importEntitiesFromRows(rows);
 }
 
 function getEntityById(entityId) {
@@ -2773,9 +2878,13 @@ function clearImportedEntities() {
     removeEntity(entityId);
   }
   window._importedEntityIds.clear();
+  for (const layer of window._importedOverlayLayers || []) {
+    try { entitiesLayer.removeLayer(layer); } catch (_) {}
+  }
+  window._importedOverlayLayers = [];
 
   const summaryEl = document.getElementById("entity-import-summary");
-  if (summaryEl) summaryEl.textContent = "Imported entities cleared.";
+  if (summaryEl) summaryEl.textContent = "Imported entities/overlays cleared.";
   setStatus("Imported entities removed");
 }
 
@@ -4004,7 +4113,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   const entityCancelBtn = document.getElementById('entity-cancel-btn');
   const entityImportFile = document.getElementById('entity-import-file');
   const entityImportRunBtn = document.getElementById('entity-import-run');
+  const entityImportTemplateBtn = document.getElementById('entity-import-template');
   const entityImportClearBtn = document.getElementById('entity-import-clear');
+  const entityImportPanel = document.querySelector('.entity-import-panel');
   loadMilitarySymbolsCatalog().catch((err) => console.warn("Military symbol catalog load failed:", err));
   
   // Category change handler
@@ -4149,21 +4260,74 @@ document.addEventListener("DOMContentLoaded", async () => {
     const file = entityImportFile?.files?.[0];
     const summaryEl = document.getElementById('entity-import-summary');
     if (!file) {
-      if (summaryEl) summaryEl.textContent = 'Choose an Excel/CSV file first.';
+      if (summaryEl) summaryEl.textContent = 'Choose a file first (xlsx/csv/tsv/txt/json/geojson).';
       return;
     }
 
     if (summaryEl) summaryEl.textContent = `Parsing ${file.name}...`;
     setStatus(`Importing ${file.name}...`);
+    if (entityImportRunBtn) entityImportRunBtn.disabled = true;
     try {
-      const rows = await readSpreadsheetRows(file);
-      await importEntitiesFromRows(rows);
+      const ext = (String(file.name).split(".").pop() || "").toLowerCase();
+      if (["xlsx", "xls"].includes(ext)) {
+        const rows = await readSpreadsheetRows(file);
+        await importEntitiesFromRows(rows);
+      } else if (["csv", "tsv", "txt"].includes(ext)) {
+        const rows = await readDelimitedRows(file);
+        await importEntitiesFromRows(rows);
+      } else if (["geojson"].includes(ext)) {
+        await importGeoJsonFile(file);
+      } else if (["json"].includes(ext)) {
+        await importJsonRowsFile(file);
+      } else {
+        throw new Error(`Unsupported file type .${ext || "unknown"}`);
+      }
     } catch (err) {
       console.error('Entity import failed:', err);
       if (summaryEl) summaryEl.textContent = `Import failed: ${err.message || err}`;
       setStatus('Entity import failed');
+    } finally {
+      if (entityImportRunBtn) entityImportRunBtn.disabled = false;
     }
   });
+
+  entityImportTemplateBtn?.addEventListener('click', () => {
+    const a = document.createElement("a");
+    a.href = "data/example import.xlsx";
+    a.download = "example import.xlsx";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setStatus("Downloaded import template");
+  });
+
+  if (entityImportPanel && entityImportFile) {
+    entityImportFile.addEventListener("change", () => {
+      const chosen = entityImportFile.files?.[0];
+      const summaryEl = document.getElementById('entity-import-summary');
+      if (chosen && summaryEl) {
+        summaryEl.textContent = `Selected: ${chosen.name}. Click "Import And Plot".`;
+      }
+    });
+    entityImportPanel.addEventListener("dragover", (e) => {
+      e.preventDefault();
+      entityImportPanel.classList.add("dragover");
+    });
+    entityImportPanel.addEventListener("dragleave", () => {
+      entityImportPanel.classList.remove("dragover");
+    });
+    entityImportPanel.addEventListener("drop", (e) => {
+      e.preventDefault();
+      entityImportPanel.classList.remove("dragover");
+      const dropped = e.dataTransfer?.files?.[0];
+      if (!dropped) return;
+      const dt = new DataTransfer();
+      dt.items.add(dropped);
+      entityImportFile.files = dt.files;
+      const summaryEl = document.getElementById('entity-import-summary');
+      if (summaryEl) summaryEl.textContent = `Selected: ${dropped.name}. Click "Import And Plot".`;
+    });
+  }
 
   entityImportClearBtn?.addEventListener('click', () => {
     if (window._importedEntityIds.size === 0) {

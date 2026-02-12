@@ -149,14 +149,15 @@
         </div>
 
         <div class="entity-import-panel">
-          <div class="entity-import-title">Bulk Import (i2-style)</div>
-          <input id="entity-import-file" type="file" accept=".xlsx,.xls,.csv,.tsv,.txt" />
+          <div class="entity-import-title">Import Files</div>
+          <input id="entity-import-file" type="file" accept=".xlsx,.xls,.csv,.tsv,.txt,.json,.geojson" />
           <div class="cp-btn-row">
             <button id="entity-import-run" class="btn-primary">Import And Plot</button>
+            <button id="entity-import-template" class="btn-secondary" type="button">Download Template</button>
             <button id="entity-import-clear" class="btn-secondary">Clear Imported</button>
           </div>
           <div id="entity-import-summary" class="entity-import-summary">
-            Upload Excel/CSV. The importer auto-detects names, DOB, addresses, postcodes, coordinates and relationship columns.
+            Supports `xlsx/xls/csv/tsv/txt` for entity import and `json/geojson` for overlay import. You can also drag and drop files here.
           </div>
         </div>
         

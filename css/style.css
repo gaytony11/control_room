@@ -888,6 +888,12 @@ body {
   background: rgba(8,145,178,0.08);
 }
 
+.entity-import-panel.dragover {
+  border-color: rgba(34, 211, 238, 0.75);
+  background: rgba(8, 145, 178, 0.16);
+  box-shadow: 0 0 0 1px rgba(34, 211, 238, 0.28);
+}
+
 .entity-import-title {
   font-size: 10px;
   font-weight: 700;
