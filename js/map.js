@@ -649,7 +649,10 @@ function normalizeLatLng(latLng) {
 
 function updateIconDropdown(category) {
   const iconSelect = document.getElementById('entity-icon');
+  const picker = document.getElementById("entity-icon-picker");
+  if (!iconSelect) return;
   iconSelect.innerHTML = '<option value="">Select icon...</option>';
+  if (picker) picker.innerHTML = "";
   
   if (!category || !ICON_CATEGORIES[category]) {
     updateEntityIconPreview("", NaN);
@@ -665,10 +668,35 @@ function updateIconDropdown(category) {
   });
   if (icons.length) {
     iconSelect.value = "0";
+    renderEntityIconPicker(category, 0);
     updateEntityIconPreview(category, 0);
   } else {
+    renderEntityIconPicker("", NaN);
     updateEntityIconPreview("", NaN);
   }
+}
+
+function renderEntityIconPicker(category, selectedIndex) {
+  const picker = document.getElementById("entity-icon-picker");
+  const iconSelect = document.getElementById("entity-icon");
+  if (!picker || !iconSelect) return;
+  picker.innerHTML = "";
+  if (!category || !ICON_CATEGORIES[category]) return;
+  const icons = ICON_CATEGORIES[category].icons || [];
+  icons.slice(0, 32).forEach((iconData, idx) => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "entity-icon-pick" + (Number(selectedIndex) === idx ? " active" : "");
+    btn.title = iconData.name || `Icon ${idx + 1}`;
+    btn.innerHTML = `<img src="${escapeHtml(iconData.icon || "")}" alt="${escapeHtml(iconData.name || "")}">`;
+    btn.addEventListener("click", () => {
+      iconSelect.value = String(idx);
+      ENTITY_ICON_MANUAL_OVERRIDE = true;
+      renderEntityIconPicker(category, idx);
+      updateEntityIconPreview(category, idx);
+    });
+    picker.appendChild(btn);
+  });
 }
 
 function updateEntityIconPreview(category, iconIndex) {
@@ -696,6 +724,7 @@ function updateEntityIconPreview(category, iconIndex) {
   img.src = icon.icon;
   img.style.display = "";
   label.textContent = icon.name || "Selected icon";
+  renderEntityIconPicker(category, idx);
 }
 
 function closeEntityPanel() {
@@ -905,7 +934,7 @@ const I2_LOW_VALUE_FIELDS = new Set([
 ]);
 
 const I2_PLACEMENT_REQUIRED_FIELDS = {
-  person: ["First Name", "Surname", "Full Name", "Name"],
+  person: ["First Name", "Surname", "Full Name"],
   organisation: ["Organisation Name"],
   location: ["Location Type", "Address String", "Post Code", "Town/City"],
   vehicle: ["VRM", "Vehicle Make", "Vehicle Model"],
@@ -918,6 +947,9 @@ let ENTITY_ICON_MANUAL_OVERRIDE = false;
 function i2FieldPriorityScore(prop) {
   const mandatory = String(prop.mandatory || "").toLowerCase() === "true";
   const name = String(prop.property_name || "");
+  if (/^(date of birth|dob)$/i.test(name)) {
+    return (mandatory ? -1000 : 0) + 2;
+  }
   const idx = I2_FIELD_PRIORITY.findIndex((n) => n.toLowerCase() === name.toLowerCase());
   const priority = idx >= 0 ? idx : 999;
   return (mandatory ? -1000 : 0) + priority;
@@ -1004,10 +1036,11 @@ function renderI2FieldsForType(entityTypeKey) {
     const name = String(prop.property_name || "");
     const mandatory = String(prop.mandatory || "").toLowerCase() === "true";
     const redundantName = hasFullName && name.toLowerCase() === "name";
+    const personRedundantName = entityName.toLowerCase() === "person" && redundantName;
     const lowValue = I2_LOW_VALUE_FIELDS.has(name) || redundantName;
     const placementRequired = isPlacementRequiredField(entityName, name, mandatory);
     const topPriority = i2FieldPriorityScore(prop) < 12;
-    if (placementRequired || topPriority) {
+    if (!personRedundantName && (placementRequired || topPriority)) {
       core.push(prop);
     } else if (!mandatory && lowValue) {
       advanced.push(prop);
@@ -1613,9 +1646,15 @@ function symbolSvgPathFromFilePath(sourcePath) {
 function hydrateMilitarySymbolDropdown() {
   const select = document.getElementById("entity-mil-symbol-select");
   if (!select) return;
-  const top = MIL_SYMBOL_INDEX.slice(0, 450);
+  if (MIL_SYMBOL_INDEX.length) {
+    const top = MIL_SYMBOL_INDEX.slice(0, 450);
+    select.innerHTML = '<option value="">Select military symbol...</option>' +
+      top.map((s) => `<option value="${escapeHtml(s.sidc)}">${escapeHtml(`${s.sidc} | ${s.name}`)}</option>`).join("");
+    return;
+  }
+  const fallbackIcons = (ICON_CATEGORIES.military?.icons || []).slice(0, 80);
   select.innerHTML = '<option value="">Select military symbol...</option>' +
-    top.map((s) => `<option value="${escapeHtml(s.sidc)}">${escapeHtml(`${s.sidc} | ${s.name}`)}</option>`).join("");
+    fallbackIcons.map((s) => `<option value="ICON:${escapeHtml(String(s.id || ""))}">${escapeHtml(`ICON | ${s.name || s.id || "Military icon"}`)}</option>`).join("");
 }
 
 async function loadMilitarySymbolsCatalog() {
@@ -1654,6 +1693,17 @@ async function loadMilitarySymbolsCatalog() {
 function getMilitarySelectionForPlacement(rawInput) {
   const text = String(rawInput || "").trim().toLowerCase();
   if (!text) return null;
+  if (text.startsWith("icon:")) {
+    const iconId = text.slice(5);
+    const icon = (ICON_CATEGORIES.military?.icons || []).find((ic) => String(ic.id || "").toLowerCase() === iconId);
+    if (!icon) return null;
+    return {
+      sidc: `ICON:${icon.id}`,
+      name: icon.name || icon.id || "Military icon",
+      icon: icon.icon,
+      search: `${icon.id} ${icon.name}`.toLowerCase()
+    };
+  }
   const first = MIL_SYMBOL_INDEX.find((s) => `${s.sidc} | ${s.name}`.toLowerCase() === text);
   if (first) return first;
   return MIL_SYMBOL_INDEX.find((s) => s.search.includes(text) || s.sidc.toLowerCase() === text) || null;
@@ -1941,6 +1991,17 @@ function getCompanyEntityIconData() {
   };
 }
 
+function createOrganisationMarker(latLng) {
+  const iconData = getCompanyEntityIconData();
+  const markerIcon = L.icon({
+    iconUrl: iconData.icon,
+    iconSize: [30, 30],
+    iconAnchor: [15, 15],
+    popupAnchor: [0, -14]
+  });
+  return L.marker(latLng, { icon: markerIcon });
+}
+
 function bindCompanyEntityMarkerClick(marker) {
   if (!marker || marker._companyEntityClickBound) return;
   marker.on("click", function(e) {
@@ -2021,6 +2082,32 @@ function removeCompanyEntitiesFromStore() {
   updateDashboardCounts();
 }
 
+function refreshConnectionGeometry(connection) {
+  if (!connection || !connection.line || !connection.metadata) return;
+  const fromId = connection.metadata.fromId;
+  const toId = connection.metadata.toId;
+  if (!fromId || !toId) return;
+  const fromEntity = getEntityById(fromId);
+  const toEntity = getEntityById(toId);
+  if (!fromEntity || !toEntity) return;
+  connection.line.setLatLngs([fromEntity.latLng, toEntity.latLng]);
+  if (connection.labelMarker) {
+    const midLat = (fromEntity.latLng[0] + toEntity.latLng[0]) / 2;
+    const midLng = (fromEntity.latLng[1] + toEntity.latLng[1]) / 2;
+    connection.labelMarker.setLatLng([midLat, midLng]);
+  }
+}
+
+function refreshConnectionsForEntity(entityId) {
+  if (!entityId || !Array.isArray(window._mapConnections)) return;
+  window._mapConnections.forEach((conn) => {
+    if (!conn?.metadata) return;
+    if (conn.metadata.fromId === entityId || conn.metadata.toId === entityId) {
+      refreshConnectionGeometry(conn);
+    }
+  });
+}
+
 function placeEntity(latLng, iconData, label = '', address = '', notes = '', i2EntityData = null) {
   const entityId = `entity_${Date.now()}_${Math.random()}`;
   const coords = normalizeLatLng(latLng);
@@ -2036,7 +2123,7 @@ function placeEntity(latLng, iconData, label = '', address = '', notes = '', i2E
     popupAnchor: [0, -16]
   });
   
-  const marker = L.marker(coords, { icon: icon });
+  const marker = L.marker(coords, { icon: icon, draggable: true });
   
   const entity = {
     id: entityId,
@@ -2050,6 +2137,13 @@ function placeEntity(latLng, iconData, label = '', address = '', notes = '', i2E
   };
 
   marker.bindPopup(buildEntityPopup(entityId, entity)).addTo(entitiesLayer);
+  marker.on("dragend", () => {
+    const next = marker.getLatLng();
+    entity.latLng = [Number(next.lat), Number(next.lng)];
+    marker.setPopupContent(buildEntityPopup(entityId, entity));
+    refreshConnectionsForEntity(entityId);
+    setStatus(`Moved: ${entity.label}`);
+  });
 
   // In connect mode, clicking another entity should complete the link immediately.
   marker.on('click', function(e) {
@@ -2139,6 +2233,7 @@ window.clearConnectionHighlights = clearConnectionHighlights;
 window.startI2EntityPlacement = startI2EntityPlacement;
 window.registerCompanyMarkerAsEntity = registerCompanyMarkerAsEntity;
 window.connectCompanyEntity = connectCompanyEntity;
+window.createOrganisationMarker = createOrganisationMarker;
 
 // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // MANUAL CONNECTION DRAWING
@@ -3215,9 +3310,7 @@ async function plotCompanies(rows, clearFirst = false) {
         `<button class="popup-psc-btn" onclick="downloadFilingHistory('${coNum}', '${companyName.replace(/'/g, "\\'")}')">Filings PDF</button>` +
         `</div>`;
 
-      // Use custom icon or circle marker
-      const useCircle = window._useCircleMarkers !== false;
-      const marker = createCustomMarker([co.lat, co.lon], 'company', 'standard', useCircle);
+      const marker = createOrganisationMarker([co.lat, co.lon]);
       marker.bindPopup(popup).addTo(layers.companies);
       registerCompanyMarkerAsEntity(marker, {
         number: r.CompanyNumber,
@@ -3319,8 +3412,7 @@ async function addCompanyToMap(companyNumber, companyName, personName = '', pers
     
     const companyLatLng = [coords.lat, coords.lon];
     
-    const useCircle = window._useCircleMarkers !== false;
-    const marker = createCustomMarker(companyLatLng, 'company', 'api', useCircle);
+    const marker = createOrganisationMarker(companyLatLng);
     marker.bindPopup(popup).addTo(layers.companies);
     registerCompanyMarkerAsEntity(marker, {
       number: companyNumber,
@@ -3740,12 +3832,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   entityI2TypeSelect?.addEventListener('change', (e) => {
-    const mappedCategory = defaultCategoryForI2Entity(e.target.value);
-    if (mappedCategory && entityCategorySelect && ICON_CATEGORIES[mappedCategory]) {
-      entityCategorySelect.value = mappedCategory;
-      ENTITY_ICON_MANUAL_OVERRIDE = false;
-      updateIconDropdown(mappedCategory);
-    }
     renderI2FieldsForType(e.target.value);
     autoSelectIconFromI2Fields(true);
   });

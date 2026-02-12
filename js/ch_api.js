@@ -313,9 +313,9 @@ async function plotCompanyFromAPI(profile) {
     </div>
   `;
 
-  // Use custom icon or circle marker
-  const useCircle = window._useCircleMarkers !== false;
-  const marker = createCustomMarker([coords.lat, coords.lon], 'company', 'api', useCircle);
+  const marker = typeof window.createOrganisationMarker === "function"
+    ? window.createOrganisationMarker([coords.lat, coords.lon])
+    : createCustomMarker([coords.lat, coords.lon], 'company', 'api', false);
   marker.bindPopup(popup).addTo(layers.companies);
   if (typeof window.registerCompanyMarkerAsEntity === "function") {
     window.registerCompanyMarkerAsEntity(marker, {

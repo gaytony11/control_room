@@ -1229,6 +1229,36 @@ body {
   line-height: 1.35;
 }
 
+.entity-icon-picker {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.entity-icon-pick {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  border-radius: 8px;
+  background: rgba(15, 23, 42, 0.6);
+  cursor: pointer;
+  padding: 0;
+}
+
+.entity-icon-pick img {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+}
+
+.entity-icon-pick.active {
+  border-color: rgba(34, 211, 238, 0.7);
+  box-shadow: 0 0 0 1px rgba(34, 211, 238, 0.35), 0 0 10px rgba(34, 211, 238, 0.25);
+}
+
 .entity-i2-fields {
   margin-top: 10px;
   border: 1px solid rgba(99, 102, 241, 0.2);
