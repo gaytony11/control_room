@@ -34,10 +34,15 @@ function sanitizeFilenamePart(value) {
 }
 
 function buildCompanyProfileFileName(companyNumber, companyName) {
+  return buildCompaniesHousePdfFileName(companyNumber, companyName, "Company Profile");
+}
+
+function buildCompaniesHousePdfFileName(companyNumber, companyName, reportTitle) {
   const datePart = formatDateYYYYMMDD(new Date());
   const safeName = sanitizeFilenamePart(companyName || "Unknown Company");
   const safeNumber = sanitizeFilenamePart(companyNumber || "Unknown Number");
-  return `${datePart} - Companies House - ${safeName} - ${safeNumber} - Company Profile.pdf`;
+  const safeTitle = sanitizeFilenamePart(reportTitle || "Document");
+  return `${datePart} - Companies House - ${safeName} - ${safeNumber} - ${safeTitle}.pdf`;
 }
 
 function ensureCompanyProfilePreviewPanel() {
@@ -442,7 +447,7 @@ function downloadPSCReport(companyNumber, companyName, pscData) {
   }
   
   // Download
-  const fileName = `PSC_${companyNumber}_${new Date().toISOString().split('T')[0]}.pdf`;
+  const fileName = buildCompaniesHousePdfFileName(companyNumber, companyName, "PSC Report");
   doc.save(fileName);
 }
 
@@ -578,7 +583,7 @@ async function downloadFilingHistory(companyNumber, companyName) {
   }
   
   // Download
-  const fileName = `FilingHistory_${companyNumber}_${new Date().toISOString().split('T')[0]}.pdf`;
+  const fileName = buildCompaniesHousePdfFileName(companyNumber, companyName, "Filing History");
   doc.save(fileName);
   
   setStatus(`Downloaded filing history for ${companyName}`);
