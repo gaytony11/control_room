@@ -2480,6 +2480,12 @@ body {
   filter: drop-shadow(0 0 4px rgba(56,189,248,0.35));
 }
 
+.os-rail-station-link {
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 0 10px rgba(56,189,248,0.55));
+}
+
 /* ══════════════════════════════════════════
    Santander Cycles Markers
    ══════════════════════════════════════════ */

@@ -4521,6 +4521,119 @@ function buildEndpointConnectors(routes = [], maxGapKm = 1.4) {
   return connectors;
 }
 
+function buildStationLinks(stations = [], bounds = null, maxKm = 28, maxLinks = 2) {
+  const links = [];
+  if (!Array.isArray(stations) || !stations.length) return { links, nodes: [] };
+  const filtered = stations.filter((s) => {
+    const lat = Number(s?.lat);
+    const lon = Number(s?.lon);
+    if (!Number.isFinite(lat) || !Number.isFinite(lon)) return false;
+    return bounds ? bounds.contains([lat, lon]) : true;
+  });
+  if (filtered.length < 2) return { links, nodes: filtered };
+
+  const cellSizeDeg = Math.max(0.02, maxKm / 111);
+  const cellKey = (lat, lon) => `${Math.floor(lat / cellSizeDeg)}|${Math.floor(lon / cellSizeDeg)}`;
+  const cells = new Map();
+  filtered.forEach((s, idx) => {
+    const key = cellKey(Number(s.lat), Number(s.lon));
+    if (!cells.has(key)) cells.set(key, []);
+    cells.get(key).push(idx);
+  });
+
+  const neighbourKeys = (lat, lon) => {
+    const r = Math.floor(lat / cellSizeDeg);
+    const c = Math.floor(lon / cellSizeDeg);
+    const out = [];
+    for (let dr = -1; dr <= 1; dr++) {
+      for (let dc = -1; dc <= 1; dc++) out.push(`${r + dr}|${c + dc}`);
+    }
+    return out;
+  };
+
+  const pairSeen = new Set();
+  for (let i = 0; i < filtered.length; i++) {
+    const s = filtered[i];
+    const lat = Number(s.lat);
+    const lon = Number(s.lon);
+    let candidates = [];
+    for (const key of neighbourKeys(lat, lon)) {
+      const idxs = cells.get(key) || [];
+      for (const j of idxs) {
+        if (j === i) continue;
+        const t = filtered[j];
+        const d = distanceKm([lat, lon], [Number(t.lat), Number(t.lon)]);
+        if (!Number.isFinite(d) || d > maxKm) continue;
+        candidates.push({ idx: j, d });
+      }
+    }
+    candidates.sort((a, b) => a.d - b.d);
+    candidates = candidates.slice(0, maxLinks);
+    for (const c of candidates) {
+      const t = filtered[c.idx];
+      const key = [i, c.idx].sort((a, b) => a - b).join("|");
+      if (pairSeen.has(key)) continue;
+      pairSeen.add(key);
+      links.push({
+        a: i,
+        b: c.idx,
+        coords: [
+          [Number(s.lat), Number(s.lon)],
+          [Number(t.lat), Number(t.lon)]
+        ],
+        distanceKm: c.d
+      });
+    }
+  }
+  return { links, nodes: filtered };
+}
+
+function buildStationLineColors(linkData = { links: [], nodes: [] }) {
+  const nodes = linkData.nodes || [];
+  const links = linkData.links || [];
+  const n = nodes.length;
+  const parent = Array.from({ length: n }, (_, i) => i);
+  const find = (x) => {
+    while (parent[x] !== x) {
+      parent[x] = parent[parent[x]];
+      x = parent[x];
+    }
+    return x;
+  };
+  const union = (a, b) => {
+    const ra = find(a);
+    const rb = find(b);
+    if (ra !== rb) parent[rb] = ra;
+  };
+  for (const l of links) {
+    if (Number.isFinite(l?.a) && Number.isFinite(l?.b)) {
+      union(l.a, l.b);
+    }
+  }
+  const palette = [
+    "#38bdf8",
+    "#22d3ee",
+    "#34d399",
+    "#f59e0b",
+    "#f97316",
+    "#f43f5e",
+    "#a78bfa",
+    "#60a5fa",
+    "#facc15"
+  ];
+  const colorByRoot = new Map();
+  const pickColor = (root) => {
+    if (!colorByRoot.has(root)) {
+      colorByRoot.set(root, palette[colorByRoot.size % palette.length]);
+    }
+    return colorByRoot.get(root);
+  };
+  return links.map((l) => ({
+    coords: l.coords,
+    color: pickColor(find(l.a))
+  }));
+}
+
 function buildCoordKey(coord, precision = 4) {
   if (!Array.isArray(coord) || coord.length < 2) return "";
   const lat = Number(coord[0]);
@@ -4756,7 +4869,7 @@ function renderStaticRailOverlay() {
     }).addTo(OS_DERIVED_STATE.railLayer);
   }
 
-  if (zoom < 8) return;
+  if (zoom < 7) return;
   for (const s of stations) {
     const lat = Number(s?.lat);
     const lon = Number(s?.lon);
@@ -4771,6 +4884,19 @@ function renderStaticRailOverlay() {
       className: "os-rail-static-node"
     }).addTo(OS_DERIVED_STATE.railLayer);
     if (s.name && zoom >= 10) marker.bindTooltip(escapeHtml(s.name), { sticky: true, opacity: 0.82 });
+  }
+
+  if (zoom < 8) return;
+  const linkData = buildStationLinks(stations, bounds, zoom <= 8 ? 42 : 26, zoom <= 8 ? 1 : 2);
+  const stationLinks = buildStationLineColors(linkData);
+  for (const link of stationLinks) {
+    L.polyline(link.coords, {
+      color: link.color,
+      weight: zoom <= 8 ? 4.2 : 5.2,
+      opacity: zoom <= 8 ? 0.85 : 0.92,
+      smoothFactor: 2.2,
+      className: "os-rail-station-link"
+    }).addTo(OS_DERIVED_STATE.railLayer);
   }
 }
 
