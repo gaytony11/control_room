@@ -4100,8 +4100,11 @@ const OS_DERIVED_STATE = {
   warned: false,
   roadsData: null,
   railData: null,
+  railStationData: null,
   roadsLayer: null,
   railLayer: null,
+  roadsStatic: false,
+  railStatic: false,
   roadsRenderSig: "",
   railRenderSig: ""
 };
@@ -4184,6 +4187,20 @@ async function fetchGeoJsonFromCandidates(paths) {
       if (!r.ok) continue;
       const data = await r.json();
       if (data && data.type === "FeatureCollection") return { data, path: p };
+    } catch (_) {
+      // try next path
+    }
+  }
+  return null;
+}
+
+async function fetchJsonFromCandidates(paths) {
+  for (const p of paths) {
+    try {
+      const r = await fetch(p);
+      if (!r.ok) continue;
+      const data = await r.json();
+      if (data && typeof data === "object") return { data, path: p };
     } catch (_) {
       // try next path
     }
@@ -4303,6 +4320,61 @@ function renderOsRailOverlayViewport() {
 const scheduleOsRoadViewportRender = debounce(renderOsRoadOverlayViewport, 160);
 const scheduleOsRailViewportRender = debounce(renderOsRailOverlayViewport, 160);
 
+function renderStaticRoadOverlay() {
+  if (!OS_DERIVED_STATE.roadsLayer || !OS_DERIVED_STATE.roadsData) return;
+  const routes = Array.isArray(OS_DERIVED_STATE.roadsData.routes) ? OS_DERIVED_STATE.roadsData.routes : [];
+  OS_DERIVED_STATE.roadsLayer.clearLayers();
+  for (const r of routes) {
+    const coords = Array.isArray(r?.coords) ? r.coords : [];
+    if (coords.length < 2) continue;
+    const line = L.polyline(coords, {
+      color: osRoadColorForFeature({ highway: r.type, name: r.name }),
+      weight: 2.1,
+      opacity: 0.72,
+      className: "os-road-static-line"
+    }).addTo(OS_DERIVED_STATE.roadsLayer);
+    if (r.name) {
+      line.bindTooltip(`${escapeHtml(r.name)}${r.type ? ` (${escapeHtml(r.type)})` : ""}`, { sticky: true, opacity: 0.84 });
+    }
+  }
+}
+
+function renderStaticRailOverlay() {
+  if (!OS_DERIVED_STATE.railLayer || !OS_DERIVED_STATE.railData) return;
+  const routes = Array.isArray(OS_DERIVED_STATE.railData.routes) ? OS_DERIVED_STATE.railData.routes : [];
+  const stations = Array.isArray(OS_DERIVED_STATE.railStationData?.stations) ? OS_DERIVED_STATE.railStationData.stations : [];
+  OS_DERIVED_STATE.railLayer.clearLayers();
+
+  for (const r of routes) {
+    const coords = Array.isArray(r?.coords) ? r.coords : [];
+    if (coords.length < 2) continue;
+    const line = L.polyline(coords, {
+      color: osRailColorForFeature({ railway: r.type, name: r.name }),
+      weight: 2.0,
+      opacity: 0.8,
+      className: "os-rail-static-line"
+    }).addTo(OS_DERIVED_STATE.railLayer);
+    if (r.name) {
+      line.bindTooltip(`${escapeHtml(r.name)}${r.type ? ` (${escapeHtml(r.type)})` : ""}`, { sticky: true, opacity: 0.86 });
+    }
+  }
+
+  for (const s of stations) {
+    const lat = Number(s?.lat);
+    const lon = Number(s?.lon);
+    if (!Number.isFinite(lat) || !Number.isFinite(lon)) continue;
+    const marker = L.circleMarker([lat, lon], {
+      radius: 2.8,
+      color: "#e0f2fe",
+      fillColor: "#38bdf8",
+      fillOpacity: 0.9,
+      weight: 1.2,
+      className: "os-rail-static-node"
+    }).addTo(OS_DERIVED_STATE.railLayer);
+    if (s.name) marker.bindTooltip(escapeHtml(s.name), { sticky: true, opacity: 0.82 });
+  }
+}
+
 async function loadOsRoadOverlay() {
   if (OS_DERIVED_STATE.roadsLoaded || OS_DERIVED_STATE.roadsFailed) return;
   if (map.getZoom() < 6) {
@@ -4310,6 +4382,19 @@ async function loadOsRoadOverlay() {
     return;
   }
   try {
+    const staticPicked = await fetchJsonFromCandidates([
+      "data/transport_static/roads_core.json"
+    ]);
+    if (staticPicked && Array.isArray(staticPicked.data?.routes)) {
+      OS_DERIVED_STATE.roadsData = staticPicked.data;
+      OS_DERIVED_STATE.roadsLayer = L.featureGroup().addTo(layers.os_roads);
+      OS_DERIVED_STATE.roadsLoaded = true;
+      OS_DERIVED_STATE.roadsStatic = true;
+      renderStaticRoadOverlay();
+      setStatus("OS roads overlay loaded (static core).");
+      return;
+    }
+
     const picked = await fetchGeoJsonFromCandidates([
       "data/osm_derived/gb_major_roads_lite.geojson",
       "data/osm_derived/gb_major_roads.geojson"
@@ -4318,6 +4403,7 @@ async function loadOsRoadOverlay() {
     OS_DERIVED_STATE.roadsData = picked.data;
     OS_DERIVED_STATE.roadsLayer = L.featureGroup().addTo(layers.os_roads);
     OS_DERIVED_STATE.roadsLoaded = true;
+    OS_DERIVED_STATE.roadsStatic = false;
     OS_DERIVED_STATE.roadsRenderSig = "";
     renderOsRoadOverlayViewport();
     setStatus(`OS roads overlay loaded (${picked.path.includes("_lite") ? "lite" : "full"}).`);
@@ -4336,6 +4422,23 @@ async function loadOsRailOverlay() {
     return;
   }
   try {
+    const staticRail = await fetchJsonFromCandidates([
+      "data/transport_static/rail_core.json"
+    ]);
+    if (staticRail && Array.isArray(staticRail.data?.routes)) {
+      const staticStations = await fetchJsonFromCandidates([
+        "data/transport_static/rail_stations_core.json"
+      ]);
+      OS_DERIVED_STATE.railData = staticRail.data;
+      OS_DERIVED_STATE.railStationData = staticStations?.data || { stations: [] };
+      OS_DERIVED_STATE.railLayer = L.featureGroup().addTo(layers.os_rail);
+      OS_DERIVED_STATE.railLoaded = true;
+      OS_DERIVED_STATE.railStatic = true;
+      renderStaticRailOverlay();
+      setStatus("OS rail overlay loaded (static core).");
+      return;
+    }
+
     const picked = await fetchGeoJsonFromCandidates([
       "data/osm_derived/gb_rail_lines_lite.geojson",
       "data/osm_derived/gb_rail_lines.geojson"
@@ -4344,6 +4447,7 @@ async function loadOsRailOverlay() {
     OS_DERIVED_STATE.railData = picked.data;
     OS_DERIVED_STATE.railLayer = L.featureGroup().addTo(layers.os_rail);
     OS_DERIVED_STATE.railLoaded = true;
+    OS_DERIVED_STATE.railStatic = false;
     OS_DERIVED_STATE.railRenderSig = "";
     renderOsRailOverlayViewport();
     setStatus(`OS rail overlay loaded (${picked.path.includes("_lite") ? "lite" : "full"}).`);
@@ -5123,8 +5227,12 @@ async function addPersonToMap(officerName, address, companies = [], options = {}
 }
 
 map.on("moveend zoomend", () => {
-  if (map.hasLayer(layers.os_roads) && OS_DERIVED_STATE.roadsLoaded) scheduleOsRoadViewportRender();
-  if (map.hasLayer(layers.os_rail) && OS_DERIVED_STATE.railLoaded) scheduleOsRailViewportRender();
+  if (map.hasLayer(layers.os_roads) && OS_DERIVED_STATE.roadsLoaded && !OS_DERIVED_STATE.roadsStatic) {
+    scheduleOsRoadViewportRender();
+  }
+  if (map.hasLayer(layers.os_rail) && OS_DERIVED_STATE.railLoaded && !OS_DERIVED_STATE.railStatic) {
+    scheduleOsRailViewportRender();
+  }
 });
 
 function extractOfficerIdFromPath(rawPath = "") {

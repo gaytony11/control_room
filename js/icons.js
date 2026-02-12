@@ -5,19 +5,19 @@ const CUSTOM_ICONS = {
   // Company/Business markers
   company: {
     standard: L.icon({
-      iconUrl: 'gfx/map_icons/buildings/016-building.png',
+      iconUrl: 'gfx/map_icons/buildings/building.png',
       iconSize: [28, 28],
       iconAnchor: [14, 28],
       popupAnchor: [0, -28]
     }),
     api: L.icon({
-      iconUrl: 'gfx/map_icons/buildings/001-building-13.png',
+      iconUrl: 'gfx/map_icons/buildings/building.png',
       iconSize: [30, 30],
       iconAnchor: [15, 30],
       popupAnchor: [0, -30]
     }),
     large: L.icon({
-      iconUrl: 'gfx/map_icons/buildings/002-building-12.png',
+      iconUrl: 'gfx/map_icons/buildings/building.png',
       iconSize: [32, 32],
       iconAnchor: [16, 32],
       popupAnchor: [0, -32]
@@ -27,25 +27,25 @@ const CUSTOM_ICONS = {
   // People/Person markers
   person: {
     male: L.icon({
-      iconUrl: 'gfx/map_icons/people/124-man.png',
+      iconUrl: 'gfx/map_icons/people/man.png',
       iconSize: [26, 26],
       iconAnchor: [13, 26],
       popupAnchor: [0, -26]
     }),
     female: L.icon({
-      iconUrl: 'gfx/map_icons/people/126-woman.png',
+      iconUrl: 'gfx/map_icons/people/woman.png',
       iconSize: [26, 26],
       iconAnchor: [13, 26],
       popupAnchor: [0, -26]
     }),
     business: L.icon({
-      iconUrl: 'gfx/map_icons/people/095-businessman-1.png',
+      iconUrl: 'gfx/map_icons/people/businessman.png',
       iconSize: [26, 26],
       iconAnchor: [13, 26],
       popupAnchor: [0, -26]
     }),
     professional: L.icon({
-      iconUrl: 'gfx/map_icons/people/097-lawyer.png',
+      iconUrl: 'gfx/map_icons/people/lawyer.png',
       iconSize: [26, 26],
       iconAnchor: [13, 26],
       popupAnchor: [0, -26]
@@ -112,7 +112,7 @@ function checkIconAvailability() {
     console.log('✓ Custom icons loaded');
     window._useCircleMarkers = false;
   };
-  testImg.src = 'gfx/map_icons/buildings/016-building.png';
+  testImg.src = 'gfx/map_icons/buildings/building.png';
 }
 
 // Auto-check on load
