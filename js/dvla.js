@@ -41,18 +41,28 @@ async function fetchDvlaVehicle(vrm) {
 function renderDvlaResult(vehicle) {
   const wrap = document.getElementById("dvla-results");
   if (!wrap) return;
-  const matchedIconPath = typeof window.getDvlaVehicleIconPath === "function"
+  const showcase = typeof window.getDvlaVehicleShowcaseData === "function"
+    ? window.getDvlaVehicleShowcaseData(vehicle || {})
+    : null;
+  const fallbackIcon = (showcase && showcase.placeholderIcon) || (typeof window.getDvlaVehicleIconPath === "function"
     ? String(window.getDvlaVehicleIconPath(vehicle || {}) || "")
-    : "";
-  const logoPath = matchedIconPath || (typeof window.getVehicleMakeLogoPath === "function"
+    : "");
+  const vehicleImage = showcase?.imageUrl || fallbackIcon || "gfx/map_icons/cars/car.png";
+  const logoPath = (typeof window.getVehicleMakeLogoPath === "function"
     ? String(window.getVehicleMakeLogoPath(vehicle.make || "") || "")
     : "");
-  const logoAlt = matchedIconPath
-    ? `${String(vehicle.make || "Vehicle")} matched icon`
+  const logoAlt = showcase?.matched
+    ? `${String(vehicle.make || "Vehicle")} matched model logo`
     : `${String(vehicle.make || "Vehicle")} logo`;
-  const logoHtml = logoPath
-    ? `<div class="dvla-logo-wrap"><img class="dvla-logo" src="${escapeHtml(logoPath)}" alt="${escapeHtml(logoAlt)}" /></div>`
-    : "";
+  const sourceTag = showcase?.matched ? "GT MATCH" : "PLACEHOLDER";
+  const mediaHtml =
+    `<div class="dvla-media-wrap">` +
+      `<img class="dvla-vehicle-image" src="${escapeHtml(vehicleImage)}" alt="${escapeHtml(showcase?.label || `${vehicle.make || "Vehicle"} ${vehicle.model || ""}`)}" loading="lazy">` +
+      `<div class="dvla-media-meta">` +
+        (logoPath ? `<img class="dvla-logo" src="${escapeHtml(logoPath)}" alt="${escapeHtml(logoAlt)}" loading="lazy" />` : "") +
+        `<span class="dvla-media-tag">${escapeHtml(sourceTag)}</span>` +
+      `</div>` +
+    `</div>`;
 
   const rows = [
     ["Registration", vehicle.registrationNumber || ""],
@@ -75,7 +85,7 @@ function renderDvlaResult(vehicle) {
   wrap.innerHTML =
     `<div class="dvla-card">` +
     `<div class="dvla-title">${escapeHtml(vehicle.registrationNumber || "Vehicle")}</div>` +
-    logoHtml +
+    mediaHtml +
     details +
     `<div class="cp-btn-row" style="margin-top:8px;">` +
     `<button id="dvla-add-map-btn" class="btn-secondary btn-sm" type="button">Add Vehicle To Map</button>` +

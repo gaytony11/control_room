@@ -2448,8 +2448,10 @@ function buildEntityPopup(entityId, entity) {
       </div>
     `;
   }
+  const vehicleMediaHtml = isVehicleEntityForPopup(entity) ? buildVehiclePopupMediaHtml(entity) : "";
   return `
     <strong>${escapeHtml(entity.label)}</strong>
+    ${vehicleMediaHtml}
     <span class="popup-label">Type</span> <span class="popup-tag" style="background:${entity.iconData.categoryColor || entity.iconData.color};">${escapeHtml(entity.iconData.categoryName || entity.iconData.name)}</span><br>
     ${entity.address ? `<span class="popup-label">Address</span> ${escapeHtml(entity.address)}<br>` : ''}
     ${entity.notes ? `<span class="popup-label">Notes</span> ${escapeHtml(entity.notes)}<br>` : ''}
@@ -2990,6 +2992,7 @@ function setCarMakeLogoIndex(rawIndex) {
 }
 
 let DVLA_VEHICLE_ICON_LOOKUP = null;
+let VEHICLE_GT_IMAGE_INDEX = [];
 const dvlaVehicleIconLookupPromise = fetch("data/dvla_vehicle_icon_lookup.json")
   .then((r) => (r.ok ? r.json() : null))
   .then((payload) => {
@@ -3009,10 +3012,93 @@ const vehicleEntitiesLogoPromise = fetch("data/vehicle_entities.json")
   })
   .catch(() => null);
 
+const vehicleGtImagePromise = fetch("data/vehicle_icons_granturismo.json")
+  .then((r) => (r.ok ? r.json() : null))
+  .then((payload) => {
+    if (!payload || typeof payload !== "object") return null;
+    VEHICLE_GT_IMAGE_INDEX = Object.entries(payload).map(([key, node]) => {
+      const label = String(node?.label || "");
+      const imageUrl = String(node?.image_url || "");
+      const combined = `${key} ${label}`;
+      const searchable = String(combined)
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+      return { key, label, imageUrl, searchable };
+    }).filter((entry) => entry.imageUrl);
+    return VEHICLE_GT_IMAGE_INDEX;
+  })
+  .catch(() => null);
+
 function getVehicleMakeLogoPath(makeRaw) {
   const key = normalizeCarMakeKey(makeRaw);
   if (!key) return "";
   return String(CAR_MAKE_LOGO_INDEX[key] || "");
+}
+
+function normalizeVehicleSearchText(value) {
+  return String(value || "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function getVehicleCarPlaceholderIcon() {
+  const vehicles = ICON_CATEGORIES.vehicles || {};
+  const carIcon = (vehicles.icons || []).find((ic) => ic.id === "car") || (vehicles.icons || [])[0];
+  return String(carIcon?.icon || vehicles.defaultIcon || "gfx/map_icons/cars/car.png");
+}
+
+function getVehicleModelTokens(modelRaw = "") {
+  const model = normalizeVehicleSearchText(modelRaw);
+  if (!model) return [];
+  const blacklist = new Set(["the", "and", "for", "with", "line", "series", "class", "sport", "edition", "model", "base"]);
+  return model.split(" ").filter((t) => t && t.length >= 2 && !blacklist.has(t));
+}
+
+function findGranTurismoVehicleImage(vehicle = {}) {
+  if (!Array.isArray(VEHICLE_GT_IMAGE_INDEX) || !VEHICLE_GT_IMAGE_INDEX.length) return null;
+  const make = normalizeVehicleSearchText(vehicle?.make || "");
+  const model = normalizeVehicleSearchText(vehicle?.model || "");
+  const year = parseVehicleYear(vehicle);
+  if (!make && !model) return null;
+  const modelTokens = getVehicleModelTokens(model);
+
+  let best = null;
+  let bestScore = -1;
+  for (const item of VEHICLE_GT_IMAGE_INDEX) {
+    const hay = item.searchable;
+    let score = 0;
+    if (make && hay.includes(make)) score += 35;
+    if (model && hay.includes(model)) score += 40;
+    if (modelTokens.length) {
+      let hit = 0;
+      for (const token of modelTokens) if (hay.includes(token)) hit += 1;
+      score += Math.round((hit / modelTokens.length) * 35);
+    }
+    if (year && hay.includes(String(year))) score += 14;
+    if (score > bestScore) {
+      bestScore = score;
+      best = item;
+    }
+  }
+  return bestScore >= 42 ? { ...best, score: bestScore } : null;
+}
+
+function getDvlaVehicleShowcaseData(vehicle = {}) {
+  const gtMatch = findGranTurismoVehicleImage(vehicle);
+  const makeLogo = getVehicleMakeLogoPath(vehicle.make || "");
+  const fallbackIcon = getVehicleCarPlaceholderIcon();
+  return {
+    matched: !!gtMatch,
+    source: gtMatch ? "gran_turismo" : "placeholder",
+    label: gtMatch?.label || `${String(vehicle.make || "Vehicle")} ${String(vehicle.model || "").trim()}`.trim(),
+    imageUrl: gtMatch?.imageUrl || fallbackIcon,
+    logoPath: makeLogo || "",
+    placeholderIcon: fallbackIcon
+  };
 }
 
 function parseVehicleYear(vehicle = {}) {
@@ -3064,6 +3150,7 @@ function getDvlaVehicleIconPath(vehicle = {}) {
 
 window.getVehicleMakeLogoPath = getVehicleMakeLogoPath;
 window.getDvlaVehicleIconPath = getDvlaVehicleIconPath;
+window.getDvlaVehicleShowcaseData = getDvlaVehicleShowcaseData;
 vehicleEntitiesLogoPromise.then((fromEntities) => {
   if (fromEntities && typeof fromEntities === "object" && Object.keys(fromEntities).length) {
     setCarMakeLogoIndex(fromEntities);
@@ -3072,6 +3159,9 @@ vehicleEntitiesLogoPromise.then((fromEntities) => {
   setCarMakeLogoIndex(CAR_MAKE_LOGO_INDEX_DEFAULT);
 });
 dvlaVehicleIconLookupPromise.then(() => {
+  // no-op; ensures asynchronous load starts early
+});
+vehicleGtImagePromise.then(() => {
   // no-op; ensures asynchronous load starts early
 });
 
@@ -3091,6 +3181,7 @@ function getVehicleEntityIconData(makeRaw = "", vehicle = null) {
 
 function buildVehicleI2EntityData(vehicle = {}) {
   const values = [];
+  const showcase = getDvlaVehicleShowcaseData(vehicle);
   if (vehicle.registrationNumber) values.push({ propertyName: "Registration Mark", value: String(vehicle.registrationNumber) });
   if (vehicle.make) values.push({ propertyName: "Vehicle Make", value: String(vehicle.make) });
   if (vehicle.model) values.push({ propertyName: "Vehicle Model", value: String(vehicle.model) });
@@ -3099,6 +3190,8 @@ function buildVehicleI2EntityData(vehicle = {}) {
   if (vehicle.fuelType) values.push({ propertyName: "Fuel Type", value: String(vehicle.fuelType) });
   if (vehicle.taxStatus) values.push({ propertyName: "Tax Status", value: String(vehicle.taxStatus) });
   if (vehicle.motStatus) values.push({ propertyName: "MOT Status", value: String(vehicle.motStatus) });
+  if (showcase.imageUrl) values.push({ propertyName: "Vehicle Image URL", value: String(showcase.imageUrl) });
+  if (showcase.logoPath) values.push({ propertyName: "Vehicle Make Logo URL", value: String(showcase.logoPath) });
   return {
     entityId: "ET3",
     entityName: "Vehicle",
@@ -3128,6 +3221,42 @@ function addDvlaVehicleEntity(vehicle = {}, latLng = null) {
   );
   if (entityId) setStatus(`Added vehicle entity: ${vrm}`);
   return entityId;
+}
+
+function isVehicleEntityForPopup(entity = {}) {
+  const i2Name = String(entity?.i2EntityData?.entityName || "").toLowerCase();
+  if (i2Name.includes("vehicle")) return true;
+  const values = Array.isArray(entity?.i2EntityData?.values) ? entity.i2EntityData.values : [];
+  return values.some((v) => String(v?.propertyName || "").toLowerCase() === "registration mark");
+}
+
+function buildVehiclePopupMediaHtml(entity = {}) {
+  const values = Array.isArray(entity?.i2EntityData?.values) ? entity.i2EntityData.values : [];
+  const valueOf = (name) => {
+    const hit = values.find((v) => String(v?.propertyName || "").toLowerCase() === String(name).toLowerCase());
+    return String(hit?.value || "");
+  };
+  const vehicle = {
+    make: valueOf("Vehicle Make"),
+    model: valueOf("Vehicle Model"),
+    yearOfManufacture: valueOf("Year")
+  };
+  const showcase = getDvlaVehicleShowcaseData(vehicle);
+  const imageUrl = valueOf("Vehicle Image URL") || showcase.imageUrl || showcase.placeholderIcon;
+  const logoUrl = valueOf("Vehicle Make Logo URL") || showcase.logoPath;
+  const title = showcase.matched ? (showcase.label || "Matched vehicle image") : "Vehicle placeholder";
+  const logoHtml = logoUrl
+    ? `<img class="vehicle-popup-logo" src="${escapeHtml(logoUrl)}" alt="${escapeHtml(vehicle.make || "Vehicle make")} logo" loading="lazy">`
+    : "";
+  return (
+    `<div class="vehicle-popup-media">` +
+      `<img class="vehicle-popup-image" src="${escapeHtml(imageUrl)}" alt="${escapeHtml(title)}" loading="lazy">` +
+      `<div class="vehicle-popup-media-meta">` +
+        logoHtml +
+        `<span class="vehicle-popup-media-tag">${showcase.matched ? "GT MATCH" : "PLACEHOLDER"}</span>` +
+      `</div>` +
+    `</div>`
+  );
 }
 
 // Update dashboard counters
