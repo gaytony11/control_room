@@ -3027,12 +3027,41 @@ function clearImportedEntities() {
 // â”€â”€ Load overlay data â”€â”€
 
 // Police force boundaries
+function resolvePoliceForceName(props = {}) {
+  if (!props || typeof props !== "object") return "Unknown Police Force";
+  const directKeys = ["PFA22NM", "PFA23NM", "PFA21NM", "PFA20NM", "force_name", "FORCE_NAME", "name", "NAME"];
+  for (const key of directKeys) {
+    const v = props[key];
+    if (typeof v === "string" && v.trim()) return v.trim();
+  }
+  const nmKey = Object.keys(props).find((k) => /(^|_)PFA\d{2}NM$/i.test(String(k)));
+  if (nmKey && typeof props[nmKey] === "string" && props[nmKey].trim()) return props[nmKey].trim();
+  return "Unknown Police Force";
+}
+
+function resolvePoliceForceCode(props = {}) {
+  if (!props || typeof props !== "object") return "";
+  const directKeys = ["PFA22CD", "PFA23CD", "PFA21CD", "PFA20CD", "force_code", "FORCE_CODE", "code", "CODE"];
+  for (const key of directKeys) {
+    const v = props[key];
+    if ((typeof v === "string" || typeof v === "number") && String(v).trim()) return String(v).trim();
+  }
+  const cdKey = Object.keys(props).find((k) => /(^|_)PFA\d{2}CD$/i.test(String(k)));
+  if (cdKey && props[cdKey] != null && String(props[cdKey]).trim()) return String(props[cdKey]).trim();
+  return "";
+}
+
 fetch("data/police_force_areas_wgs84.geojson").then(r => r.json()).then(data => {
   L.geoJSON(data, {
     style: { color: "#818cf8", weight: 2, fillColor: "#818cf8", fillOpacity: 0.06, dashArray: "6 4" },
     onEachFeature: (f, l) => {
-      const n = f.properties?.name || f.properties?.NAME || "Unknown";
-      l.bindPopup(`<strong>${n}</strong><br><span class="popup-label">Police Force Area</span>`);
+      const n = resolvePoliceForceName(f.properties || {});
+      const code = resolvePoliceForceCode(f.properties || {});
+      l.bindPopup(
+        `<strong>${escapeHtml(n)}</strong><br>` +
+        `<span class="popup-label">Police Force Area</span>` +
+        (code ? `<br><span class="popup-label">Force Code</span> ${escapeHtml(code)}` : "")
+      );
     }
   }).addTo(layers.areas);
 }).catch(e => console.warn("Police areas:", e));
