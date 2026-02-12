@@ -3058,6 +3058,19 @@ function getVehicleModelTokens(modelRaw = "") {
   return model.split(" ").filter((t) => t && t.length >= 2 && !blacklist.has(t));
 }
 
+function getVehicleMakeAliases(makeRaw = "") {
+  const make = normalizeVehicleSearchText(makeRaw);
+  if (!make) return [];
+  const aliases = new Set([make]);
+  if (make.includes("mercedes")) aliases.add("benz");
+  if (make.includes("benz")) aliases.add("mercedes");
+  if (make === "vw") aliases.add("volkswagen");
+  if (make === "volkswagen") aliases.add("vw");
+  if (make.includes("alfa")) aliases.add("alfa romeo");
+  if (make.includes("land rover")) aliases.add("range rover");
+  return [...aliases];
+}
+
 function findGranTurismoVehicleImage(vehicle = {}) {
   if (!Array.isArray(VEHICLE_GT_IMAGE_INDEX) || !VEHICLE_GT_IMAGE_INDEX.length) return null;
   const make = normalizeVehicleSearchText(vehicle?.make || "");
@@ -3065,39 +3078,53 @@ function findGranTurismoVehicleImage(vehicle = {}) {
   const year = parseVehicleYear(vehicle);
   if (!make && !model) return null;
   const modelTokens = getVehicleModelTokens(model);
+  const makeAliases = getVehicleMakeAliases(make);
 
   let best = null;
   let bestScore = -1;
   for (const item of VEHICLE_GT_IMAGE_INDEX) {
     const hay = item.searchable;
     let score = 0;
-    if (make && hay.includes(make)) score += 35;
+    let makeHit = false;
+    if (makeAliases.length) {
+      for (const alias of makeAliases) {
+        if (alias && hay.includes(alias)) {
+          makeHit = true;
+          break;
+        }
+      }
+      if (makeHit) score += 32;
+    }
     if (model && hay.includes(model)) score += 40;
+    let tokenHit = 0;
     if (modelTokens.length) {
-      let hit = 0;
-      for (const token of modelTokens) if (hay.includes(token)) hit += 1;
-      score += Math.round((hit / modelTokens.length) * 35);
+      for (const token of modelTokens) if (hay.includes(token)) tokenHit += 1;
+      score += Math.round((tokenHit / modelTokens.length) * 35);
     }
     if (year && hay.includes(String(year))) score += 14;
     if (score > bestScore) {
       bestScore = score;
-      best = item;
+      best = { ...item, makeHit, tokenHit };
     }
   }
-  return bestScore >= 42 ? { ...best, score: bestScore } : null;
+  if (!best) return null;
+  if (best.makeHit && bestScore >= 24) return { ...best, score: bestScore };
+  if (best.tokenHit >= 2 && bestScore >= 34) return { ...best, score: bestScore };
+  return bestScore >= 46 ? { ...best, score: bestScore } : null;
 }
 
 function getDvlaVehicleShowcaseData(vehicle = {}) {
   const gtMatch = findGranTurismoVehicleImage(vehicle);
   const makeLogo = getVehicleMakeLogoPath(vehicle.make || "");
-  const fallbackIcon = getVehicleCarPlaceholderIcon();
+  const mapIcon = getDvlaVehicleIconPath(vehicle) || getVehicleCarPlaceholderIcon();
   return {
     matched: !!gtMatch,
     source: gtMatch ? "gran_turismo" : "placeholder",
     label: gtMatch?.label || `${String(vehicle.make || "Vehicle")} ${String(vehicle.model || "").trim()}`.trim(),
-    imageUrl: gtMatch?.imageUrl || fallbackIcon,
+    imageUrl: gtMatch?.imageUrl || "",
     logoPath: makeLogo || "",
-    placeholderIcon: fallbackIcon
+    placeholderIcon: mapIcon,
+    mapIcon
   };
 }
 
@@ -3191,6 +3218,8 @@ function buildVehicleI2EntityData(vehicle = {}) {
   if (vehicle.taxStatus) values.push({ propertyName: "Tax Status", value: String(vehicle.taxStatus) });
   if (vehicle.motStatus) values.push({ propertyName: "MOT Status", value: String(vehicle.motStatus) });
   if (showcase.imageUrl) values.push({ propertyName: "Vehicle Image URL", value: String(showcase.imageUrl) });
+  if (showcase.source) values.push({ propertyName: "Vehicle Image Source", value: String(showcase.source) });
+  if (showcase.mapIcon) values.push({ propertyName: "Vehicle Map Icon URL", value: String(showcase.mapIcon) });
   if (showcase.logoPath) values.push({ propertyName: "Vehicle Make Logo URL", value: String(showcase.logoPath) });
   return {
     entityId: "ET3",
@@ -3236,24 +3265,43 @@ function buildVehiclePopupMediaHtml(entity = {}) {
     const hit = values.find((v) => String(v?.propertyName || "").toLowerCase() === String(name).toLowerCase());
     return String(hit?.value || "");
   };
+  const isLikelyMapIconUrl = (url) => {
+    const u = String(url || "").trim().toLowerCase();
+    if (!u) return false;
+    return u.includes("/map_icons/") || u.startsWith("gfx/map_icons/");
+  };
+  const isHttpImage = (url) => /^https?:\/\//i.test(String(url || "").trim());
   const vehicle = {
     make: valueOf("Vehicle Make"),
     model: valueOf("Vehicle Model"),
     yearOfManufacture: valueOf("Year")
   };
   const showcase = getDvlaVehicleShowcaseData(vehicle);
-  const imageUrl = valueOf("Vehicle Image URL") || showcase.imageUrl || showcase.placeholderIcon;
+  const storedSource = valueOf("Vehicle Image Source").toLowerCase();
+  const storedImageUrl = valueOf("Vehicle Image URL");
+  const source = storedSource || showcase.source;
+  const imageUrl = storedSource === "gran_turismo"
+    ? storedImageUrl
+    : (isHttpImage(storedImageUrl) && !isLikelyMapIconUrl(storedImageUrl) ? storedImageUrl : showcase.imageUrl);
+  const mapIconUrl = valueOf("Vehicle Map Icon URL") || showcase.mapIcon || showcase.placeholderIcon;
   const logoUrl = valueOf("Vehicle Make Logo URL") || showcase.logoPath;
-  const title = showcase.matched ? (showcase.label || "Matched vehicle image") : "Vehicle placeholder";
+  const showTopImage = !!imageUrl && source === "gran_turismo" && isHttpImage(imageUrl) && !isLikelyMapIconUrl(imageUrl);
+  const title = showTopImage ? (showcase.label || "Matched vehicle image") : "Vehicle map icon";
+  const topImageHtml = showTopImage
+    ? `<img class="vehicle-popup-image" src="${escapeHtml(imageUrl)}" alt="${escapeHtml(title)}" loading="lazy">`
+    : "";
+  const mapIconHtml = mapIconUrl
+    ? `<img class="vehicle-popup-map-icon" src="${escapeHtml(mapIconUrl)}" alt="Vehicle map icon" loading="lazy">`
+    : "";
   const logoHtml = logoUrl
     ? `<img class="vehicle-popup-logo" src="${escapeHtml(logoUrl)}" alt="${escapeHtml(vehicle.make || "Vehicle make")} logo" loading="lazy">`
     : "";
   return (
     `<div class="vehicle-popup-media">` +
-      `<img class="vehicle-popup-image" src="${escapeHtml(imageUrl)}" alt="${escapeHtml(title)}" loading="lazy">` +
+      topImageHtml +
       `<div class="vehicle-popup-media-meta">` +
-        logoHtml +
-        `<span class="vehicle-popup-media-tag">${showcase.matched ? "GT MATCH" : "PLACEHOLDER"}</span>` +
+        `<div class="vehicle-popup-media-left">${mapIconHtml}${logoHtml}</div>` +
+        `<span class="vehicle-popup-media-tag">${showTopImage ? "GT MATCH" : "MAP ICON"}</span>` +
       `</div>` +
     `</div>`
   );
@@ -4239,7 +4287,9 @@ const OS_DERIVED_STATE = {
   roadsRenderSig: "",
   railRenderSig: "",
   roadsStaticRenderSig: "",
-  railStaticRenderSig: ""
+  railStaticRenderSig: "",
+  railSelectedLineKey: "",
+  railRenderedSegments: []
 };
 
 function markOsDerivedLayerUnavailable(layerKey, reason = "") {
@@ -4285,6 +4335,18 @@ const OS_ROAD_BASE_COLOURS = {
   secondary: "#d97706",
   tertiary: "#fb923c"
 };
+const OS_RAIL_LINE_PALETTE = [
+  "#2563eb",
+  "#ef4444",
+  "#16a34a",
+  "#ca8a04",
+  "#9333ea",
+  "#0d9488",
+  "#db2777",
+  "#ea580c",
+  "#0284c7",
+  "#4f46e5"
+];
 
 function hashStringToInt(input) {
   const s = String(input || "");
@@ -4317,7 +4379,15 @@ function osRoadColorForFeature(properties = {}) {
 
 function osRailColorForFeature(properties = {}) {
   const kind = String(properties.railway || "").toLowerCase();
+  const name = String(properties.name || "").trim().toLowerCase();
+  if (name) {
+    const base = OS_RAIL_LINE_PALETTE[hashStringToInt(`${kind}|${name}`) % OS_RAIL_LINE_PALETTE.length];
+    if (kind === "subway" || kind === "light_rail" || kind === "tram") return tweakHexColor(base, 8);
+    if (kind === "narrow_gauge") return tweakHexColor(base, -6);
+    return base;
+  }
   if (kind === "subway" || kind === "light_rail" || kind === "tram") return "#22d3ee";
+  if (kind === "narrow_gauge") return "#818cf8";
   return "#60a5fa";
 }
 
@@ -4521,6 +4591,128 @@ function buildEndpointConnectors(routes = [], maxGapKm = 1.4) {
   return connectors;
 }
 
+function normalizeRailLineKey(type = "", name = "") {
+  const t = String(type || "").trim().toLowerCase();
+  const n = String(name || "").trim().toLowerCase().replace(/\s+/g, " ");
+  return `${t}|${n}`;
+}
+
+function buildRailGapConnectors(routes = [], maxGapKm = 0.12) {
+  const out = [];
+  const byLine = new Map();
+  for (const r of routes || []) {
+    const key = normalizeRailLineKey(r?.type, r?.name);
+    if (!key || key.endsWith("|")) continue;
+    if (!byLine.has(key)) byLine.set(key, []);
+    byLine.get(key).push(r);
+  }
+  for (const group of byLine.values()) {
+    if (!Array.isArray(group) || group.length < 2) continue;
+    out.push(...buildEndpointConnectors(group, maxGapKm));
+  }
+  return out;
+}
+
+function routeLengthKm(coords = []) {
+  if (!Array.isArray(coords) || coords.length < 2) return 0;
+  let total = 0;
+  for (let i = 1; i < coords.length; i++) {
+    const d = distanceKm(coords[i - 1], coords[i]);
+    if (Number.isFinite(d)) total += d;
+  }
+  return total;
+}
+
+function buildRailLineLengthTotals(routes = []) {
+  const totals = new Map();
+  for (const r of routes || []) {
+    const coords = Array.isArray(r?.coords) ? r.coords : [];
+    if (coords.length < 2) continue;
+    const key = normalizeRailLineKey(r?.type, r?.name);
+    if (!key || key.endsWith("|")) continue;
+    const km = routeLengthKm(coords);
+    totals.set(key, (totals.get(key) || 0) + km);
+  }
+  return totals;
+}
+
+function buildOsRailLinePopupHtml(route = {}, lineKey = "", totalKm = 0) {
+  const safeName = String(route?.name || "Unnamed Rail Line");
+  const safeType = String(route?.type || "rail");
+  const segKm = routeLengthKm(Array.isArray(route?.coords) ? route.coords : []);
+  const selected = String(OS_DERIVED_STATE.railSelectedLineKey || "") === String(lineKey || "");
+  const encodedKey = encodeURIComponent(String(lineKey || ""));
+  const actionButton = selected
+    ? `<button class="popup-psc-btn" type="button" onclick="clearOsRailLineSelection()">Clear Focus</button>`
+    : `<button class="popup-psc-btn" type="button" onclick="selectOsRailLine('${encodedKey}')">Focus This Line</button>`;
+  return (
+    `<strong>${escapeHtml(safeName)}</strong><br>` +
+    `<span class="popup-label">Type</span> ${escapeHtml(safeType)}<br>` +
+    `<span class="popup-label">Line Length</span> ${Number(totalKm || 0).toFixed(1)} km<br>` +
+    `<span class="popup-label">Visible Segment</span> ${Number(segKm || 0).toFixed(2)} km<br>` +
+    `<span class="popup-label">Priority</span> ${selected ? "Focused" : "Default (longest lines drawn on top)"}<br>` +
+    `<div class="cp-btn-row" style="margin-top:8px;">${actionButton}</div>`
+  );
+}
+
+function applyOsRailSelectionStyles() {
+  const segments = Array.isArray(OS_DERIVED_STATE.railRenderedSegments) ? OS_DERIVED_STATE.railRenderedSegments : [];
+  if (!segments.length) return;
+  const selectedKey = String(OS_DERIVED_STATE.railSelectedLineKey || "");
+  let minTotal = Infinity;
+  let maxTotal = 0;
+  for (const seg of segments) {
+    const t = Number(seg?.totalKm || 0);
+    if (!Number.isFinite(t)) continue;
+    minTotal = Math.min(minTotal, t);
+    maxTotal = Math.max(maxTotal, t);
+  }
+  if (!Number.isFinite(minTotal)) minTotal = 0;
+  const span = Math.max(0.0001, maxTotal - minTotal);
+
+  for (const seg of segments) {
+    const layer = seg?.layer;
+    if (!layer || typeof layer.setStyle !== "function") continue;
+    const totalKm = Number(seg?.totalKm || 0);
+    const baseWeight = Number(seg?.baseWeight || 3);
+    const hasSelection = !!selectedKey;
+    const selected = hasSelection && String(seg?.lineKey || "") === selectedKey;
+    const rank = Math.max(0, Math.min(1, (totalKm - minTotal) / span));
+
+    let opacity = 0.65 + (rank * 0.28);
+    let weight = baseWeight + (rank * 0.55);
+    if (hasSelection) {
+      opacity = selected ? 0.98 : 0.24;
+      weight = selected ? (baseWeight + 1.9) : Math.max(1.8, baseWeight - 1.0);
+    }
+    layer.setStyle({ opacity, weight });
+    if (layer._path) {
+      layer._path.classList.remove("os-rail-line-selected", "os-rail-line-dimmed");
+      if (hasSelection && selected) layer._path.classList.add("os-rail-line-selected");
+      if (hasSelection && !selected) layer._path.classList.add("os-rail-line-dimmed");
+    }
+    if (hasSelection && selected && typeof layer.bringToFront === "function") layer.bringToFront();
+  }
+}
+
+window.selectOsRailLine = function selectOsRailLine(encodedLineKey = "") {
+  let lineKey = String(encodedLineKey || "");
+  try {
+    lineKey = decodeURIComponent(lineKey);
+  } catch (_) {
+    // keep raw value
+  }
+  OS_DERIVED_STATE.railSelectedLineKey = lineKey;
+  applyOsRailSelectionStyles();
+  if (lineKey) setStatus(`OS rail focus: ${lineKey}`);
+};
+
+window.clearOsRailLineSelection = function clearOsRailLineSelection() {
+  OS_DERIVED_STATE.railSelectedLineKey = "";
+  applyOsRailSelectionStyles();
+  setStatus("OS rail focus cleared");
+};
+
 function buildStationLinks(stations = [], bounds = null, maxKm = 28, maxLinks = 2) {
   const links = [];
   if (!Array.isArray(stations) || !stations.length) return { links, nodes: [] };
@@ -4659,6 +4851,7 @@ function normalizeRouteCoords(coords = []) {
 }
 
 function mergeStaticRailRoutes(rawRoutes = []) {
+  const joinPrecision = 3;
   const buckets = new Map();
   for (const r of rawRoutes) {
     const coords = normalizeRouteCoords(Array.isArray(r?.coords) ? r.coords : []);
@@ -4679,12 +4872,12 @@ function mergeStaticRailRoutes(rawRoutes = []) {
       let changed = true;
       while (changed) {
         changed = false;
-        const lineStart = buildCoordKey(line[0]);
-        const lineEnd = buildCoordKey(line[line.length - 1]);
+        const lineStart = buildCoordKey(line[0], joinPrecision);
+        const lineEnd = buildCoordKey(line[line.length - 1], joinPrecision);
         for (let i = pending.length - 1; i >= 0; i--) {
           const seg = pending[i];
-          const segStart = buildCoordKey(seg.coords[0]);
-          const segEnd = buildCoordKey(seg.coords[seg.coords.length - 1]);
+          const segStart = buildCoordKey(seg.coords[0], joinPrecision);
+          const segEnd = buildCoordKey(seg.coords[seg.coords.length - 1], joinPrecision);
           let consumed = false;
           if (lineEnd && lineEnd === segStart) {
             line.push(...seg.coords.slice(1));
@@ -4765,14 +4958,25 @@ function renderOsRailOverlayViewport() {
   L.geoJSON({ type: "FeatureCollection", features }, {
     style: (f) => ({
       color: osRailColorForFeature(f.properties || {}),
-      weight: zoom <= 8 ? 1.3 : 1.8,
-      opacity: zoom <= 8 ? 0.6 : 0.78
+      weight: zoom <= 8 ? 2.8 : 3.6,
+      opacity: zoom <= 8 ? 0.8 : 0.9,
+      className: "os-rail-static-line"
     }),
     onEachFeature: (f, l) => {
-      if (zoom < 9) return;
       const name = f.properties?.name || "Rail Line";
       const kind = f.properties?.railway || "";
-      l.bindTooltip(`${escapeHtml(name)}${kind ? ` (${escapeHtml(kind)})` : ""}`, { sticky: true, opacity: 0.88 });
+      const coords = f.geometry?.type === "LineString"
+        ? (f.geometry.coordinates || []).map((p) => [Number(p?.[1]), Number(p?.[0])]).filter((p) => Number.isFinite(p[0]) && Number.isFinite(p[1]))
+        : [];
+      const segKm = routeLengthKm(coords);
+      l.bindPopup(
+        `<strong>${escapeHtml(name)}</strong><br>` +
+        `<span class="popup-label">Type</span> ${escapeHtml(kind || "rail")}<br>` +
+        `<span class="popup-label">Visible Segment</span> ${segKm.toFixed(2)} km`
+      );
+      if (zoom >= 9) {
+        l.bindTooltip(`${escapeHtml(name)}${kind ? ` (${escapeHtml(kind)})` : ""}`, { sticky: true, opacity: 0.88 });
+      }
     }
   }).addTo(OS_DERIVED_STATE.railLayer);
 }
@@ -4836,38 +5040,70 @@ function renderStaticRailOverlay() {
   const bounds = getExpandedBounds(0.5);
   const zoom = map.getZoom();
   OS_DERIVED_STATE.railLayer.clearLayers();
+  OS_DERIVED_STATE.railRenderedSegments = [];
 
-  for (const r of routes) {
+  const routesForTotals = routes.filter((r) => {
     const coords = Array.isArray(r?.coords) ? r.coords : [];
-    if (coords.length < 2) continue;
-    if (!staticRailVisibleAtZoom(r?.type, zoom)) continue;
-    if (!staticRouteInBounds(coords, bounds)) continue;
-    const line = L.polyline(coords, {
-      color: osRailColorForFeature({ railway: r.type, name: r.name }),
-      weight: zoom <= 8 ? 3.2 : 4.0,
-      opacity: zoom <= 8 ? 0.86 : 0.92,
-      smoothFactor: 1.8,
-      className: "os-rail-static-line"
-    }).addTo(OS_DERIVED_STATE.railLayer);
-    if (r.name && zoom >= 9) {
-      line.bindTooltip(`${escapeHtml(r.name)}${r.type ? ` (${escapeHtml(r.type)})` : ""}`, { sticky: true, opacity: 0.86 });
-    }
-  }
+    return coords.length >= 2 && staticRailVisibleAtZoom(r?.type, zoom);
+  });
+  const lineLengthTotals = buildRailLineLengthTotals(routesForTotals);
 
   const visibleRoutes = routes.filter((r) => {
     const coords = Array.isArray(r?.coords) ? r.coords : [];
     return coords.length >= 2 && staticRailVisibleAtZoom(r?.type, zoom) && staticRouteInBounds(coords, bounds);
   });
-  const railConnectors = buildEndpointConnectors(visibleRoutes, zoom <= 8 ? 2.4 : 1.5);
-  for (const c of railConnectors) {
-    L.polyline(c.coords, {
-      color: osRailColorForFeature({ railway: c.type, name: c.name }),
-      weight: zoom <= 8 ? 2.6 : 3.0,
-      opacity: 0.8,
-      smoothFactor: 2,
-      className: "os-rail-static-connector"
+  const orderedVisibleRoutes = [...visibleRoutes].sort((a, b) => {
+    const keyA = normalizeRailLineKey(a?.type, a?.name);
+    const keyB = normalizeRailLineKey(b?.type, b?.name);
+    const totalA = Number(lineLengthTotals.get(keyA) || 0);
+    const totalB = Number(lineLengthTotals.get(keyB) || 0);
+    if (totalA !== totalB) return totalA - totalB;
+    return routeLengthKm(a?.coords || []) - routeLengthKm(b?.coords || []);
+  });
+
+  for (const r of orderedVisibleRoutes) {
+    const coords = Array.isArray(r?.coords) ? r.coords : [];
+    const lineKey = normalizeRailLineKey(r?.type, r?.name);
+    const totalKm = Number(lineLengthTotals.get(lineKey) || routeLengthKm(coords));
+    const baseWeight = zoom <= 8 ? 3.2 : 4.0;
+    const line = L.polyline(coords, {
+      color: osRailColorForFeature({ railway: r.type, name: r.name }),
+      weight: baseWeight,
+      opacity: 0.9,
+      smoothFactor: 1.8,
+      className: "os-rail-static-line os-rail-line-interactive"
     }).addTo(OS_DERIVED_STATE.railLayer);
+    line.bindPopup(buildOsRailLinePopupHtml(r, lineKey, totalKm));
+    line.on("click", () => {
+      if (lineKey) OS_DERIVED_STATE.railSelectedLineKey = lineKey;
+      applyOsRailSelectionStyles();
+    });
+    if (r.name && zoom >= 9) {
+      line.bindTooltip(`${escapeHtml(r.name)}${r.type ? ` (${escapeHtml(r.type)})` : ""}`, { sticky: true, opacity: 0.9 });
+    }
+    OS_DERIVED_STATE.railRenderedSegments.push({ layer: line, lineKey, totalKm, baseWeight });
   }
+
+  const railGapConnectors = buildRailGapConnectors(visibleRoutes, zoom <= 8 ? 0.16 : 0.1);
+  for (const c of railGapConnectors) {
+    const lineKey = normalizeRailLineKey(c?.type, c?.name);
+    const totalKm = Number(lineLengthTotals.get(lineKey) || routeLengthKm(c?.coords || []));
+    const baseWeight = zoom <= 8 ? 2.4 : 2.8;
+    const connector = L.polyline(c.coords, {
+      color: osRailColorForFeature({ railway: c.type, name: c.name }),
+      weight: baseWeight,
+      opacity: 0.9,
+      smoothFactor: 1.6,
+      className: "os-rail-static-line os-rail-line-interactive"
+    }).addTo(OS_DERIVED_STATE.railLayer);
+    connector.bindPopup(buildOsRailLinePopupHtml(c, lineKey, totalKm));
+    connector.on("click", () => {
+      if (lineKey) OS_DERIVED_STATE.railSelectedLineKey = lineKey;
+      applyOsRailSelectionStyles();
+    });
+    OS_DERIVED_STATE.railRenderedSegments.push({ layer: connector, lineKey, totalKm, baseWeight });
+  }
+  applyOsRailSelectionStyles();
 
   if (zoom < 7) return;
   for (const s of stations) {
@@ -4886,18 +5122,8 @@ function renderStaticRailOverlay() {
     if (s.name && zoom >= 10) marker.bindTooltip(escapeHtml(s.name), { sticky: true, opacity: 0.82 });
   }
 
-  if (zoom < 8) return;
-  const linkData = buildStationLinks(stations, bounds, zoom <= 8 ? 42 : 26, zoom <= 8 ? 1 : 2);
-  const stationLinks = buildStationLineColors(linkData);
-  for (const link of stationLinks) {
-    L.polyline(link.coords, {
-      color: link.color,
-      weight: zoom <= 8 ? 4.2 : 5.2,
-      opacity: zoom <= 8 ? 0.85 : 0.92,
-      smoothFactor: 2.2,
-      className: "os-rail-station-link"
-    }).addTo(OS_DERIVED_STATE.railLayer);
-  }
+  // No synthetic nearest-station links in static rail mode:
+  // they can create patchy diagonals and inconsistent line coloring.
 }
 
 async function loadOsRoadOverlay() {

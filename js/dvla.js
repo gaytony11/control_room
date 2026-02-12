@@ -44,22 +44,30 @@ function renderDvlaResult(vehicle) {
   const showcase = typeof window.getDvlaVehicleShowcaseData === "function"
     ? window.getDvlaVehicleShowcaseData(vehicle || {})
     : null;
-  const fallbackIcon = (showcase && showcase.placeholderIcon) || (typeof window.getDvlaVehicleIconPath === "function"
+  const fallbackIcon = (showcase && (showcase.mapIcon || showcase.placeholderIcon)) || (typeof window.getDvlaVehicleIconPath === "function"
     ? String(window.getDvlaVehicleIconPath(vehicle || {}) || "")
     : "");
-  const vehicleImage = showcase?.imageUrl || fallbackIcon || "gfx/map_icons/cars/car.png";
+  const vehicleImage = showcase?.imageUrl || "";
+  const mapIcon = fallbackIcon || "gfx/map_icons/cars/car.png";
+  const showTopImage = !!(showcase?.matched && vehicleImage);
   const logoPath = (typeof window.getVehicleMakeLogoPath === "function"
     ? String(window.getVehicleMakeLogoPath(vehicle.make || "") || "")
     : "");
   const logoAlt = showcase?.matched
     ? `${String(vehicle.make || "Vehicle")} matched model logo`
     : `${String(vehicle.make || "Vehicle")} logo`;
-  const sourceTag = showcase?.matched ? "GT MATCH" : "PLACEHOLDER";
+  const sourceTag = showTopImage ? "GT MATCH" : "MAP ICON";
+  const topImageHtml = showTopImage
+    ? `<img class="dvla-vehicle-image" src="${escapeHtml(vehicleImage)}" alt="${escapeHtml(showcase?.label || `${vehicle.make || "Vehicle"} ${vehicle.model || ""}`)}" loading="lazy">`
+    : "";
   const mediaHtml =
     `<div class="dvla-media-wrap">` +
-      `<img class="dvla-vehicle-image" src="${escapeHtml(vehicleImage)}" alt="${escapeHtml(showcase?.label || `${vehicle.make || "Vehicle"} ${vehicle.model || ""}`)}" loading="lazy">` +
+      topImageHtml +
       `<div class="dvla-media-meta">` +
-        (logoPath ? `<img class="dvla-logo" src="${escapeHtml(logoPath)}" alt="${escapeHtml(logoAlt)}" loading="lazy" />` : "") +
+        `<div class="dvla-media-left">` +
+          `<img class="dvla-map-icon" src="${escapeHtml(mapIcon)}" alt="Vehicle map icon" loading="lazy" />` +
+          (logoPath ? `<img class="dvla-logo" src="${escapeHtml(logoPath)}" alt="${escapeHtml(logoAlt)}" loading="lazy" />` : "") +
+        `</div>` +
         `<span class="dvla-media-tag">${escapeHtml(sourceTag)}</span>` +
       `</div>` +
     `</div>`;
