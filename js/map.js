@@ -4106,7 +4106,9 @@ const OS_DERIVED_STATE = {
   roadsStatic: false,
   railStatic: false,
   roadsRenderSig: "",
-  railRenderSig: ""
+  railRenderSig: "",
+  roadsStaticRenderSig: "",
+  railStaticRenderSig: ""
 };
 
 function markOsDerivedLayerUnavailable(layerKey, reason = "") {
@@ -4130,6 +4132,19 @@ function notifyOsDerivedUnavailableOnce(message) {
   if (OS_DERIVED_STATE.warned) return;
   OS_DERIVED_STATE.warned = true;
   setStatus(message || "OS-derived overlays unavailable in this build.");
+}
+
+function markLayerAsStaticMode(layerKey, label = "static") {
+  const cb = document.querySelector(`.layer-cb[data-layer="${layerKey}"]`);
+  const row = cb?.closest(".layer-row");
+  if (!row) return;
+  const nameEl = row.querySelector(".layer-name");
+  if (!nameEl) return;
+  const txt = String(nameEl.textContent || "");
+  if (!txt.includes("(static)")) {
+    nameEl.textContent = `${txt} (${label})`;
+  }
+  row.title = `Layer loaded using ${label} pre-baked coordinates`;
 }
 
 const OS_ROAD_BASE_COLOURS = {
@@ -4263,6 +4278,37 @@ function getOsRenderSignature() {
   return `${z}|${b.getSouth().toFixed(2)}|${b.getWest().toFixed(2)}|${b.getNorth().toFixed(2)}|${b.getEast().toFixed(2)}`;
 }
 
+function getStaticRenderSignature() {
+  const b = map.getBounds();
+  const z = map.getZoom();
+  return `${z}|${b.getSouth().toFixed(2)}|${b.getWest().toFixed(2)}|${b.getNorth().toFixed(2)}|${b.getEast().toFixed(2)}`;
+}
+
+function staticRouteInBounds(coords = [], bounds = null) {
+  if (!bounds || !Array.isArray(coords)) return false;
+  for (const p of coords) {
+    if (!Array.isArray(p) || p.length < 2) continue;
+    const lat = Number(p[0]);
+    const lon = Number(p[1]);
+    if (Number.isFinite(lat) && Number.isFinite(lon) && bounds.contains([lat, lon])) return true;
+  }
+  return false;
+}
+
+function staticRoadVisibleAtZoom(type = "", zoom = 0) {
+  const t = String(type || "").toLowerCase();
+  if (zoom <= 7) return t === "motorway" || t === "trunk";
+  if (zoom <= 9) return t === "motorway" || t === "trunk" || t === "primary";
+  return true;
+}
+
+function staticRailVisibleAtZoom(type = "", zoom = 0) {
+  const t = String(type || "").toLowerCase();
+  if (zoom <= 7) return t === "rail";
+  if (zoom <= 9) return t === "rail" || t === "light_rail" || t === "subway";
+  return true;
+}
+
 function renderOsRoadOverlayViewport() {
   if (!OS_DERIVED_STATE.roadsData || !OS_DERIVED_STATE.roadsLayer) return;
   const sig = getOsRenderSignature();
@@ -4322,18 +4368,25 @@ const scheduleOsRailViewportRender = debounce(renderOsRailOverlayViewport, 160);
 
 function renderStaticRoadOverlay() {
   if (!OS_DERIVED_STATE.roadsLayer || !OS_DERIVED_STATE.roadsData) return;
+  const sig = getStaticRenderSignature();
+  if (sig === OS_DERIVED_STATE.roadsStaticRenderSig) return;
+  OS_DERIVED_STATE.roadsStaticRenderSig = sig;
   const routes = Array.isArray(OS_DERIVED_STATE.roadsData.routes) ? OS_DERIVED_STATE.roadsData.routes : [];
+  const bounds = getExpandedBounds(0.25);
+  const zoom = map.getZoom();
   OS_DERIVED_STATE.roadsLayer.clearLayers();
   for (const r of routes) {
     const coords = Array.isArray(r?.coords) ? r.coords : [];
     if (coords.length < 2) continue;
+    if (!staticRoadVisibleAtZoom(r?.type, zoom)) continue;
+    if (!staticRouteInBounds(coords, bounds)) continue;
     const line = L.polyline(coords, {
       color: osRoadColorForFeature({ highway: r.type, name: r.name }),
-      weight: 2.1,
-      opacity: 0.72,
+      weight: zoom <= 8 ? 1.6 : 2.1,
+      opacity: zoom <= 8 ? 0.62 : 0.74,
       className: "os-road-static-line"
     }).addTo(OS_DERIVED_STATE.roadsLayer);
-    if (r.name) {
+    if (r.name && zoom >= 9) {
       line.bindTooltip(`${escapeHtml(r.name)}${r.type ? ` (${escapeHtml(r.type)})` : ""}`, { sticky: true, opacity: 0.84 });
     }
   }
@@ -4341,37 +4394,46 @@ function renderStaticRoadOverlay() {
 
 function renderStaticRailOverlay() {
   if (!OS_DERIVED_STATE.railLayer || !OS_DERIVED_STATE.railData) return;
+  const sig = getStaticRenderSignature();
+  if (sig === OS_DERIVED_STATE.railStaticRenderSig) return;
+  OS_DERIVED_STATE.railStaticRenderSig = sig;
   const routes = Array.isArray(OS_DERIVED_STATE.railData.routes) ? OS_DERIVED_STATE.railData.routes : [];
   const stations = Array.isArray(OS_DERIVED_STATE.railStationData?.stations) ? OS_DERIVED_STATE.railStationData.stations : [];
+  const bounds = getExpandedBounds(0.24);
+  const zoom = map.getZoom();
   OS_DERIVED_STATE.railLayer.clearLayers();
 
   for (const r of routes) {
     const coords = Array.isArray(r?.coords) ? r.coords : [];
     if (coords.length < 2) continue;
+    if (!staticRailVisibleAtZoom(r?.type, zoom)) continue;
+    if (!staticRouteInBounds(coords, bounds)) continue;
     const line = L.polyline(coords, {
       color: osRailColorForFeature({ railway: r.type, name: r.name }),
-      weight: 2.0,
-      opacity: 0.8,
+      weight: zoom <= 8 ? 1.5 : 2.0,
+      opacity: zoom <= 8 ? 0.66 : 0.8,
       className: "os-rail-static-line"
     }).addTo(OS_DERIVED_STATE.railLayer);
-    if (r.name) {
+    if (r.name && zoom >= 9) {
       line.bindTooltip(`${escapeHtml(r.name)}${r.type ? ` (${escapeHtml(r.type)})` : ""}`, { sticky: true, opacity: 0.86 });
     }
   }
 
+  if (zoom < 8) return;
   for (const s of stations) {
     const lat = Number(s?.lat);
     const lon = Number(s?.lon);
     if (!Number.isFinite(lat) || !Number.isFinite(lon)) continue;
+    if (!bounds.contains([lat, lon])) continue;
     const marker = L.circleMarker([lat, lon], {
-      radius: 2.8,
+      radius: zoom >= 10 ? 3 : 2.4,
       color: "#e0f2fe",
       fillColor: "#38bdf8",
-      fillOpacity: 0.9,
+      fillOpacity: 0.88,
       weight: 1.2,
       className: "os-rail-static-node"
     }).addTo(OS_DERIVED_STATE.railLayer);
-    if (s.name) marker.bindTooltip(escapeHtml(s.name), { sticky: true, opacity: 0.82 });
+    if (s.name && zoom >= 10) marker.bindTooltip(escapeHtml(s.name), { sticky: true, opacity: 0.82 });
   }
 }
 
@@ -4390,7 +4452,9 @@ async function loadOsRoadOverlay() {
       OS_DERIVED_STATE.roadsLayer = L.featureGroup().addTo(layers.os_roads);
       OS_DERIVED_STATE.roadsLoaded = true;
       OS_DERIVED_STATE.roadsStatic = true;
+      OS_DERIVED_STATE.roadsStaticRenderSig = "";
       renderStaticRoadOverlay();
+      markLayerAsStaticMode("os_roads");
       setStatus("OS roads overlay loaded (static core).");
       return;
     }
@@ -4404,6 +4468,7 @@ async function loadOsRoadOverlay() {
     OS_DERIVED_STATE.roadsLayer = L.featureGroup().addTo(layers.os_roads);
     OS_DERIVED_STATE.roadsLoaded = true;
     OS_DERIVED_STATE.roadsStatic = false;
+    OS_DERIVED_STATE.roadsStaticRenderSig = "";
     OS_DERIVED_STATE.roadsRenderSig = "";
     renderOsRoadOverlayViewport();
     setStatus(`OS roads overlay loaded (${picked.path.includes("_lite") ? "lite" : "full"}).`);
@@ -4434,7 +4499,9 @@ async function loadOsRailOverlay() {
       OS_DERIVED_STATE.railLayer = L.featureGroup().addTo(layers.os_rail);
       OS_DERIVED_STATE.railLoaded = true;
       OS_DERIVED_STATE.railStatic = true;
+      OS_DERIVED_STATE.railStaticRenderSig = "";
       renderStaticRailOverlay();
+      markLayerAsStaticMode("os_rail");
       setStatus("OS rail overlay loaded (static core).");
       return;
     }
@@ -4448,6 +4515,7 @@ async function loadOsRailOverlay() {
     OS_DERIVED_STATE.railLayer = L.featureGroup().addTo(layers.os_rail);
     OS_DERIVED_STATE.railLoaded = true;
     OS_DERIVED_STATE.railStatic = false;
+    OS_DERIVED_STATE.railStaticRenderSig = "";
     OS_DERIVED_STATE.railRenderSig = "";
     renderOsRailOverlayViewport();
     setStatus(`OS rail overlay loaded (${picked.path.includes("_lite") ? "lite" : "full"}).`);
@@ -5227,11 +5295,13 @@ async function addPersonToMap(officerName, address, companies = [], options = {}
 }
 
 map.on("moveend zoomend", () => {
-  if (map.hasLayer(layers.os_roads) && OS_DERIVED_STATE.roadsLoaded && !OS_DERIVED_STATE.roadsStatic) {
-    scheduleOsRoadViewportRender();
+  if (map.hasLayer(layers.os_roads) && OS_DERIVED_STATE.roadsLoaded) {
+    if (OS_DERIVED_STATE.roadsStatic) renderStaticRoadOverlay();
+    else scheduleOsRoadViewportRender();
   }
-  if (map.hasLayer(layers.os_rail) && OS_DERIVED_STATE.railLoaded && !OS_DERIVED_STATE.railStatic) {
-    scheduleOsRailViewportRender();
+  if (map.hasLayer(layers.os_rail) && OS_DERIVED_STATE.railLoaded) {
+    if (OS_DERIVED_STATE.railStatic) renderStaticRailOverlay();
+    else scheduleOsRailViewportRender();
   }
 });
 

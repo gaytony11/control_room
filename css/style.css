@@ -2311,6 +2311,22 @@ body {
   filter: drop-shadow(0 0 6px rgba(56,189,248,0.5));
 }
 
+.os-road-static-line {
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 0 4px rgba(249,115,22,0.22));
+}
+
+.os-rail-static-line {
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 0 5px rgba(56,189,248,0.24));
+}
+
+.os-rail-static-node {
+  filter: drop-shadow(0 0 4px rgba(56,189,248,0.35));
+}
+
 /* ══════════════════════════════════════════
    Santander Cycles Markers
    ══════════════════════════════════════════ */
