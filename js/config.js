@@ -51,7 +51,7 @@ const CONTROL_ROOM_CONFIG = {
     baseUrl: "https://opensky-network.org/api",
     corsProxy: "https://corsproxy.io/?url=",
     refreshInterval: 480000,  // 8 minutes (stays within 200 req/day anonymous budget)
-    bbox: { lamin: 49.5, lamax: 59.0, lomin: -8.0, lomax: 2.0 }  // UK
+    bbox: { lamin: 35.0, lamax: 63.0, lomin: -15.0, lomax: 20.0 }  // UK + nearby overseas corridors
   },
 
   // Companies House API (direct browser calls with Basic Auth)

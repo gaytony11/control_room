@@ -2227,6 +2227,21 @@ body {
   font-size: 11px;
 }
 
+.flight-intel-tools .inline-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 2px 0 8px;
+  font-size: 10px;
+  text-transform: none;
+  letter-spacing: 0.2px;
+  color: #cbd5e1;
+}
+
+.flight-intel-tools .inline-checkbox input[type="checkbox"] {
+  margin: 0;
+}
+
 .flight-intel-time-row {
   display: grid;
   grid-template-columns: 1fr 1fr;

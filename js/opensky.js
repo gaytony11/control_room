@@ -11,7 +11,7 @@ const OPENSKY = {
   trails: new Map(),    // icao24 -> [{lat,lon,ts}]
   snapshot: null,
   flightsCache: [],
-  filters: null,
+  filters: { passengerLargeOnly: true },
   markerByIcao: new Map(),
   lastData: null,
   selectedRouteLine: null,
@@ -35,7 +35,8 @@ const SV = {
   TRACK: 10,
   VERT_RATE: 11,
   GEO_ALT: 13,
-  SQUAWK: 14
+  SQUAWK: 14,
+  CATEGORY: 17
 };
 
 const PLANE_ICON_SPRITE = "gfx/plane_icons/MapIcons.png";
@@ -43,6 +44,7 @@ const PLANE_SPRITE_GRID = { cols: 3, rows: 3 };
 const PLANE_SPRITE_FALLBACK = { col: 1, row: 2 };
 const UK_COUNTRY_KEYS = ["UNITED KINGDOM", "UK", "GREAT BRITAIN", "ENGLAND", "SCOTLAND", "WALES", "NORTHERN IRELAND"];
 const MILITARY_CALLSIGN_PREFIXES = ["RRR", "RCH", "ASY", "NATO", "QID", "MMF", "IAM", "CFC", "HAF", "BAF", "FAF", "USAF", "RAF"];
+const ADSB_LARGE_OR_HEAVY = new Set([3, 4, 5]);
 
 function pickPlaneSprite(altMetres) {
   if (altMetres == null || altMetres <= 0) return { col: 1, row: 0 };
@@ -80,6 +82,35 @@ function isUkCountry(value) {
   const v = String(value || "").trim().toUpperCase();
   if (!v) return false;
   return UK_COUNTRY_KEYS.some((k) => v.includes(k));
+}
+
+function parseEmitterCategory(raw) {
+  const n = Number(raw);
+  return Number.isInteger(n) && n >= 0 ? n : null;
+}
+
+function looksLikeTailRegistration(callsign) {
+  const cs = String(callsign || "").trim().toUpperCase();
+  if (!cs) return false;
+  return (
+    /^N\d+[A-Z]{0,2}$/.test(cs) ||
+    /^G-[A-Z]{4}$/.test(cs) ||
+    /^[A-Z]-[A-Z]{4}$/.test(cs)
+  );
+}
+
+function looksLikeAirlineCallsign(callsign) {
+  const cs = String(callsign || "").trim().toUpperCase();
+  if (!cs || looksLikeTailRegistration(cs)) return false;
+  return /^[A-Z]{2,3}\d{2,4}[A-Z]?$/.test(cs);
+}
+
+function isLikelyPassengerOrLarge(flight) {
+  if (!flight) return false;
+  if (isMilitaryFlightByCallsign(flight.callsign)) return false;
+  const cat = parseEmitterCategory(flight.emitterCategory);
+  if (cat != null && ADSB_LARGE_OR_HEAVY.has(cat)) return true;
+  return looksLikeAirlineCallsign(flight.callsign);
 }
 
 function classifyFlightType(flight) {
@@ -151,7 +182,7 @@ function projectLatLon(lat, lon, bearingDeg, km) {
 function nearestAirport(lat, lon, maxKm = 180) {
   const idx = window.AIRPORT_INDEX;
   if (!idx || !Array.isArray(idx.all) || !idx.all.length) return null;
-  const pool = Array.isArray(idx.uk) && idx.uk.length ? idx.uk : idx.all;
+  const pool = idx.all;
   let best = null;
   let bestD = Number.POSITIVE_INFINITY;
   for (const ap of pool) {
@@ -220,7 +251,8 @@ function hasActiveFlightFilters() {
     String(f.aircraft || "").trim() ||
     String(f.flightNumber || "").trim() ||
     String(f.fromTime || "").trim() ||
-    String(f.toTime || "").trim()
+    String(f.toTime || "").trim() ||
+    !f.passengerLargeOnly
   );
 }
 
@@ -493,14 +525,14 @@ function inferAirportsForFlight(flight, trail) {
   if (!flight) return { originAirport: null, destinationAirport: null };
   const oldest = Array.isArray(trail) && trail.length ? trail[0] : null;
   const newest = Array.isArray(trail) && trail.length ? trail[trail.length - 1] : null;
-  const originAirport = oldest ? nearestAirport(oldest.lat, oldest.lon, 150) : nearestAirport(flight.lat, flight.lon, 150);
+  const originAirport = oldest ? nearestAirport(oldest.lat, oldest.lon, 320) : nearestAirport(flight.lat, flight.lon, 220);
 
   let projected = null;
   if (Number.isFinite(flight.track)) {
     projected = projectLatLon(flight.lat, flight.lon, flight.track, 120);
   }
-  let destinationAirport = projected ? nearestAirport(projected.lat, projected.lon, 240) : null;
-  if (!destinationAirport && newest) destinationAirport = nearestAirport(newest.lat, newest.lon, 220);
+  let destinationAirport = projected ? nearestAirport(projected.lat, projected.lon, 320) : null;
+  if (!destinationAirport && newest) destinationAirport = nearestAirport(newest.lat, newest.lon, 280);
   if (Number.isFinite(flight.alt) && flight.alt < 1600) {
     const nearNow = nearestAirport(flight.lat, flight.lon, 120);
     if (nearNow) destinationAirport = nearNow;
@@ -535,6 +567,9 @@ function flightMatchesFilters(f, filters) {
   const flightNo = String(filters.flightNumber || "").trim().toLowerCase();
   const fromMins = parseTimeInputMins(filters.fromTime);
   const toMins = parseTimeInputMins(filters.toTime);
+  const passengerLargeOnly = filters.passengerLargeOnly !== false;
+
+  if (passengerLargeOnly && !isLikelyPassengerOrLarge(f)) return false;
 
   if (anyAirport) {
     const hitAny =
@@ -572,7 +607,8 @@ function currentFlightFiltersFromUi() {
     aircraft: document.getElementById("flight-aircraft-q")?.value || "",
     flightNumber: document.getElementById("flight-number-q")?.value || "",
     fromTime: document.getElementById("flight-time-from")?.value || "",
-    toTime: document.getElementById("flight-time-to")?.value || ""
+    toTime: document.getElementById("flight-time-to")?.value || "",
+    passengerLargeOnly: document.getElementById("flight-passenger-large-only")?.checked !== false
   };
 }
 
@@ -653,7 +689,9 @@ function clearFlightFilters() {
     const el = document.getElementById(id);
     if (el) el.value = "";
   });
-  OPENSKY.filters = null;
+  const focusFilter = document.getElementById("flight-passenger-large-only");
+  if (focusFilter) focusFilter.checked = true;
+  OPENSKY.filters = { passengerLargeOnly: true };
   if (OPENSKY.lastData) {
     renderFlights(OPENSKY.lastData);
   } else {
@@ -730,7 +768,18 @@ window.focusFlightIcao = focusFlight;
 
 function buildOpenSkyUrl() {
   const cfg = CONTROL_ROOM_CONFIG.opensky;
-  const bb = cfg.bbox;
+  const bb = { ...cfg.bbox };
+  if (typeof map !== "undefined" && map && typeof map.getBounds === "function") {
+    try {
+      const b = map.getBounds().pad(0.45);
+      bb.lamin = Math.max(-85, Number(b.getSouth()) || bb.lamin);
+      bb.lamax = Math.min(85, Number(b.getNorth()) || bb.lamax);
+      bb.lomin = Math.max(-180, Number(b.getWest()) || bb.lomin);
+      bb.lomax = Math.min(180, Number(b.getEast()) || bb.lomax);
+    } catch (_) {
+      // Keep configured fallback bbox
+    }
+  }
   const url = `${cfg.baseUrl}/states/all?lamin=${bb.lamin}&lamax=${bb.lamax}&lomin=${bb.lomin}&lomax=${bb.lomax}`;
   return url;
 }
@@ -854,6 +903,7 @@ function renderFlights(data) {
     const track = sv[SV.TRACK];
     const vertRate = sv[SV.VERT_RATE];
     const squawk = sv[SV.SQUAWK];
+    const emitterCategory = parseEmitterCategory(sv[SV.CATEGORY] ?? sv[18]);
 
     // Skip aircraft on ground
     if (onGround) continue;
@@ -864,7 +914,7 @@ function renderFlights(data) {
     if (icao) {
       const history = OPENSKY.trails.get(icao) || [];
       history.push({ lat, lon, ts: now });
-      const recent = history.filter((p) => now - p.ts <= 15 * 60 * 1000).slice(-6);
+      const recent = history.filter((p) => now - p.ts <= 3 * 60 * 60 * 1000).slice(-24);
       OPENSKY.trails.set(icao, recent);
     }
 
@@ -880,6 +930,7 @@ function renderFlights(data) {
       track: Number.isFinite(track) ? track : null,
       vertRate: Number.isFinite(vertRate) ? vertRate : null,
       squawk: squawk || "",
+      emitterCategory,
       onGround: !!onGround,
       lastSeen: now
     };
@@ -938,7 +989,7 @@ function renderFlights(data) {
   OPENSKY.flightsCache = flightsBuilt;
 
   if (OPENSKY.trails.size > 1800) {
-    const cutoff = now - 20 * 60 * 1000;
+    const cutoff = now - 90 * 60 * 1000;
     for (const [icao, points] of OPENSKY.trails.entries()) {
       const keep = points.filter((p) => p.ts >= cutoff);
       if (keep.length) OPENSKY.trails.set(icao, keep);
@@ -1095,6 +1146,7 @@ function stopFlightTracking() {
 
 function initOpenSky() {
   ensureFlightDetailPanel();
+  OPENSKY.filters = currentFlightFiltersFromUi();
 
   // Wire up the flights layer toggle
   const cb = document.querySelector('[data-layer="flights"]');
@@ -1129,6 +1181,11 @@ function initOpenSky() {
         applyFlightFilters();
       }
     });
+  });
+
+  const focusFilter = document.getElementById("flight-passenger-large-only");
+  focusFilter?.addEventListener("change", () => {
+    applyFlightFilters();
   });
 
   renderFlightFilterResults();
