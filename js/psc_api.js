@@ -15,6 +15,9 @@ const COMPANY_PROFILE_PREVIEW_STATE = {
   objectUrl: null,
   fileName: ""
 };
+const PSC_QUICK_PANEL_STATE = {
+  open: false
+};
 
 function formatDateYYYYMMDD(d = new Date()) {
   const y = d.getFullYear();
@@ -78,6 +81,37 @@ function ensureCompanyProfilePreviewPanel() {
   });
 
   return panel;
+}
+
+function ensurePscQuickPanel() {
+  let panel = document.getElementById("psc-quick-panel");
+  if (panel) return panel;
+  panel = document.createElement("div");
+  panel.id = "psc-quick-panel";
+  panel.className = "psc-quick-panel";
+  panel.innerHTML = `
+    <div class="psc-quick-header">
+      <div class="psc-quick-title">PSC FOR COMPANY</div>
+      <button id="psc-quick-close" class="psc-quick-close" type="button" aria-label="Close PSC panel">&times;</button>
+    </div>
+    <div id="psc-quick-meta" class="psc-quick-meta"></div>
+    <div id="psc-quick-body" class="psc-quick-body"></div>
+  `;
+  document.body.appendChild(panel);
+  panel.querySelector("#psc-quick-close")?.addEventListener("click", () => {
+    panel.classList.remove("open");
+    PSC_QUICK_PANEL_STATE.open = false;
+  });
+  return panel;
+}
+
+function openPscQuickPanel(companyNumber, companyName) {
+  const panel = ensurePscQuickPanel();
+  const meta = panel.querySelector("#psc-quick-meta");
+  if (meta) meta.textContent = `${companyName || "Company"} (${companyNumber})`;
+  panel.classList.add("open");
+  PSC_QUICK_PANEL_STATE.open = true;
+  return panel.querySelector("#psc-quick-body");
 }
 
 function showCompanyProfilePreview(pdfBlob, fileName, companyName, companyNumber) {
@@ -964,8 +998,19 @@ async function addPSCToMap(psc, companyNumber, companyName) {
   }
   const personName = String(psc?.name || "PSC");
   const officerAddress = toOfficerAddressFromPSC(psc);
+  const relationship =
+    (Array.isArray(psc?.natures_of_control) && psc.natures_of_control.length
+      ? String(psc.natures_of_control[0]).replace(/-/g, " ")
+      : (psc?.kind ? formatPSCKind(psc.kind) : "PSC"));
   try {
-    await addFn(personName, officerAddress, [companyName || `Company #${companyNumber}`]);
+    const companyEntity = typeof window.getCompanyEntityByNumber === "function"
+      ? window.getCompanyEntityByNumber(companyNumber)
+      : null;
+    await addFn(personName, officerAddress, [companyName || `Company #${companyNumber}`], {
+      companyNumber,
+      relationship,
+      anchorLatLng: companyEntity?.latLng || null
+    });
     setStatus(`Added PSC to map: ${personName}`);
   } catch (err) {
     console.error("Add PSC to map failed:", err);
@@ -1062,14 +1107,12 @@ function displayPSCResults(container, pscData, companyNumber, companyName) {
 
 // View PSC for company (called from popup or elsewhere)
 async function viewCompanyPSC(companyNumber, companyName = '') {
-  // Switch to People tab
-  document.querySelectorAll(".cp-tab").forEach(t => t.classList.remove("active"));
-  document.querySelectorAll(".cp-tab-pane").forEach(p => p.classList.remove("active"));
-  document.querySelector('[data-tab="people"]')?.classList.add("active");
-  document.getElementById("tab-people")?.classList.add("active");
-  
-  const resultsDiv = document.getElementById("psc_results");
+  const resultsDiv = openPscQuickPanel(companyNumber, companyName) || document.getElementById("psc_results");
+  const fallbackResultsDiv = document.getElementById("psc_results");
   resultsDiv.innerHTML = '<div class="ch-loading">Loading PSC data from API...</div>';
+  if (fallbackResultsDiv && fallbackResultsDiv !== resultsDiv) {
+    fallbackResultsDiv.innerHTML = '<div class="ch-loading">Loading PSC data from API...</div>';
+  }
   showPscProgress();
   setPscProgress("Fetching PSC records...", 50);
   setStatus(`Loading PSC for company #${companyNumber}...`);
@@ -1084,5 +1127,8 @@ async function viewCompanyPSC(companyNumber, companyName = '') {
   }
   
   displayPSCResults(resultsDiv, pscRecords, companyNumber, companyName);
+  if (fallbackResultsDiv && fallbackResultsDiv !== resultsDiv) {
+    displayPSCResults(fallbackResultsDiv, pscRecords, companyNumber, companyName);
+  }
   setStatus(`${pscRecords.length} PSC record${pscRecords.length === 1 ? '' : 's'} for #${companyNumber}`);
 }

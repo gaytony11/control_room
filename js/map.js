@@ -2129,6 +2129,23 @@ function connectCompanyEntity(companyNumber) {
   drawConnectionFrom(entityId);
 }
 
+function getCompanyEntityByNumber(companyNumber) {
+  const key = String(companyNumber || "").trim().toUpperCase();
+  if (!key || !window._companyEntityIndex) return null;
+  const entityId = window._companyEntityIndex[key];
+  return entityId ? getEntityById(entityId) : null;
+}
+
+function offsetLatLngFromAnchor(anchor, seedText = "", radiusDeg = 0.0035) {
+  const base = normalizeLatLng(anchor);
+  if (!Number.isFinite(base[0]) || !Number.isFinite(base[1])) return base;
+  const seed = String(seedText || "");
+  let h = 0;
+  for (let i = 0; i < seed.length; i++) h = ((h << 5) - h + seed.charCodeAt(i)) | 0;
+  const angle = (Math.abs(h) % 360) * (Math.PI / 180);
+  return [base[0] + Math.sin(angle) * radiusDeg, base[1] + Math.cos(angle) * radiusDeg];
+}
+
 function removeCompanyEntitiesFromStore() {
   if (!window._companyEntityIndex) return;
   const removedIds = new Set(Object.values(window._companyEntityIndex));
@@ -2307,6 +2324,7 @@ window.registerCompanyMarkerAsEntity = registerCompanyMarkerAsEntity;
 window.connectCompanyEntity = connectCompanyEntity;
 window.createOrganisationMarker = createOrganisationMarker;
 window.addPersonToMap = addPersonToMap;
+window.getCompanyEntityByNumber = getCompanyEntityByNumber;
 
 // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // MANUAL CONNECTION DRAWING
@@ -3743,7 +3761,7 @@ async function addCompanyToMap(companyNumber, companyName, personName = '', pers
 }
 
 // Add person/officer to map
-async function addPersonToMap(officerName, address, companies = []) {
+async function addPersonToMap(officerName, address, companies = [], options = {}) {
   if (!address || !address.postal_code) {
     alert('Officer has no valid address with postcode');
     return;
@@ -3768,11 +3786,25 @@ async function addPersonToMap(officerName, address, companies = []) {
     if (address.postal_code) addrParts.push(address.postal_code);
     const addrString = addrParts.join(', ');
     
-    const personLatLng = [coords.lat, coords.lon];
-    
-    const useCircle = window._useCircleMarkers !== false;
-    const marker = createCustomMarker(personLatLng, 'person', 'officer', useCircle);
-    marker.addTo(layers.companies);
+    let personLatLng = [coords.lat, coords.lon];
+    const linkedCompanyEntity = options.companyNumber ? getCompanyEntityByNumber(options.companyNumber) : null;
+    if (linkedCompanyEntity?.latLng) {
+      personLatLng = offsetLatLngFromAnchor(linkedCompanyEntity.latLng, `${officerName}|${options.companyNumber}`);
+    } else if (options.anchorLatLng) {
+      personLatLng = offsetLatLngFromAnchor(options.anchorLatLng, `${officerName}|anchor`);
+    }
+
+    const officerIconData = getOfficerEntityIconData();
+    const marker = L.marker(personLatLng, {
+      icon: L.icon({
+        iconUrl: officerIconData.icon,
+        iconSize: [30, 30],
+        iconAnchor: [15, 15],
+        popupAnchor: [0, -14]
+      }),
+      draggable: true
+    });
+    marker.addTo(entitiesLayer);
     const personEntityId = registerOfficerMarkerAsEntity(marker, {
       name: officerName,
       address: addrString,
@@ -3799,15 +3831,35 @@ async function addPersonToMap(officerName, address, companies = []) {
       }
       highlightConnections(marker.getLatLng());
     });
+    marker.on("dragend", () => {
+      const entityId = marker._entityId;
+      const entity = entityId ? getEntityById(entityId) : null;
+      if (entity) {
+        const next = marker.getLatLng();
+        entity.latLng = [Number(next.lat), Number(next.lng)];
+        marker.setPopupContent(buildEntityPopup(entityId, entity));
+        refreshConnectionsForEntity(entityId);
+      }
+    });
     
     // Store person data on marker
     marker._personData = { name: officerName, companies: companies, latLng: personLatLng };
     
-    // Ensure layer is visible
-    if (!map.hasLayer(layers.companies)) {
-      layers.companies.addTo(map);
-      const cb = document.querySelector('[data-layer="companies"]');
-      if (cb) cb.checked = true;
+    const relationshipLabel = String(options.relationship || "").trim();
+    if (personEntityId && linkedCompanyEntity && relationshipLabel) {
+      addConnection(
+        personLatLng,
+        linkedCompanyEntity.latLng,
+        relationshipLabel,
+        "officer",
+        {
+          fromId: personEntityId,
+          toId: linkedCompanyEntity.id,
+          fromLabel: officerName,
+          toLabel: linkedCompanyEntity.label,
+          source: "psc_auto"
+        }
+      );
     }
     
     // Pan to marker
