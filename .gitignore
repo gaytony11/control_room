@@ -26,6 +26,8 @@ data/bellingcat*/
 data/postcodes.json
 data/companies_house_subset.csv
 data/railways/
+data/OS Map/
+data/osm_derived/
 
 # Large GeoJSON source data
 _geojson/hotosm_gbr_buildings_polygons_geojson/

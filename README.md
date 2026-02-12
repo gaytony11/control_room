@@ -59,6 +59,23 @@ The following datasets ARE included and required for core functionality:
 - Police force areas (`data/police_force_areas_wgs84.geojson`)
 - Sample data files for testing
 
+### Large OSM PBF (Recommended Workflow)
+If you have `data/OS Map/great-britain-260211.osm.pbf`, do not load it in-browser.
+
+Generate small themed overlays instead:
+```bash
+pip install pyrosm geopandas shapely pyproj
+python scripts/build_osm_layers.py --pbf "data/OS Map/great-britain-260211.osm.pbf" --out "data/osm_derived" --simplify 25
+```
+
+This creates:
+- `data/osm_derived/gb_major_roads.geojson`
+- `data/osm_derived/gb_rail_lines.geojson`
+- `data/osm_derived/gb_places.geojson`
+- `data/osm_derived/manifest.json`
+
+These outputs are intentionally gitignored to keep the repository and GitHub Pages deployment lightweight.
+
 ## Installation
 
 1. Clone this repository:
