@@ -2782,6 +2782,53 @@ summary:focus-visible,
   filter: drop-shadow(0 0 4px rgba(56,189,248,0.35));
 }
 
+.rail-node-popup-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.rail-node-logo {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  border-radius: 5px;
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(148, 163, 184, 0.28);
+}
+
+.service-station-marker {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 10px rgba(0,0,0,0.45);
+  font-size: 9px;
+  font-weight: 700;
+  color: #e2e8f0;
+  background: #334155;
+}
+
+.service-station-fuel {
+  background: #f97316;
+}
+
+.service-station-charging {
+  background: #10b981;
+}
+
+.service-station-vehicle {
+  background: #3b82f6;
+}
+
+.service-station-truck {
+  background: #8b5cf6;
+}
+
 .os-rail-station-link {
   stroke-linecap: round;
   stroke-linejoin: round;

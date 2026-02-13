@@ -547,6 +547,13 @@ const layers = {
   underground:     L.featureGroup(),
   national_rail:   L.featureGroup(),
   roads:           L.featureGroup(),
+  service_stations: L.markerClusterGroup({
+    chunkedLoading: true,
+    maxClusterRadius: 42,
+    showCoverageOnHover: false,
+    spiderfyOnMaxZoom: true,
+    disableClusteringAtZoom: 12
+  }),
   os_roads:        L.featureGroup(),
   os_rail:         L.featureGroup(),
   flights:         L.featureGroup(),
@@ -3770,6 +3777,8 @@ const OVERLAY_LOAD_STATE = {
   airportsLoading: null,
   seaportsLoaded: false,
   seaportsLoading: null,
+  serviceStationsLoaded: false,
+  serviceStationsLoading: null,
   undergroundLoaded: false,
   undergroundLoading: null
 };
@@ -4102,6 +4111,94 @@ async function ensureSeaportsLoaded() {
       OVERLAY_LOAD_STATE.seaportsLoading = null;
     });
   return OVERLAY_LOAD_STATE.seaportsLoading;
+}
+
+function getServiceStationKind(feature = {}) {
+  const props = feature?.properties || {};
+  const amenity = String(props.amenity || "").toLowerCase();
+  if (amenity === "fuel") return "fuel";
+  if (amenity === "charging_station") return "charging";
+  if (amenity === "car_repair" || amenity === "car_wash") return "vehicle";
+  if (amenity === "truck_stop") return "truck";
+  return "general";
+}
+
+function serviceStationIcon(kind = "general") {
+  const symbol = kind === "fuel" ? "F" :
+    kind === "charging" ? "EV" :
+    kind === "vehicle" ? "R" :
+    kind === "truck" ? "T" : "S";
+  return L.divIcon({
+    className: `service-station-marker service-station-${kind}`,
+    html: `<span>${symbol}</span>`,
+    iconSize: [22, 22],
+    iconAnchor: [11, 11],
+    popupAnchor: [0, -12]
+  });
+}
+
+function buildServiceStationPopupHtml(feature = {}) {
+  const props = feature?.properties || {};
+  const name = String(props.name || "").trim() || "Service Point";
+  const amenity = String(props.amenity || "unknown");
+  const opening = String(props["opening_hours"] || "").trim();
+  const city = String(props["addr:city"] || "").trim();
+  const street = String(props["addr:street"] || "").trim();
+  const address = [street, city].filter(Boolean).join(", ");
+  return (
+    `<strong>${escapeHtml(name)}</strong><br>` +
+    `<span class="popup-label">Type</span> ${escapeHtml(amenity)}<br>` +
+    (address ? `<span class="popup-label">Area</span> ${escapeHtml(address)}<br>` : "") +
+    (opening ? `<span class="popup-label">Hours</span> ${escapeHtml(opening)}<br>` : "") +
+    `<span class="popup-label">Source</span> OSM POI`
+  );
+}
+
+async function ensureServiceStationsLoaded() {
+  if (OVERLAY_LOAD_STATE.serviceStationsLoaded) return true;
+  if (OVERLAY_LOAD_STATE.serviceStationsLoading) return OVERLAY_LOAD_STATE.serviceStationsLoading;
+
+  OVERLAY_LOAD_STATE.serviceStationsLoading = fetch("data/geojson/gbr_points_of_interest_points_geojson.geojson")
+    .then((r) => r.json())
+    .then((data) => {
+      const features = Array.isArray(data?.features) ? data.features : [];
+      const selected = features.filter((f) => {
+        const amenity = String(f?.properties?.amenity || "").toLowerCase();
+        return amenity === "fuel" ||
+          amenity === "charging_station" ||
+          amenity === "car_repair" ||
+          amenity === "car_wash" ||
+          amenity === "truck_stop";
+      });
+
+      if (!selected.length) {
+        setStatus("No service station features found in POI dataset.");
+        return false;
+      }
+
+      selected.forEach((f) => {
+        const coords = f?.geometry?.coordinates;
+        if (!Array.isArray(coords) || coords.length < 2) return;
+        const lon = Number(coords[0]);
+        const lat = Number(coords[1]);
+        if (!Number.isFinite(lat) || !Number.isFinite(lon)) return;
+        const kind = getServiceStationKind(f);
+        const marker = L.marker([lat, lon], { icon: serviceStationIcon(kind) });
+        marker.bindPopup(buildServiceStationPopupHtml(f));
+        layers.service_stations.addLayer(marker);
+      });
+      OVERLAY_LOAD_STATE.serviceStationsLoaded = true;
+      setStatus(`Service stations loaded (${selected.length}).`);
+      return true;
+    })
+    .catch((e) => {
+      console.warn("Service stations:", e);
+      return false;
+    })
+    .finally(() => {
+      OVERLAY_LOAD_STATE.serviceStationsLoading = null;
+    });
+  return OVERLAY_LOAD_STATE.serviceStationsLoading;
 }
 
 const OS_DERIVED_STATE = {
@@ -5192,20 +5289,78 @@ function renderStaticRailPolylineOverlay() {
   }
 
   if (zoom < 7) return;
+  renderRailNodes(stations, bounds, zoom);
+}
+
+const NATIONAL_RAIL_LOGO_PATH = "gfx/rail_logos/Logos/NRE_Powered_logo.png";
+
+function normalizeRailNodeName(raw) {
+  return String(raw || "").trim() || "Rail Node";
+}
+
+function getRailNodeKind(name) {
+  const n = String(name || "").toLowerCase();
+  if (n.includes("station")) return "station";
+  if (n.includes("junction") || n.includes("jcn")) return "junction";
+  if (n.includes("tunnel")) return "tunnel";
+  if (n.includes("viaduct")) return "viaduct";
+  if (n.includes("line") || n.includes("branch")) return "line";
+  return "node";
+}
+
+function chooseRailNodeSample(stations, bounds, zoom) {
+  const cellSize = zoom >= 11 ? 0.015 : (zoom >= 9 ? 0.026 : 0.04);
+  const buckets = new Map();
   for (const s of stations) {
     const lat = Number(s?.lat);
     const lon = Number(s?.lon);
     if (!Number.isFinite(lat) || !Number.isFinite(lon)) continue;
     if (!bounds.contains([lat, lon])) continue;
+    const key = `${Math.round(lat / cellSize)}:${Math.round(lon / cellSize)}`;
+    const candidateName = normalizeRailNodeName(s?.name);
+    const candidateScore = /station|junction|interchange/i.test(candidateName) ? 2 : 1;
+    const prev = buckets.get(key);
+    if (!prev || candidateScore > prev.score) {
+      buckets.set(key, { score: candidateScore, station: s });
+    }
+  }
+  return Array.from(buckets.values()).map((v) => v.station);
+}
+
+function buildRailNodePopupHtml(node) {
+  const lat = Number(node?.lat);
+  const lon = Number(node?.lon);
+  const name = normalizeRailNodeName(node?.name);
+  const kind = getRailNodeKind(name);
+  const typeLabel = kind.charAt(0).toUpperCase() + kind.slice(1);
+  return (
+    `<div class="rail-node-popup">` +
+      `<div class="rail-node-popup-head">` +
+        `<img src="${NATIONAL_RAIL_LOGO_PATH}" alt="National Rail" class="rail-node-logo" loading="lazy">` +
+        `<strong>${escapeHtml(name)}</strong>` +
+      `</div>` +
+      `<span class="popup-label">Category</span> ${escapeHtml(typeLabel)}<br>` +
+      `<span class="popup-label">Coordinates</span> ${lat.toFixed(5)}, ${lon.toFixed(5)}` +
+    `</div>`
+  );
+}
+
+function renderRailNodes(stations, bounds, zoom) {
+  const sampled = chooseRailNodeSample(stations, bounds, zoom);
+  for (const s of sampled) {
+    const lat = Number(s?.lat);
+    const lon = Number(s?.lon);
+    if (!Number.isFinite(lat) || !Number.isFinite(lon)) continue;
     const marker = L.circleMarker([lat, lon], {
-      radius: zoom >= 10 ? 3 : 2.4,
+      radius: zoom >= 10 ? 3.4 : 2.6,
       color: "#e0f2fe",
       fillColor: "#38bdf8",
       fillOpacity: 0.88,
-      weight: 1.2,
+      weight: 1.25,
       className: "os-rail-static-node"
     }).addTo(OS_DERIVED_STATE.railLayer);
-    if (s.name && zoom >= 10) marker.bindTooltip(escapeHtml(s.name), { sticky: true, opacity: 0.82 });
+    marker.bindPopup(buildRailNodePopupHtml(s));
+    if (s.name && zoom >= 10) marker.bindTooltip(escapeHtml(normalizeRailNodeName(s.name)), { sticky: true, opacity: 0.82 });
   }
 }
 
@@ -5331,21 +5486,7 @@ function renderStaticRailOverlay() {
   applyOsRailSelectionStyles();
 
   if (zoom < 7) return;
-  for (const s of stations) {
-    const lat = Number(s?.lat);
-    const lon = Number(s?.lon);
-    if (!Number.isFinite(lat) || !Number.isFinite(lon)) continue;
-    if (!bounds.contains([lat, lon])) continue;
-    const marker = L.circleMarker([lat, lon], {
-      radius: zoom >= 10 ? 3 : 2.4,
-      color: "#e0f2fe",
-      fillColor: "#38bdf8",
-      fillOpacity: 0.88,
-      weight: 1.2,
-      className: "os-rail-static-node"
-    }).addTo(OS_DERIVED_STATE.railLayer);
-    if (s.name && zoom >= 10) marker.bindTooltip(escapeHtml(s.name), { sticky: true, opacity: 0.82 });
-  }
+  renderRailNodes(stations, bounds, zoom);
 
   // No synthetic nearest-station links in static rail mode:
   // they can create patchy diagonals and inconsistent line coloring.
@@ -7085,7 +7226,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   function applyLayerPreset(preset) {
     const presets = {
-      transport: new Set(["companies", "airports_uk", "seaports", "underground", "national_rail", "roads", "os_roads", "os_rail"]),
+      transport: new Set(["companies", "airports_uk", "seaports", "underground", "national_rail", "roads", "service_stations", "os_roads", "os_rail"]),
       intel: new Set(["companies", "areas", "airports_uk", "underground", "flights", "roads"]),
       clear: new Set(["companies"])
     };
@@ -7160,6 +7301,10 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
         if (cb.checked && layerId === "seaports") {
           await ensureSeaportsLoaded();
+        }
+        if (cb.checked && layerId === "service_stations") {
+          const ok = await ensureServiceStationsLoaded();
+          if (!ok) { cb.checked = false; return; }
         }
         if (cb.checked && layerId === "underground") {
           const ok = await ensureUndergroundLoaded();
