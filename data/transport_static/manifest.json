@@ -1,9 +1,0 @@
-{
-  "roads_routes": 3500,
-  "rail_routes": 4200,
-  "rail_nodes": 2200,
-  "source": {
-    "roads": "data\\osm_derived\\gb_major_roads_lite.geojson",
-    "rail": "data\\osm_derived\\gb_rail_lines_lite.geojson"
-  }
-}

@@ -110,6 +110,19 @@ These outputs are intentionally gitignored to keep the repository and GitHub Pag
    ```
 
 4. Access at `http://localhost:8000`
+5. Windows quick start: double-click `start_control_room.bat`
+
+### Troubleshooting: CORS / overlay load failures
+
+If you see errors like:
+- `Access to fetch at 'file:///.../data/...json' from origin 'null' has been blocked by CORS policy`
+- `Failed to load resource: net::ERR_FAILED`
+
+You opened `index.html` directly from disk (`file://`), which blocks all local `fetch()` requests in the browser.
+
+Fix:
+1. Run `python scripts/dev_server.py`
+2. Open `http://localhost:8000` (not the file path)
 
 ## Hosted (No Local Server)
 

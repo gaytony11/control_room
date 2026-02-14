@@ -1,4 +1,0 @@
-A_FROM_Entity,B_TO_Entity,C_DIVERT_Entity,Type,DayName,MessageContent,StartDateandTime,EndDateandTime,Duration
-447700900001,447700900002,,Voice,Monday,Call from A to B,01/02/2026 10:00:00,01/02/2026 10:05:00,00:05:00
-447700900001,447700900002,,Voice,Monday,Call from A to B duplicate,01/02/2026 10:00:00,01/02/2026 10:05:00,00:05:00
-447700900003,447700900004,,SMS,Tuesday,Message from C to D,02/02/2026 11:00:00,02/02/2026 11:00:30,00:00:30

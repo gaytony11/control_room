@@ -1,4 +1,0 @@
-Brotli
-pytest
-requests
-beautifulsoup4

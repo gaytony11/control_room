@@ -555,7 +555,6 @@ const layers = {
     disableClusteringAtZoom: 12
   }),
   os_roads:        L.featureGroup(),
-  os_rail:         L.featureGroup(),
   flights:         L.featureGroup(),
   bikes:           L.featureGroup()
 };
@@ -5565,100 +5564,6 @@ async function loadOsRoadOverlay() {
   }
 }
 
-async function loadOsRailOverlay() {
-  if (OS_DERIVED_STATE.railLoaded || OS_DERIVED_STATE.railFailed) return;
-  if (map.getZoom() < 6) {
-    setStatus("Zoom in to level 6+ to load UK rail network overlay.");
-    return;
-  }
-  try {
-    // Rebuilt pipeline: prefer full osm_derived lite GeoJSON first.
-    // Core/polyline packs remain fallback only.
-    const railGeo = await fetchGeoJsonFromCandidates([
-      "data/osm_derived/gb_rail_lines_lite.geojson"
-    ]);
-    if (railGeo?.data?.type === "FeatureCollection") {
-      const staticStations = await fetchJsonFromCandidates(["data/transport_static/rail_stations_core.json"]);
-      const staticStationPayload = (staticStations && typeof staticStations.data === "object" && staticStations.data)
-        ? staticStations.data
-        : staticStations;
-      OS_DERIVED_STATE.railData = { routes: extractRoutesFromGeoJson(railGeo.data, "rail") };
-      OS_DERIVED_STATE.railMergedRoutes = [];
-      OS_DERIVED_STATE.railPolylineSegments = [];
-      OS_DERIVED_STATE.railPolylineMode = false;
-      OS_DERIVED_STATE.railStationData = (staticStationPayload && Array.isArray(staticStationPayload.stations))
-        ? staticStationPayload
-        : { stations: [] };
-      OS_DERIVED_STATE.railLayer = L.featureGroup().addTo(layers.os_rail);
-      OS_DERIVED_STATE.railLoaded = true;
-      OS_DERIVED_STATE.railStatic = true;
-      OS_DERIVED_STATE.railStaticRenderSig = "";
-      console.info(`[os_rail] using dataset: ${railGeo.path}`);
-      renderStaticRailOverlay();
-      markLayerAsStaticMode("os_rail", "osm_derived");
-      setStatus("UK rail network loaded.");
-      return;
-    }
-
-    const staticRail = await fetchJsonFromCandidates([
-      "data/transport_static/rail_core.json",
-      "data/transport_static/uk-lines.json"
-    ]);
-    const staticRailPayload = (staticRail && typeof staticRail.data === "object" && staticRail.data)
-      ? staticRail.data
-      : staticRail;
-    if (staticRail?.path) console.info(`[os_rail] using dataset: ${staticRail.path}`);
-    if (staticRailPayload && Array.isArray(staticRailPayload.polylines) && staticRailPayload.polylines.length) {
-      const staticStations = await fetchJsonFromCandidates(["data/transport_static/rail_stations_core.json"]);
-      const staticStationPayload = (staticStations && typeof staticStations.data === "object" && staticStations.data)
-        ? staticStations.data
-        : staticStations;
-      OS_DERIVED_STATE.railData = { routes: [] };
-      OS_DERIVED_STATE.railMergedRoutes = [];
-      OS_DERIVED_STATE.railPolylineSegments = buildStaticPolylineSegments(staticRailPayload, "rail");
-      OS_DERIVED_STATE.railPolylineMode = true;
-      OS_DERIVED_STATE.railStationData = (staticStationPayload && Array.isArray(staticStationPayload.stations))
-        ? staticStationPayload
-        : { stations: [] };
-      OS_DERIVED_STATE.railLayer = L.featureGroup().addTo(layers.os_rail);
-      OS_DERIVED_STATE.railLoaded = true;
-      OS_DERIVED_STATE.railStatic = true;
-      OS_DERIVED_STATE.railStaticRenderSig = "";
-      renderStaticRailOverlay();
-      markLayerAsStaticMode("os_rail");
-      setStatus("UK rail network loaded (UK polyline pack).");
-      return;
-    }
-    if (staticRailPayload && Array.isArray(staticRailPayload.routes) && staticRailPayload.routes.length) {
-      const staticStations = await fetchJsonFromCandidates(["data/transport_static/rail_stations_core.json"]);
-      const staticStationPayload = (staticStations && typeof staticStations.data === "object" && staticStations.data)
-        ? staticStations.data
-        : staticStations;
-      OS_DERIVED_STATE.railData = staticRailPayload;
-      OS_DERIVED_STATE.railMergedRoutes = mergeStaticRailRoutes(staticRailPayload.routes || []);
-      OS_DERIVED_STATE.railPolylineSegments = [];
-      OS_DERIVED_STATE.railPolylineMode = false;
-      OS_DERIVED_STATE.railStationData = (staticStationPayload && Array.isArray(staticStationPayload.stations))
-        ? staticStationPayload
-        : { stations: [] };
-      OS_DERIVED_STATE.railLayer = L.featureGroup().addTo(layers.os_rail);
-      OS_DERIVED_STATE.railLoaded = true;
-      OS_DERIVED_STATE.railStatic = true;
-      OS_DERIVED_STATE.railStaticRenderSig = "";
-      renderStaticRailOverlay();
-      markLayerAsStaticMode("os_rail");
-      setStatus("UK rail network loaded (static core).");
-      return;
-    }
-    throw new Error("Missing data/transport_static/rail_core.json routes payload");
-  } catch (err) {
-    OS_DERIVED_STATE.railFailed = true;
-    console.warn("UK rail network overlay unavailable:", err);
-    markOsDerivedLayerUnavailable("os_rail", "Static UK rail network data is not available.");
-    setStatus("UK rail network data unavailable");
-  }
-}
-
 // TfL (Transport for London) ALL stations - Underground, DLR, Overground, Tram, Rail
 
 // Map line names to roundel logo files
@@ -6367,10 +6272,6 @@ async function addPersonToMap(officerName, address, companies = [], options = {}
 map.on("moveend zoomend", () => {
   if (map.hasLayer(layers.os_roads) && OS_DERIVED_STATE.roadsLoaded) {
     renderStaticRoadOverlay();
-  }
-  if (map.hasLayer(layers.os_rail) && OS_DERIVED_STATE.railLoaded) {
-    if (OS_DERIVED_STATE.railStatic) renderStaticRailOverlay();
-    else scheduleOsRailViewportRender();
   }
 });
 
@@ -7203,7 +7104,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   const layerPresetIntelBtn = document.getElementById("layer-preset-intel");
   const layerPresetClearBtn = document.getElementById("layer-preset-clear");
 
-  function openUkRailVectorView() {
+  function openUkRailVectorView(options = {}) {
+    const sameTab = options && options.sameTab === true;
     const center = map.getCenter();
     const zoom = map.getZoom();
     const qs = new URLSearchParams();
@@ -7212,6 +7114,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     qs.set("lat", center.lat.toFixed(5));
     qs.set("z", String(Math.max(5, Math.round(zoom))));
     const href = `index.html?${qs.toString()}`;
+    if (sameTab) {
+      window.location.assign(href);
+      return;
+    }
     window.open(href, "_blank", "noopener,noreferrer");
     showToast("Opened UK Rail Vector view", "success", 1800);
   }
@@ -7226,7 +7132,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   function applyLayerPreset(preset) {
     const presets = {
-      transport: new Set(["companies", "airports_uk", "seaports", "underground", "national_rail", "roads", "service_stations", "os_roads", "os_rail"]),
+      transport: new Set(["companies", "airports_uk", "seaports", "underground", "national_rail", "roads", "service_stations", "os_roads"]),
       intel: new Set(["companies", "areas", "airports_uk", "underground", "flights", "roads"]),
       clear: new Set(["companies"])
     };
@@ -7249,9 +7155,9 @@ document.addEventListener("DOMContentLoaded", async () => {
       showToast("Refreshing service health checks", "info");
     }
   });
-  quickLayerMapLibreBtn?.addEventListener("click", openUkRailVectorView);
-  cpOpenMaplibreBtn?.addEventListener("click", openUkRailVectorView);
-  openMaplibreRailBtn?.addEventListener("click", openUkRailVectorView);
+  quickLayerMapLibreBtn?.addEventListener("click", () => openUkRailVectorView({ sameTab: true }));
+  cpOpenMaplibreBtn?.addEventListener("click", () => openUkRailVectorView({ sameTab: true }));
+  openMaplibreRailBtn?.addEventListener("click", () => openUkRailVectorView({ sameTab: true }));
   layerPresetTransportBtn?.addEventListener("click", () => applyLayerPreset("transport"));
   layerPresetIntelBtn?.addEventListener("click", () => applyLayerPreset("intel"));
   layerPresetClearBtn?.addEventListener("click", () => applyLayerPreset("clear"));
@@ -7290,6 +7196,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     cb.addEventListener("change", async () => {
       try {
         const layerId = cb.dataset.layer;
+        if (cb.checked && layerId === "os_rail") {
+          cb.checked = false;
+          openUkRailVectorView({ sameTab: true });
+          setStatus("Opening UK Rail Vector view...");
+          return;
+        }
         const layer = layers[layerId];
         if (!layer) return;
         if (cb.checked && layerId === "areas") {
@@ -7317,14 +7229,6 @@ document.addEventListener("DOMContentLoaded", async () => {
             return;
           }
           await loadOsRoadOverlay();
-        }
-        if (cb.checked && cb.dataset.layer === "os_rail") {
-          if (map.getZoom() < 6) {
-            cb.checked = false;
-            setStatus("Zoom in to level 6+ before enabling UK rail network.");
-            return;
-          }
-          await loadOsRailOverlay();
         }
         if (cb.checked) { layer.addTo(map); }
         else { map.removeLayer(layer); }

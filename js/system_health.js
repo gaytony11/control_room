@@ -47,6 +47,9 @@ function renderSystemHealth(items) {
 }
 
 async function runSystemHealthChecks() {
+  const activeTab = String(window.__CONTROL_ROOM_ACTIVE_TAB || "").toLowerCase();
+  if (activeTab && activeTab !== "layers") return;
+
   const tests = [
     ["TfL API", "/tfl/Line/Mode/tube/Status", 200],
     ["WebTRIS Roads", "/webtris/v1.0/sites", 200],
@@ -63,18 +66,15 @@ async function runSystemHealthChecks() {
   renderSystemHealth(results);
 }
 
-function initMobilePanelToggle() {
-  const btn = document.getElementById("mobile-panel-toggle");
-  const panel = document.getElementById("control-panel");
-  if (!btn || !panel) return;
-  btn.addEventListener("click", () => {
-    panel.classList.toggle("mobile-hidden");
-    btn.textContent = panel.classList.contains("mobile-hidden") ? "Open" : "Panel";
-  });
-}
+window.runSystemHealthChecksNow = runSystemHealthChecks;
 
 document.addEventListener("DOMContentLoaded", () => {
-  initMobilePanelToggle();
-  runSystemHealthChecks();
+  if (String(window.__CONTROL_ROOM_ACTIVE_TAB || "search").toLowerCase() === "layers") {
+    runSystemHealthChecks();
+  }
   setInterval(runSystemHealthChecks, 120000);
+  document.addEventListener("controlroom:tabchange", (e) => {
+    const tab = String(e?.detail?.tab || "").toLowerCase();
+    if (tab === "layers") runSystemHealthChecks();
+  });
 });

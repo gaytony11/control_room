@@ -3,6 +3,39 @@
 <head>
     <meta charset="utf-8" />
     <title>Control Room - MapLibre Preview</title>
+    <script>
+    (function blockFileProtocolMode() {
+        if (window.location.protocol !== "file:") return;
+        const localBase = "http://localhost:8000";
+        const localUrl = localBase + "/index_maplibre_preview.html" + window.location.search + window.location.hash;
+        document.open();
+        document.write(
+            "<!doctype html><html lang='en'><head><meta charset='utf-8'><title>Control Room - Start Local Server</title>" +
+            "<meta name='viewport' content='width=device-width, initial-scale=1'>" +
+            "<style>" +
+            "body{margin:0;font-family:Segoe UI,Arial,sans-serif;background:#0f172a;color:#e2e8f0;display:grid;place-items:center;min-height:100vh;padding:20px;}" +
+            ".card{max-width:760px;background:#111827;border:1px solid #334155;border-radius:14px;padding:22px;box-shadow:0 20px 50px rgba(0,0,0,.35);}" +
+            "h1{margin:0 0 10px;font-size:22px;}p{line-height:1.45;margin:8px 0 0;}" +
+            "code{background:#0b1220;border:1px solid #334155;border-radius:6px;padding:2px 6px;}" +
+            ".cmd{margin-top:12px;background:#0b1220;border:1px solid #334155;border-radius:8px;padding:10px 12px;font-family:Consolas,monospace;}" +
+            ".row{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;}" +
+            "a{display:inline-block;text-decoration:none;background:#2563eb;color:#fff;padding:10px 14px;border-radius:8px;font-weight:600;}" +
+            ".pill{display:inline-block;padding:4px 10px;border-radius:999px;border:1px solid #334155;background:#0b1220;font-size:12px;}" +
+            ".muted{opacity:.85;font-size:14px;margin-top:10px;}" +
+            "</style></head><body><main class='card'>" +
+            "<h1>Run MapLibre preview over HTTP</h1>" +
+            "<p>Preview pages opened as <code>file://</code> cannot load local data due to browser CORS restrictions.</p>" +
+            "<p>Start the included server from this project folder:</p>" +
+            "<div class='cmd'>python scripts/dev_server.py</div>" +
+            "<div class='row'><a href='" + localUrl + "'>Open http://localhost:8000</a><span id='cr-server-status' class='pill'>Checking localhost...</span></div>" +
+            "<p class='muted'>This page auto-redirects when the local server responds.</p>" +
+            "<script>(function(){var health='" + localBase + "/__control_room_health';var target='" + localUrl + "';var badge=document.getElementById('cr-server-status');function setLabel(t){if(badge)badge.textContent=t;}function ping(){fetch(health,{cache:'no-store'}).then(function(r){if(r.ok){setLabel('Server online. Redirecting...');window.location.replace(target);}else{setLabel('Server not reachable');setTimeout(ping,1200);}}).catch(function(){setLabel('Server not reachable');setTimeout(ping,1200);});}ping();})();<\/script>" +
+            "</main></body></html>"
+        );
+        document.close();
+        throw new Error("MapLibre preview must run over http://localhost:8000, not file://");
+    })();
+    </script>
 
     <link href="https://unpkg.com/maplibre-gl@latest/dist/maplibre-gl.css" rel="stylesheet">
     <script src="https://unpkg.com/maplibre-gl@latest/dist/maplibre-gl.js"></script>
@@ -73,6 +106,7 @@
     <script>
     const ormConfig = {
         baseStyle: "http://localhost:8080/styles/basic-preview/style.json",
+        fallbackBaseStyle: "https://demotiles.maplibre.org/style.json",
         sourceBase: "https://openrailwaymap.app",
         lowSourcePath: "/standard_railway_line_low",
         highSourcePath: "/railway_line_high"
@@ -136,6 +170,7 @@
     }
 
     function setRailOverlayVisible(enabled) {
+        if (!map) return;
         for (const id of Object.values(railLayerIds)) {
             if (!map.getLayer(id)) continue;
             map.setLayoutProperty(id, "visibility", railVisibilityMode(enabled && railOverlayHealthy));
@@ -158,6 +193,25 @@
         } catch (_) {
             return false;
         }
+    }
+
+    async function canReachStyle(url, timeoutMs = 1500) {
+        try {
+            const controller = new AbortController();
+            const timer = setTimeout(() => controller.abort(), timeoutMs);
+            const resp = await fetch(url, { method: "GET", cache: "no-store", signal: controller.signal });
+            clearTimeout(timer);
+            return !!resp.ok;
+        } catch (_) {
+            return false;
+        }
+    }
+
+    async function resolveBaseStyle() {
+        const localOk = await canReachStyle(ormConfig.baseStyle);
+        if (localOk) return ormConfig.baseStyle;
+        setRailStatus("Local vector base style unavailable. Using fallback style.", "info");
+        return ormConfig.fallbackBaseStyle;
     }
 
     async function addRailOverlay() {
@@ -231,39 +285,44 @@
         setRailOverlayVisible(document.getElementById("rail-vector-toggle")?.checked !== false);
     }
 
-    const map = new maplibregl.Map({
-        container: "map",
-        style: ormConfig.baseStyle,
-        center: startCenter,
-        zoom: startZoom,
-        minZoom: 5,
-        maxZoom: 20,
-        maxBounds: ukBounds
-    });
+    let map = null;
 
-    map.addControl(new maplibregl.NavigationControl(), "top-right");
-    map.addControl(new maplibregl.AttributionControl({
-        compact: true,
-        customAttribution: '<a href="https://github.com/hiddewie/OpenRailwayMap-vector" target="_blank" rel="noopener noreferrer">OpenRailwayMap-vector</a> | <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap contributors</a>'
-    }));
+    (async function initMap() {
+        const resolvedStyle = await resolveBaseStyle();
+        map = new maplibregl.Map({
+            container: "map",
+            style: resolvedStyle,
+            center: startCenter,
+            zoom: startZoom,
+            minZoom: 5,
+            maxZoom: 20,
+            maxBounds: ukBounds
+        });
 
-    map.on("load", async () => {
-        if (!hasRequestedView) {
-            map.fitBounds(ukBounds, { padding: 28, duration: 0 });
-        }
-        await addRailOverlay();
-    });
+        map.addControl(new maplibregl.NavigationControl(), "top-right");
+        map.addControl(new maplibregl.AttributionControl({
+            compact: true,
+            customAttribution: '<a href="https://github.com/hiddewie/OpenRailwayMap-vector" target="_blank" rel="noopener noreferrer">OpenRailwayMap-vector</a> | <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap contributors</a>'
+        }));
 
-    map.on("error", (ev) => {
-        const sourceId = String(ev?.error?.sourceId || "");
-        if (!sourceId.includes("cr-orm-rail")) return;
-        railOverlayHealthy = false;
-        setRailOverlayVisible(false);
-    });
+        map.on("load", async () => {
+            if (!hasRequestedView) {
+                map.fitBounds(ukBounds, { padding: 28, duration: 0 });
+            }
+            await addRailOverlay();
+        });
 
-    document.getElementById("rail-vector-toggle")?.addEventListener("change", (e) => {
-        setRailOverlayVisible(!!e.target.checked);
-    });
+        map.on("error", (ev) => {
+            const sourceId = String(ev?.error?.sourceId || "");
+            if (!sourceId.includes("cr-orm-rail")) return;
+            railOverlayHealthy = false;
+            setRailOverlayVisible(false);
+        });
+
+        document.getElementById("rail-vector-toggle")?.addEventListener("change", (e) => {
+            setRailOverlayVisible(!!e.target.checked);
+        });
+    })();
     </script>
 </body>
 </html>

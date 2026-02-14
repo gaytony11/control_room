@@ -725,6 +725,16 @@ class Handler(SimpleHTTPRequestHandler):
         }
 
     def do_GET(self):
+        if self.path.startswith("/__control_room_health"):
+            self._send_json(
+                {
+                    "ok": True,
+                    "service": "control-room-dev-server",
+                    "ts": int(time.time()),
+                }
+            )
+            return
+
         if self.path.startswith("/ch/"):
             api_key = os.environ.get("CH_API_KEY", "").strip()
             if not api_key:
