@@ -1801,6 +1801,7 @@ const ICON_CATEGORIES = {
     ]
   }
 };
+window.ICON_CATEGORIES = ICON_CATEGORIES;
 
 // Suggest icon based on entity name
 function suggestIcon(name, category = null) {
@@ -2201,7 +2202,7 @@ function buildEntityPopup(entityId, entity) {
       String(entity.officerRole || "");
     const detailRows = [];
     if (entity.address) detailRows.push(`<span class="popup-label">Address</span> ${escapeHtml(entity.address)}`);
-    if (entity.notes) detailRows.push(`<span class="popup-label">Notes</span> ${escapeHtml(entity.notes)}`);
+    if (entity.notes) detailRows.push(`<span class="popup-label">Notes</span> ${escapeHtml(entity.notes).replace(/\n/g, '<br>')}`);
     if (role) detailRows.push(`<span class="popup-label">Role</span> ${escapeHtml(role)}`);
     detailRows.push(`<span class="popup-label">Lat/Lng</span> ${entity.latLng[0].toFixed(5)}, ${entity.latLng[1].toFixed(5)}`);
     return `
@@ -2229,7 +2230,7 @@ function buildEntityPopup(entityId, entity) {
     ${vehicleMediaHtml}
     <span class="popup-label">Type</span> <span class="popup-tag" style="background:${entity.iconData.categoryColor || entity.iconData.color};">${escapeHtml(entity.iconData.categoryName || entity.iconData.name)}</span><br>
     ${entity.address ? `<span class="popup-label">Address</span> ${escapeHtml(entity.address)}<br>` : ''}
-    ${entity.notes ? `<span class="popup-label">Notes</span> ${escapeHtml(entity.notes)}<br>` : ''}
+    ${entity.notes ? `<span class="popup-label">Notes</span> ${escapeHtml(entity.notes).replace(/\n/g, '<br>')}<br>` : ''}
     <span class="popup-label">Lat/Lng</span> ${entity.latLng[0].toFixed(5)}, ${entity.latLng[1].toFixed(5)}
     ${formatI2EntitySummary(entity.i2EntityData)}
     <div class="popup-btn-row">
@@ -5536,8 +5537,13 @@ document.addEventListener("DOMContentLoaded", async () => {
         const rows = await readSpreadsheetRows(file);
         await importEntitiesFromRows(rows);
       } else if (["csv", "tsv", "txt"].includes(ext)) {
-        const rows = await readDelimitedRows(file);
-        await importEntitiesFromRows(rows);
+        const text = await file.text();
+        if (window.IntelImport?.detectIntelReport(text)) {
+          await window.IntelImport.importFromText(text, file.name);
+        } else {
+          const rows = parseDelimitedRows(text, detectDelimiter(text));
+          await importEntitiesFromRows(rows);
+        }
       } else if (["geojson"].includes(ext)) {
         await importGeoJsonFile(file);
       } else if (["json"].includes(ext)) {

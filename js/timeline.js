@@ -55,6 +55,22 @@
           label: `Resigned: ${e.label}`, entityId: e.id, color: "#f59e0b"
         });
       }
+      // Intel import dates (Flight Date, Offence Date, etc.)
+      const intelDateFields = [
+        { field: "Flight Date", type: "intel", color: "#38bdf8", prefix: "Flight" },
+        { field: "Offence Date", type: "intel", color: "#ef4444", prefix: "Offence" },
+        { field: "Intel Date", type: "intel", color: "#f43f5e", prefix: "Intel" },
+        { field: "Date of Birth", type: "birth", color: "#a78bfa", prefix: "Born" }
+      ];
+      for (const df of intelDateFields) {
+        const dVal = parseFlexibleDate(i2.values?.[df.field] || "");
+        if (dVal) {
+          events.push({
+            id: `${df.type}_${df.field}_${e.id}`, date: dVal, type: df.type,
+            label: `${df.prefix}: ${e.label}`, entityId: e.id, color: df.color
+          });
+        }
+      }
       // Entity creation time (always present)
       const createdMs = parseInt(e.id.replace(/^entity_/, "").split("_")[0]);
       if (createdMs && createdMs > 1000000000000) {

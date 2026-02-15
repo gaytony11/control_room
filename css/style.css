@@ -5304,3 +5304,144 @@ button.flight-filter-item span {
   #control-panel { top: 48px !important; }
   .intel-report-row-3 { grid-template-columns: 1fr; }
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   Intel Report Import — Summary Modal
+   ═══════════════════════════════════════════════════════════════ */
+.intel-import-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 12000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(4px);
+}
+.intel-import-modal-content {
+  background: #1a1d23;
+  border: 1px solid #2d3748;
+  border-radius: 12px;
+  padding: 28px 32px;
+  max-width: 520px;
+  width: 92vw;
+  color: #e2e8f0;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+}
+.iis-header { text-align: center; margin-bottom: 20px; }
+.iis-title {
+  font-family: 'Bahnschrift', 'Segoe UI', sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+  color: #6366f1;
+  letter-spacing: 0.5px;
+}
+.iis-ref {
+  font-family: 'Bahnschrift Light', 'Segoe UI', sans-serif;
+  font-size: 13px;
+  color: #94a3b8;
+  margin-top: 4px;
+}
+.iis-date { font-size: 12px; color: #64748b; margin-top: 2px; }
+.iis-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: 18px;
+}
+.iis-stat {
+  background: #0f1218;
+  border: 1px solid #2d3748;
+  border-radius: 8px;
+  padding: 10px 6px;
+  text-align: center;
+}
+.iis-value {
+  font-family: 'Bahnschrift', sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: #6366f1;
+  line-height: 1.1;
+}
+.iis-label {
+  font-size: 10px;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 4px;
+}
+.iis-gradings {
+  background: #0f1218;
+  border: 1px solid #2d3748;
+  border-radius: 8px;
+  padding: 12px 14px;
+  font-size: 12px;
+  color: #cbd5e1;
+  line-height: 1.6;
+  margin-bottom: 12px;
+}
+.iis-gradings-title {
+  font-weight: 600;
+  color: #6366f1;
+  margin-bottom: 8px;
+  font-size: 13px;
+}
+.iis-grading-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 0;
+  flex-wrap: wrap;
+}
+.iis-grading-num {
+  color: #64748b;
+  font-weight: 600;
+  min-width: 18px;
+}
+.iis-grading-code {
+  display: inline-block;
+  background: #374151;
+  color: #f9fafb;
+  padding: 1px 6px;
+  border-radius: 3px;
+  font-weight: 700;
+  font-size: 11px;
+  font-family: monospace;
+  letter-spacing: 0.5px;
+}
+.iis-grading-decode {
+  font-size: 10px;
+  color: #94a3b8;
+  font-style: italic;
+}
+.iis-provenance {
+  font-size: 12px;
+  color: #f59e0b;
+  background: rgba(245,158,11,0.08);
+  border: 1px solid rgba(245,158,11,0.2);
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin-bottom: 16px;
+  line-height: 1.5;
+}
+.iis-close-btn {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  background: #6366f1;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-family: 'Bahnschrift', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.iis-close-btn:hover { background: #4f46e5; }
+
+#quick-intel-import {
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  color: #fff;
+  font-weight: 600;
+}
