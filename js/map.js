@@ -3262,7 +3262,7 @@ function showConnectionPopup(latlng, connectionId, label, metadata) {
       <span class="popup-label">Label</span> ${escapeHtml(label || 'No label')}<br>
       ${metadata.fromLabel ? `<span class="popup-label">From</span> ${escapeHtml(metadata.fromLabel)}<br>` : ''}
       ${metadata.toLabel ? `<span class="popup-label">To</span> ${escapeHtml(metadata.toLabel)}<br>` : ''}
-      ${metadata.hoverDetail ? `<span class="popup-label">Detail</span> ${escapeHtml(metadata.hoverDetail)}` : ''}
+      ${metadata.hoverDetail ? `<span class="popup-label">Detail</span> <div class="conn-detail-wrap">${metadata.hoverDetail}</div>` : ''}
       <div class="popup-btn-row">
         <button class="popup-psc-btn" onclick="editConnection('${connectionId}')">Edit Label</button>
         <button class="popup-psc-btn" onclick="removeConnection('${connectionId}')">Remove</button>

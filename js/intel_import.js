@@ -442,9 +442,12 @@
       const iconCat = isOffence ? "military" : "buildings";
       const iconId  = isOffence ? "mil_intel" : (isHome ? "house" : "building");
 
+      // Override displayed category for offence locations (military icon but "Crime Scene" label)
+      const iconOverrides = isOffence ? { categoryName: "Crime Scene" } : {};
+
       const eid = placeEntity(
         latLng,
-        makeIcon(iconCat, iconId, label),
+        { ...makeIcon(iconCat, iconId, label), ...iconOverrides },
         `${label} — ${addr.full}`,
         addr.full,
         isOffence ? `Offence: ${titleCase(offenceNote || "unknown")}` : "",
