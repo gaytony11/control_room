@@ -336,19 +336,19 @@ function buildPlanePopupHtml(flight, trail, schedule = null, routeCtx = null, de
   const depShown = depTime === "Unknown" ? "N/A" : depTime;
   const arrShown = arrTime === "Unknown" ? "N/A" : arrTime;
   const status = String(schedule?.flight?.status || details?.status?.text || "").trim() || (flight?.onGround ? "GROUND" : "AIR");
-  const subhead = [`DEP ${depShown}`, `ARR ${arrShown}`].join(" â€¢ ");
+  const subhead = [`DEP ${depShown}`, `ARR ${arrShown}`].join(" \u2022 ");
   const carrier = String(details?.airline?.name || details?.airline?.short || flight?.airline || "N/A");
   const aircraftModel = String(details?.aircraft?.model?.text || flight?.aircraft || "N/A");
   const routeTrack = Array.isArray(trail) && trail.length >= 2 ? `${trail.length} points` : "No trail yet";
   const altitudeText = Number.isFinite(flight?.alt) ? formatFeet(flight.alt) : "N/A";
   const speedText = Number.isFinite(flight?.speed) ? formatKnots(flight.speed) : "N/A";
-  const metaLine = `ALT ${altitudeText} â€¢ SPD ${speedText}`;
+  const metaLine = `ALT ${altitudeText} \u2022 SPD ${speedText}`;
   const routeLogosHtml =
     depLogo || arrLogo
       ? (
         `<div class="fb-route-logos">` +
           (depLogo ? `<img class="fb-airport-logo" src="${escapeHtml(depLogo)}" alt="${escapeHtml(depAirport)} logo" loading="lazy">` : `<span class="fb-airport-code">${escapeHtml(depCode)}</span>`) +
-          `<span class="fb-route-arrow">â†’</span>` +
+          `<span class="fb-route-arrow">\u2192</span>` +
           (arrLogo ? `<img class="fb-airport-logo" src="${escapeHtml(arrLogo)}" alt="${escapeHtml(arrAirport)} logo" loading="lazy">` : `<span class="fb-airport-code">${escapeHtml(arrCode)}</span>`) +
         `</div>`
       )
@@ -357,7 +357,7 @@ function buildPlanePopupHtml(flight, trail, schedule = null, routeCtx = null, de
   return (
     `<div class="flight-board">` +
       `<div class="fb-head">` +
-        `<span class="fb-title-text">${escapeHtml(`${depCode} -> ${arrCode} â€¢ ${idLabel}`)}</span>` +
+        `<span class="fb-title-text">${escapeHtml(`${depCode} -> ${arrCode} \u2022 ${idLabel}`)}</span>` +
         `<span class="fb-status">${escapeHtml(status)}</span>` +
       `</div>` +
       routeLogosHtml +
@@ -479,30 +479,7 @@ function ensureFlightDetailPanel() {
 }
 
 function ensureFlightInfoPanel() {
-  let panel = document.getElementById("flight-info");
-  if (panel) return panel;
-
-  panel = document.createElement("div");
-  panel.id = "flight-info";
-  panel.className = "flight-info-panel";
-  panel.style.display = "none";
-  panel.innerHTML =
-    `<div class="flight-info-header">` +
-      `<span>Live Flights</span>` +
-      `<button type="button" id="flight-refresh-btn" class="flight-refresh-btn">Refresh</button>` +
-      `<span id="flight-info-time" class="flight-info-time"></span>` +
-    `</div>` +
-    `<div id="flight-stats" class="flight-stats">` +
-      `<span class="flight-info-text">Enable layer to track aircraft</span>` +
-    `</div>`;
-
-  const mapEl = document.getElementById("map");
-  if (mapEl && mapEl.parentElement) {
-    mapEl.parentElement.appendChild(panel);
-  } else {
-    document.body.appendChild(panel);
-  }
-  return panel;
+  return null;
 }
 
 function openFlightDetailPanel(flight, trail, schedule = null, routeCtx = null, details = null) {
@@ -872,13 +849,13 @@ function buildAirportIntelPopup(airport) {
 window.buildAirportIntelPopup = buildAirportIntelPopup;
 window.focusFlightIcao = focusFlight;
 
-// Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+// -------------------------------------------------------
 // ALTITUDE -> COLOUR
-// Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+// -------------------------------------------------------
 
-// Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+// -------------------------------------------------------
 // API FETCH
-// Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+// -------------------------------------------------------
 
 function getFlightFetchBounds() {
   const flightCfg = (CONTROL_ROOM_CONFIG && CONTROL_ROOM_CONFIG.flights) ? CONTROL_ROOM_CONFIG.flights : {};
@@ -949,9 +926,9 @@ async function fetchFlights() {
   }
 }
 
-// Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+// -------------------------------------------------------
 // RENDER FLIGHTS ON MAP
-// Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+// -------------------------------------------------------
 
 function renderFlights(data) {
   if (FLIGHTS_STATE.active && !map.hasLayer(layers.flights)) {
@@ -1133,59 +1110,12 @@ function renderFlightsFr24(payload) {
   }
 }
 
-// Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+// -------------------------------------------------------
 // UI
-// Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+// -------------------------------------------------------
 
 function updateFlightInfo(errorMsg, count, snapshot = null) {
-  const panel = ensureFlightInfoPanel();
-  const statsEl = document.getElementById("flight-stats");
-  const timeEl = document.getElementById("flight-info-time");
-  if (!panel || !statsEl) return;
-
-  if (!FLIGHTS_STATE.active) {
-    statsEl.innerHTML = '<span class="flight-info-text">Enable layer to track aircraft</span>';
-    if (timeEl) timeEl.textContent = "";
-    return;
-  }
-
-  if (errorMsg) {
-    statsEl.innerHTML =
-      `<div class="flight-info-stats">` +
-      `<span class="flight-info-text">${escapeHtml(errorMsg)}</span>` +
-      `</div>`;
-  } else {
-    const snap = snapshot || FLIGHTS_STATE.snapshot || {};
-    const topTracks = Array.isArray(snap.topTracks) ? snap.topTracks : [];
-    const trackRows = topTracks
-      .map((t) =>
-        `<div class="flight-track-item">` +
-        `<span>${escapeHtml(String(t.callsign || "").toUpperCase())}</span>` +
-        `<span>${escapeHtml(formatFeet(t.alt))} ${escapeHtml(t.trend || "LVL")}</span>` +
-        `</div>`
-      )
-      .join("");
-
-    statsEl.innerHTML =
-      `<div class="flight-radar-ring" aria-hidden="true"></div>` +
-      `<div class="flight-info-stats">` +
-      `<span class="flight-stat"><span>Tracked</span><span class="flight-stat-value">${count}</span></span>` +
-      `<span class="flight-stat"><span>Avg Alt</span><span class="flight-stat-value">${escapeHtml(formatFeet(snap.avgAlt))}</span></span>` +
-      `<span class="flight-stat"><span>Avg Speed</span><span class="flight-stat-value">${escapeHtml(formatKnots(snap.avgSpeed))}</span></span>` +
-      `<span class="flight-stat"><span>Max Alt</span><span class="flight-stat-value">${escapeHtml(formatFeet(snap.maxAlt))}</span></span>` +
-      `<span class="flight-stat"><span>Climbing</span><span class="flight-stat-value">${Number(snap.climbing || 0)}</span></span>` +
-      `<span class="flight-stat"><span>Descending</span><span class="flight-stat-value">${Number(snap.descending || 0)}</span></span>` +
-      `</div>` +
-      `<div class="flight-tracklist">` +
-      `<div class="flight-track-title">High Altitude Tracks</div>` +
-      (trackRows || `<div class="flight-info-text">No active tracks</div>`) +
-      `</div>`;
-  }
-
-  if (timeEl && FLIGHTS_STATE.lastFetch) {
-    const t = new Date(FLIGHTS_STATE.lastFetch);
-    timeEl.textContent = t.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
-  }
+  // Panel removed
 }
 
 async function manualFlightRefresh() {
@@ -1200,9 +1130,9 @@ async function manualFlightRefresh() {
 
 window.manualFlightRefresh = manualFlightRefresh;
 
-// Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+// -------------------------------------------------------
 // AUTO-REFRESH LOOP
-// Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+// -------------------------------------------------------
 
 async function flightRefreshLoop() {
   if (!FLIGHTS_STATE.active) return;
@@ -1218,8 +1148,6 @@ function startFlightTracking() {
   }
   const cb = document.querySelector('[data-layer="flights"]');
   if (cb && !cb.checked) cb.checked = true;
-  const panel = document.getElementById("flight-info");
-  if (panel) panel.style.display = "";
 
   // Immediate first fetch
   flightRefreshLoop();
@@ -1253,9 +1181,9 @@ function stopFlightTracking() {
   updateFlightInfo(null, 0);
 }
 
-// Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+// -------------------------------------------------------
 // INITIALIZATION
-// Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+// -------------------------------------------------------
 
 function initFLIGHTS_STATE() {
   ensureFlightDetailPanel();
