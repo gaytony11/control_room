@@ -23,34 +23,122 @@
     { re: /NATIONAL\s+CRIME\s+AGENCY|NCA/i, name: "NCA" },
   ];
 
-  // Extract text content from a File object
+  // ── Universal text extractor ──
+  // Supports: txt, csv, tsv, pdf, docx, doc, rtf, html, htm, xml, odt
   async function extractText(file) {
-    const ext = file.name.split(".").pop().toLowerCase();
-    if (ext === "txt") {
+    const ext = (file.name.split(".").pop() || "").toLowerCase();
+
+    // Plain text formats
+    if (["txt", "csv", "tsv", "log", "md"].includes(ext)) {
       return await file.text();
     }
+
+    // PDF via pdf.js
     if (ext === "pdf") {
-      // Use pdf.js if available, otherwise fallback to filename-only parsing
       if (window.pdfjsLib) {
         try {
           const buf = await file.arrayBuffer();
           const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
-          let text = "";
-          const maxPages = Math.min(pdf.numPages, 5); // first 5 pages enough for metadata
+          const pages = [];
+          const maxPages = Math.min(pdf.numPages, 10);
           for (let i = 1; i <= maxPages; i++) {
             const page = await pdf.getPage(i);
             const tc = await page.getTextContent();
-            text += tc.items.map((it) => it.str).join(" ") + "\n";
+            pages.push(tc.items.map(it => it.str).join(" "));
           }
-          return text;
-        } catch (e) {
-          console.warn("PDF text extraction failed:", e);
-        }
+          return pages.join("\n");
+        } catch (e) { console.warn("PDF extraction failed:", e); }
       }
-      // Fallback: use filename hints
       return file.name;
     }
-    return await file.text();
+
+    // DOCX via mammoth.js
+    if (ext === "docx") {
+      if (window.mammoth) {
+        try {
+          const buf = await file.arrayBuffer();
+          const result = await mammoth.extractRawText({ arrayBuffer: buf });
+          return result.value || "";
+        } catch (e) { console.warn("DOCX extraction failed:", e); }
+      }
+      return file.name;
+    }
+
+    // Legacy DOC — scan for ASCII text runs
+    if (ext === "doc") {
+      try {
+        const buf = await file.arrayBuffer();
+        const bytes = new Uint8Array(buf);
+        const runs = [];
+        let current = "";
+        for (let i = 0; i < bytes.length; i++) {
+          const b = bytes[i];
+          if ((b >= 32 && b <= 126) || b === 10 || b === 13) {
+            current += String.fromCharCode(b);
+          } else {
+            if (current.length > 8) runs.push(current);
+            current = "";
+          }
+        }
+        if (current.length > 8) runs.push(current);
+        return runs.join("\n");
+      } catch (e) { console.warn("DOC extraction failed:", e); }
+      return file.name;
+    }
+
+    // RTF — strip control words
+    if (ext === "rtf") {
+      try {
+        const raw = await file.text();
+        let text = raw
+          .replace(/\{\\[^{}]*\}/g, "")      // remove groups like {\fonttbl...}
+          .replace(/\\[a-z]+\d*\s?/gi, " ")  // remove control words
+          .replace(/[{}]/g, "")               // remove remaining braces
+          .replace(/\s{2,}/g, " ")
+          .trim();
+        return text;
+      } catch (e) { console.warn("RTF extraction failed:", e); }
+      return file.name;
+    }
+
+    // HTML / HTM — DOMParser
+    if (["html", "htm"].includes(ext)) {
+      try {
+        const raw = await file.text();
+        const doc = new DOMParser().parseFromString(raw, "text/html");
+        return doc.body?.textContent || raw;
+      } catch (e) { console.warn("HTML extraction failed:", e); }
+      return await file.text();
+    }
+
+    // XML — DOMParser
+    if (ext === "xml") {
+      try {
+        const raw = await file.text();
+        const doc = new DOMParser().parseFromString(raw, "text/xml");
+        return doc.documentElement?.textContent || raw;
+      } catch (e) { console.warn("XML extraction failed:", e); }
+      return await file.text();
+    }
+
+    // ODT — ZIP containing content.xml
+    if (ext === "odt") {
+      try {
+        const buf = await file.arrayBuffer();
+        if (window.JSZip) {
+          const zip = await JSZip.loadAsync(buf);
+          const contentXml = await zip.file("content.xml")?.async("string");
+          if (contentXml) {
+            const doc = new DOMParser().parseFromString(contentXml, "text/xml");
+            return doc.documentElement?.textContent || "";
+          }
+        }
+      } catch (e) { console.warn("ODT extraction failed:", e); }
+      return file.name;
+    }
+
+    // Fallback: try reading as text
+    try { return await file.text(); } catch { return file.name; }
   }
 
   // Detect originator from text content
@@ -378,5 +466,5 @@
   }
 
   // Expose for external use
-  window.DocConverter = { analyseFile, downloadRenamed, downloadDescription };
+  window.DocConverter = { analyseFile, downloadRenamed, downloadDescription, extractText };
 })();

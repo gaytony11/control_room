@@ -38,6 +38,7 @@
     })();
 
   </script>
+  <script>(function(){var t=localStorage.getItem('cr-theme')||'indigo';document.documentElement.dataset.theme=t;})();</script>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
@@ -328,7 +329,7 @@
 
         <div class="entity-import-panel">
           <div class="entity-import-title">Import Files</div>
-          <input id="entity-import-file" type="file" accept=".xlsx,.xls,.csv,.tsv,.txt,.pdf,.json,.geojson" />
+          <input id="entity-import-file" type="file" accept=".xlsx,.xls,.csv,.tsv,.txt,.pdf,.docx,.doc,.rtf,.html,.htm,.xml,.odt,.json,.geojson" />
           <div class="cp-btn-row">
             <button id="entity-import-run" class="btn-primary">Import And Plot</button>
             <button id="entity-import-template" class="btn-secondary" type="button">Download Template</button>
@@ -340,7 +341,7 @@
             <button id="entity-export-excel" class="btn-secondary" type="button">Export Excel</button>
           </div>
           <div id="entity-import-summary" class="entity-import-summary">
-            Supports xlsx/xls/csv/tsv/txt for entity import, pdf/txt for intel reports, and json/geojson for overlays. Drag and drop supported.
+            Supports xlsx/xls/csv/tsv/txt for entities, pdf/docx/doc/rtf/html/xml/odt/txt for intel reports, json/geojson for overlays. Drag and drop supported.
           </div>
         </div>
 
@@ -351,7 +352,7 @@
             <button id="doc-converter-btn" class="btn-secondary" type="button">Browse Files</button>
             <button id="doc-converter-dl-all" class="btn-secondary" type="button">Download All</button>
           </div>
-          <input id="doc-converter-input" type="file" multiple accept=".pdf,.txt,.xlsx,.xls,.csv,.doc,.docx" style="display:none" />
+          <input id="doc-converter-input" type="file" multiple accept=".pdf,.txt,.xlsx,.xls,.csv,.doc,.docx,.rtf,.html,.htm,.xml,.odt" style="display:none" />
           <div id="doc-converter-results" class="dc-results">
             <div class="dc-empty">Drop files or click Browse to convert</div>
           </div>
@@ -477,6 +478,14 @@
           <button class="bl-pill" data-base="Grey">Grey</button>
           <button class="bl-pill" data-base="Street">Street</button>
           <button class="bl-pill" data-base="Satellite">Satellite</button>
+        </div>
+
+        <div class="layer-section-title">UI Theme</div>
+        <div class="base-pills" id="theme-pills">
+          <button class="bl-pill active" data-theme="indigo">Indigo</button>
+          <button class="bl-pill" data-theme="warm">Warm</button>
+          <button class="bl-pill" data-theme="arctic">Arctic</button>
+          <button class="bl-pill" data-theme="teal">Teal</button>
         </div>
 
         <div class="layer-section-title">Overlay Groups</div>
@@ -832,6 +841,7 @@
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   <script>if(window.pdfjsLib)pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";</script>
+  <script src="https://cdn.jsdelivr.net/npm/mammoth@1.6.0/mammoth.browser.min.js"></script>
 
   <!-- API Keys (gitignored Ã¢â‚¬â€ copy api_keys.example.js to api_keys.js) -->
   <script src="js/api_keys.js"></script>

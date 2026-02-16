@@ -5560,6 +5560,15 @@ document.addEventListener("DOMContentLoaded", async () => {
           const rows = parseDelimitedRows(text, detectDelimiter(text));
           await importEntitiesFromRows(rows);
         }
+      } else if (["docx", "doc", "rtf", "html", "htm", "xml", "odt"].includes(ext)) {
+        const extractor = window.DocConverter?.extractText;
+        if (!extractor) throw new Error("Document extractor not loaded");
+        const text = await extractor(file);
+        if (window.IntelImport?.detectIntelReport(text)) {
+          await window.IntelImport.importFromText(text, file.name);
+        } else {
+          throw new Error(`Imported ${ext.toUpperCase()} text but it's not an intel report. Use .xlsx/.csv for entity import.`);
+        }
       } else if (["geojson"].includes(ext)) {
         await importGeoJsonFile(file);
       } else if (["json"].includes(ext)) {
@@ -5867,19 +5876,34 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   // â”€â”€ Base layer pills â”€â”€
-  document.querySelectorAll(".bl-pill").forEach(pill => {
+  document.querySelectorAll("#base-pills .bl-pill").forEach(pill => {
     pill.addEventListener("click", () => {
       const name = pill.dataset.base;
       if (name === activeBase) return;
       map.removeLayer(baseLayers[activeBase]);
       baseLayers[name].addTo(map);
       activeBase = name;
-      document.querySelectorAll(".bl-pill").forEach(p => p.classList.remove("active"));
+      document.querySelectorAll("#base-pills .bl-pill").forEach(p => p.classList.remove("active"));
       pill.classList.add("active");
     });
   });
 
-  // â”€â”€ Overlay toggles â”€â”€
+  // ── UI Theme pills ──
+  (function initThemePills() {
+    const pills = document.querySelectorAll("#theme-pills .bl-pill");
+    const saved = localStorage.getItem("cr-theme") || "indigo";
+    pills.forEach(p => {
+      p.classList.toggle("active", p.dataset.theme === saved);
+      p.addEventListener("click", () => {
+        const theme = p.dataset.theme;
+        document.documentElement.dataset.theme = theme;
+        localStorage.setItem("cr-theme", theme);
+        pills.forEach(q => q.classList.toggle("active", q === p));
+      });
+    });
+  })();
+
+  // â"€â"€ Overlay toggles â"€â"€
   function syncLayerToolBlocks() {
     document.querySelectorAll("[data-layer-tools]").forEach((el) => {
       const layerId = el.getAttribute("data-layer-tools");

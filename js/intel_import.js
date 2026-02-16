@@ -739,9 +739,13 @@
   }
 
   async function extractTextFromFile(file) {
-    const ext = file.name.split(".").pop().toLowerCase();
-    if (ext === "pdf") {
-      if (!window.pdfjsLib) throw new Error("PDF.js not loaded — cannot read PDF files");
+    // Delegate to shared universal extractor if available
+    if (window.DocConverter?.extractText) {
+      return await window.DocConverter.extractText(file);
+    }
+    // Fallback: basic PDF + text
+    const ext = (file.name.split(".").pop() || "").toLowerCase();
+    if (ext === "pdf" && window.pdfjsLib) {
       const buf = await file.arrayBuffer();
       const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
       const pages = [];
@@ -761,7 +765,7 @@
     btn.addEventListener("click", () => {
       const input = document.createElement("input");
       input.type = "file";
-      input.accept = ".txt,.pdf";
+      input.accept = ".txt,.pdf,.docx,.doc,.rtf,.html,.htm,.xml,.odt";
       input.addEventListener("change", async () => {
         const file = input.files?.[0];
         if (!file) return;
