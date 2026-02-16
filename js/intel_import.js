@@ -738,22 +738,39 @@
     return plotIntelReport(parsed);
   }
 
+  async function extractTextFromFile(file) {
+    const ext = file.name.split(".").pop().toLowerCase();
+    if (ext === "pdf") {
+      if (!window.pdfjsLib) throw new Error("PDF.js not loaded — cannot read PDF files");
+      const buf = await file.arrayBuffer();
+      const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+      const pages = [];
+      for (let i = 1; i <= pdf.numPages; i++) {
+        const page = await pdf.getPage(i);
+        const tc = await page.getTextContent();
+        pages.push(tc.items.map(item => item.str).join(" "));
+      }
+      return pages.join("\n");
+    }
+    return await file.text();
+  }
+
   function initQuickImport() {
     const btn = document.getElementById("quick-intel-import");
     if (!btn) return;
     btn.addEventListener("click", () => {
       const input = document.createElement("input");
       input.type = "file";
-      input.accept = ".txt";
+      input.accept = ".txt,.pdf";
       input.addEventListener("change", async () => {
         const file = input.files?.[0];
         if (!file) return;
-        const text = await file.text();
-        if (!detectIntelReport(text)) {
-          if (typeof showToast === "function") showToast("Not an intelligence report — expected IR number + OP name header", "error", 4000);
-          return;
-        }
         try {
+          const text = await extractTextFromFile(file);
+          if (!detectIntelReport(text)) {
+            if (typeof showToast === "function") showToast("Not an intelligence report \u2014 expected IR number + OP name header", "error", 4000);
+            return;
+          }
           await importFromText(text, file.name);
         } catch (err) {
           console.error("[IntelImport] Import failed:", err);

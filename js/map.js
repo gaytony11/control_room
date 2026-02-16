@@ -5536,6 +5536,22 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (["xlsx", "xls"].includes(ext)) {
         const rows = await readSpreadsheetRows(file);
         await importEntitiesFromRows(rows);
+      } else if (ext === "pdf") {
+        if (!window.pdfjsLib) throw new Error("PDF.js not loaded");
+        const buf = await file.arrayBuffer();
+        const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+        const pages = [];
+        for (let i = 1; i <= pdf.numPages; i++) {
+          const page = await pdf.getPage(i);
+          const tc = await page.getTextContent();
+          pages.push(tc.items.map(item => item.str).join(" "));
+        }
+        const text = pages.join("\n");
+        if (window.IntelImport?.detectIntelReport(text)) {
+          await window.IntelImport.importFromText(text, file.name);
+        } else {
+          throw new Error("PDF does not appear to be an intel report. Use .xlsx/.csv for entity import.");
+        }
       } else if (["csv", "tsv", "txt"].includes(ext)) {
         const text = await file.text();
         if (window.IntelImport?.detectIntelReport(text)) {

@@ -328,7 +328,7 @@
 
         <div class="entity-import-panel">
           <div class="entity-import-title">Import Files</div>
-          <input id="entity-import-file" type="file" accept=".xlsx,.xls,.csv,.tsv,.txt,.json,.geojson" />
+          <input id="entity-import-file" type="file" accept=".xlsx,.xls,.csv,.tsv,.txt,.pdf,.json,.geojson" />
           <div class="cp-btn-row">
             <button id="entity-import-run" class="btn-primary">Import And Plot</button>
             <button id="entity-import-template" class="btn-secondary" type="button">Download Template</button>
@@ -340,7 +340,7 @@
             <button id="entity-export-excel" class="btn-secondary" type="button">Export Excel</button>
           </div>
           <div id="entity-import-summary" class="entity-import-summary">
-            Supports `xlsx/xls/csv/tsv/txt` for entity import and `json/geojson` for overlay import. You can also drag and drop files here.
+            Supports xlsx/xls/csv/tsv/txt for entity import, pdf/txt for intel reports, and json/geojson for overlays. Drag and drop supported.
           </div>
         </div>
 
@@ -830,6 +830,8 @@
   <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script>if(window.pdfjsLib)pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";</script>
 
   <!-- API Keys (gitignored Ã¢â‚¬â€ copy api_keys.example.js to api_keys.js) -->
   <script src="js/api_keys.js"></script>
