@@ -5101,12 +5101,19 @@ async function ensureShipsLoaded() {
 map.on("overlayadd", function(e) {
 
   if (e.layer === layers.cellTowers) {
-
     ensureCellTowersLoaded();
+  }
 
+  if (e.layer === layers.ships) {
+    ensureShipsLoaded();
+  }
+
+  if (e.layer === layers.crime) {
+    ensureCrimeLoaded();
   }
 
 });
+
 
 function resolvePoliceForceName(props = {}) {
   if (!props || typeof props !== "object") return "Unknown Police Force";
