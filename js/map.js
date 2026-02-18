@@ -113,6 +113,13 @@ let CRIME_FILTER_STATE = {
   types: new Set(),
   monthStartIndex: 0
 };
+let CRIME_SPATIAL_FILTER = {
+  bounds: null,
+  rectangle: null,
+  drawMode: false,
+  startLatLng: null,
+  dragging: false
+};
 let CRIME_LAST_RENDER_TOTAL = 0;
 let CRIME_LAST_RENDER_FILTERED = 0;
 
@@ -126,6 +133,10 @@ const CRIME_FILTER_UI = {
   resetBtn: null,
   applyBtn: null,
   clearBtn: null,
+  forceSearchInput: null,
+  forceSearchApplyBtn: null,
+  boxModeBtn: null,
+  boxClearBtn: null,
   monthSlider: null,
   monthLabel: null,
   windowPills: [],
@@ -170,6 +181,10 @@ function initCrimeFilterUI() {
   CRIME_FILTER_UI.filterForceBtn = document.getElementById("crime-filter-force-btn");
   CRIME_FILTER_UI.resetBtn = document.getElementById("crime-reset-filter-btn");
   CRIME_FILTER_UI.clearBtn = document.getElementById("crime-clear-filter-btn");
+  CRIME_FILTER_UI.forceSearchInput = document.getElementById("crime-force-search");
+  CRIME_FILTER_UI.forceSearchApplyBtn = document.getElementById("crime-force-search-apply");
+  CRIME_FILTER_UI.boxModeBtn = document.getElementById("crime-box-mode-btn");
+  CRIME_FILTER_UI.boxClearBtn = document.getElementById("crime-box-clear-btn");
   CRIME_FILTER_UI.monthSlider = document.getElementById("crime-month-slider");
   CRIME_FILTER_UI.monthLabel = document.getElementById("crime-month-slider-label");
   CRIME_FILTER_UI.windowPills = Array.from(document.querySelectorAll(".crime-window-pill"));
@@ -189,6 +204,16 @@ function initCrimeFilterUI() {
     updateCrimeFiltersFromSelects();
     rerender();
   });
+  CRIME_FILTER_UI.forceSelect?.addEventListener("mousedown", (ev) => {
+    const opt = ev.target;
+    if (!opt || opt.tagName !== "OPTION") return;
+    if (ev.ctrlKey || ev.metaKey || ev.shiftKey) return;
+    ev.preventDefault();
+    Array.from(CRIME_FILTER_UI.forceSelect.options || []).forEach((o) => { o.selected = false; });
+    opt.selected = true;
+    updateCrimeFiltersFromSelects();
+    rerender();
+  });
   CRIME_FILTER_UI.typeSelect?.addEventListener("change", () => {
     updateCrimeFiltersFromSelects();
     rerender();
@@ -196,15 +221,23 @@ function initCrimeFilterUI() {
 
   CRIME_FILTER_UI.showAllBtn?.addEventListener("click", () => {
     clearCrimeFilters();
+    clearCrimeSpatialFilter();
     rerender();
     showToast?.("Crime grid reset to all forces", "info");
   });
 
   CRIME_FILTER_UI.resetBtn?.addEventListener("click", () => {
     clearCrimeFilters();
+    clearCrimeSpatialFilter();
     setActiveForce(null, { silent: true });
     rerender();
     showToast?.("Crime filters reset", "info");
+  });
+  CRIME_FILTER_UI.clearBtn?.addEventListener("click", () => {
+    clearCrimeFilters();
+    clearCrimeSpatialFilter();
+    rerender();
+    showToast?.("Crime selection cleared", "info");
   });
 
   CRIME_FILTER_UI.monthSlider?.addEventListener("input", () => {
@@ -238,6 +271,48 @@ function initCrimeFilterUI() {
     rerender();
     showToast?.(`Crime layer filtered to ${ACTIVE_FORCE}`, "success");
   });
+
+  const applyForceSearch = () => {
+    const q = String(CRIME_FILTER_UI.forceSearchInput?.value || "").trim().toLowerCase();
+    if (!q) return;
+    const options = Array.from(CRIME_FILTER_UI.forceSelect?.options || []);
+    if (!options.length) return;
+    const best = options
+      .map((opt) => ({ opt, text: String(opt.textContent || "").toLowerCase() }))
+      .sort((a, b) => {
+        const aStart = a.text.startsWith(q) ? 0 : 1;
+        const bStart = b.text.startsWith(q) ? 0 : 1;
+        if (aStart !== bStart) return aStart - bStart;
+        const ai = a.text.indexOf(q);
+        const bi = b.text.indexOf(q);
+        if (ai !== bi) return ai - bi;
+        return a.text.localeCompare(b.text);
+      })
+      .find((entry) => entry.text.includes(q));
+    if (!best) {
+      showToast?.("No force match found", "info");
+      return;
+    }
+    clearCrimeFilters();
+    CRIME_FILTER_STATE.forces = new Set([best.opt.value]);
+    syncCrimeFilterStateToUI();
+    renderCrimeLayerFiltered();
+    showToast?.(`Crime filter set to ${best.opt.value}`, "success");
+  };
+  CRIME_FILTER_UI.forceSearchApplyBtn?.addEventListener("click", applyForceSearch);
+  CRIME_FILTER_UI.forceSearchInput?.addEventListener("keydown", (ev) => {
+    if (ev.key === "Enter") {
+      ev.preventDefault();
+      applyForceSearch();
+    }
+  });
+
+  CRIME_FILTER_UI.boxModeBtn?.addEventListener("click", () => toggleCrimeBoxDrawMode());
+  CRIME_FILTER_UI.boxClearBtn?.addEventListener("click", () => {
+    clearCrimeSpatialFilter();
+    renderCrimeLayerFiltered();
+  });
+  initCrimeSpatialDrawHooks();
 
   if (OVERLAY_LOAD_STATE?.crimeLoaded) {
     populateCrimeFilters();
@@ -310,6 +385,10 @@ function updateCrimeFilterStatus(stats = null) {
   }
   if (CRIME_MONTHS.length) {
     pieces.push(describeCrimeMonthRange());
+  }
+  if (CRIME_SPATIAL_FILTER.bounds) {
+    const c = CRIME_SPATIAL_FILTER.bounds.getCenter();
+    pieces.push(`Area box @ ${c.lat.toFixed(3)}, ${c.lng.toFixed(3)}`);
   }
   CRIME_FILTER_UI.statusLabel.textContent = pieces.join(" | ");
 }
@@ -774,6 +853,95 @@ function createCrimeMarker(feature, forces, crimeType, stats = null) {
   return marker;
 }
 
+function isFeatureWithinCrimeSpatialBounds(feature, bounds) {
+  if (!bounds) return true;
+  const coords = feature?.geometry?.coordinates;
+  if (!Array.isArray(coords) || coords.length < 2) return false;
+  const lon = Number(coords[0]);
+  const lat = Number(coords[1]);
+  if (!Number.isFinite(lat) || !Number.isFinite(lon)) return false;
+  return bounds.contains([lat, lon]);
+}
+
+function updateCrimeBoxModeButtonState() {
+  if (!CRIME_FILTER_UI.boxModeBtn) return;
+  CRIME_FILTER_UI.boxModeBtn.classList.toggle("crime-box-active", !!CRIME_SPATIAL_FILTER.drawMode);
+  CRIME_FILTER_UI.boxModeBtn.textContent = CRIME_SPATIAL_FILTER.drawMode ? "Cancel Box Draw" : "Draw Area Box";
+}
+
+function clearCrimeSpatialFilter() {
+  CRIME_SPATIAL_FILTER.bounds = null;
+  if (CRIME_SPATIAL_FILTER.rectangle && map?.hasLayer(CRIME_SPATIAL_FILTER.rectangle)) {
+    map.removeLayer(CRIME_SPATIAL_FILTER.rectangle);
+  }
+  CRIME_SPATIAL_FILTER.rectangle = null;
+  CRIME_SPATIAL_FILTER.startLatLng = null;
+  CRIME_SPATIAL_FILTER.dragging = false;
+  CRIME_SPATIAL_FILTER.drawMode = false;
+  updateCrimeBoxModeButtonState();
+  setStatus?.("Crime area filter cleared");
+}
+
+function toggleCrimeBoxDrawMode() {
+  CRIME_SPATIAL_FILTER.drawMode = !CRIME_SPATIAL_FILTER.drawMode;
+  CRIME_SPATIAL_FILTER.startLatLng = null;
+  CRIME_SPATIAL_FILTER.dragging = false;
+  if (!CRIME_SPATIAL_FILTER.drawMode && map?.dragging) {
+    map.dragging.enable();
+  }
+  updateCrimeBoxModeButtonState();
+  if (CRIME_SPATIAL_FILTER.drawMode) {
+    setStatus?.("Crime area draw mode active: drag on map to draw a filter box");
+    showToast?.("Drag on the map to draw a crime filter area", "info");
+  }
+}
+
+function initCrimeSpatialDrawHooks() {
+  if (!map || map._crimeBoxHooksBound) return;
+  map._crimeBoxHooksBound = true;
+
+  map.on("mousedown", (ev) => {
+    if (!CRIME_SPATIAL_FILTER.drawMode) return;
+    if (ev.originalEvent?.button != null && ev.originalEvent.button !== 0) return;
+    CRIME_SPATIAL_FILTER.startLatLng = ev.latlng;
+    CRIME_SPATIAL_FILTER.dragging = true;
+    map.dragging.disable();
+    if (CRIME_SPATIAL_FILTER.rectangle && map.hasLayer(CRIME_SPATIAL_FILTER.rectangle)) {
+      map.removeLayer(CRIME_SPATIAL_FILTER.rectangle);
+    }
+    CRIME_SPATIAL_FILTER.rectangle = L.rectangle(L.latLngBounds(ev.latlng, ev.latlng), {
+      color: "#22c55e",
+      weight: 2,
+      fillOpacity: 0.08,
+      dashArray: "6,4"
+    }).addTo(map);
+    L.DomEvent.stop(ev.originalEvent);
+  });
+
+  map.on("mousemove", (ev) => {
+    if (!CRIME_SPATIAL_FILTER.drawMode || !CRIME_SPATIAL_FILTER.dragging || !CRIME_SPATIAL_FILTER.rectangle) return;
+    const b = L.latLngBounds(CRIME_SPATIAL_FILTER.startLatLng, ev.latlng);
+    CRIME_SPATIAL_FILTER.rectangle.setBounds(b);
+  });
+
+  map.on("mouseup", (ev) => {
+    if (!CRIME_SPATIAL_FILTER.drawMode || !CRIME_SPATIAL_FILTER.dragging) return;
+    CRIME_SPATIAL_FILTER.dragging = false;
+    map.dragging.enable();
+    const b = L.latLngBounds(CRIME_SPATIAL_FILTER.startLatLng, ev.latlng);
+    if (!b.isValid() || b.getNorthEast().equals(b.getSouthWest())) {
+      clearCrimeSpatialFilter();
+      renderCrimeLayerFiltered();
+      return;
+    }
+    CRIME_SPATIAL_FILTER.bounds = b;
+    CRIME_SPATIAL_FILTER.drawMode = false;
+    updateCrimeBoxModeButtonState();
+    setStatus?.("Crime area filter applied");
+    renderCrimeLayerFiltered();
+  });
+}
+
 function renderCrimeLayerFiltered() {
   if (!layers.crime) return;
 
@@ -791,6 +959,7 @@ function renderCrimeLayerFiltered() {
   const total = CRIME_DATA.length;
   const forceFilters = CRIME_FILTER_STATE.forces;
   const typeFilters = CRIME_FILTER_STATE.types;
+  const spatialBounds = CRIME_SPATIAL_FILTER.bounds;
   const monthStart = getActiveMonthStart();
   const summary = { incidents: 0, stops: 0, outcomes: 0 };
   let rendered = 0;
@@ -802,6 +971,7 @@ function renderCrimeLayerFiltered() {
 
     if (forceFilters.size && !forces.some((force) => forceFilters.has(force))) return;
     if (typeFilters.size && !typeFilters.has(crimeType)) return;
+    if (!isFeatureWithinCrimeSpatialBounds(feature, spatialBounds)) return;
 
     const stats = summarizeFeatureForActiveRange(feature, monthStart);
     if (!stats.hasActivity) return;
