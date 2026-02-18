@@ -1348,6 +1348,61 @@ async function geocodeViaOsPlaces(rawPostcode) {
   return null;
 }
 
+async function geocodeViaOsPlacesAddress(rawAddress) {
+  const query = String(rawAddress || "").trim();
+  if (!query) return null;
+  let resp = null;
+  try {
+    resp = await fetch(apiUrl(`/osplaces/find?query=${encodeURIComponent(query)}`));
+  } catch (_) {
+    resp = null;
+  }
+  if (!resp || !resp.ok) return null;
+  const data = await resp.json();
+  const results = Array.isArray(data?.results) ? data.results : [];
+  if (!results.length) return null;
+
+  const first = results[0] || {};
+  const rec = first.DPA || first.LPI || {};
+  const lat = parseFloat(rec.LAT ?? rec.LATITUDE);
+  const lon = parseFloat(rec.LNG ?? rec.LONGITUDE);
+  if (Number.isFinite(lat) && Number.isFinite(lon)) return { lat, lon };
+  return null;
+}
+
+async function geocodeViaNominatimAddress(rawAddress) {
+  const query = String(rawAddress || "").trim();
+  if (!query) return null;
+  let resp = null;
+  const url = `https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&countrycodes=gb&q=${encodeURIComponent(query)}`;
+  try {
+    resp = await fetch(url);
+  } catch (_) {
+    resp = null;
+  }
+  if (!resp || !resp.ok) return null;
+  const rows = await resp.json();
+  const first = Array.isArray(rows) ? rows[0] : null;
+  if (!first) return null;
+  const lat = Number(first.lat);
+  const lon = Number(first.lon);
+  if (Number.isFinite(lat) && Number.isFinite(lon)) return { lat, lon };
+  return null;
+}
+
+async function geocodeAddress(rawAddress) {
+  const query = String(rawAddress || "").trim();
+  if (!query) return null;
+  try {
+    let coords = await geocodeViaOsPlacesAddress(query);
+    if (!coords) coords = await geocodeViaNominatimAddress(query);
+    return coords || null;
+  } catch (e) {
+    console.warn("address geocoding failed:", e);
+    return null;
+  }
+}
+
 // API-only postcode geocoding with cache + multi-provider fallback.
 async function geocodePostcode(rawPostcode) {
   const pc = normalizePostcodeKey(rawPostcode);
@@ -7146,18 +7201,25 @@ document.addEventListener("DOMContentLoaded", async () => {
       return;
     }
     
-    // Prefer postcode geocode from i2 fields when available.
+    // Prefer full-address geocode first for house-level precision; fallback to postcode centroid.
     let placementLatLng = latLng;
     const postcode = getI2ValueByNames(i2EntityData, ["Post Code", "Postal Code", "Postcode"]);
     const addressString = getI2ValueByNames(i2EntityData, ["Address String", "Address"]) || manualPlacementAddress;
     const extractedPostcode = !postcode ? extractUkPostcode(addressString) : "";
-    let usedPostcodeGeo = false;
+    let geoMethod = "";
+    if (addressString) {
+      const geoAddress = await geocodeAddress(addressString);
+      if (geoAddress && Number.isFinite(geoAddress.lat) && Number.isFinite(geoAddress.lon)) {
+        placementLatLng = [geoAddress.lat, geoAddress.lon];
+        geoMethod = "address";
+      }
+    }
     const geoPostcode = postcode || extractedPostcode;
-    if (geoPostcode) {
+    if (!geoMethod && geoPostcode) {
       const geo = await geocodePostcode(geoPostcode);
       if (geo && Number.isFinite(geo.lat) && Number.isFinite(geo.lon)) {
         placementLatLng = [geo.lat, geo.lon];
-        usedPostcodeGeo = true;
+        geoMethod = "postcode";
       }
     }
 
@@ -7178,7 +7240,11 @@ document.addEventListener("DOMContentLoaded", async () => {
       map.panTo(placementLatLng);
 
       closeEntityPanel();
-      setStatus(usedPostcodeGeo ? `Updated: ${label} (address/postcode geocoded)` : `Updated: ${label}`);
+      setStatus(
+        geoMethod === "address" ? `Updated: ${label} (full address geocoded)` :
+        geoMethod === "postcode" ? `Updated: ${label} (postcode geocoded)` :
+        `Updated: ${label}`
+      );
       return;
     }
 
@@ -7186,7 +7252,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     placeEntity(placementLatLng, iconData, label, address, notes, i2EntityData);
     map.panTo(placementLatLng);
     closeEntityPanel();
-    setStatus(usedPostcodeGeo ? `Placed: ${label} (address/postcode geocoded)` : `Placed: ${label}`);
+    setStatus(
+      geoMethod === "address" ? `Placed: ${label} (full address geocoded)` :
+      geoMethod === "postcode" ? `Placed: ${label} (postcode geocoded)` :
+      `Placed: ${label}`
+    );
   });
   
   // Close button handlers

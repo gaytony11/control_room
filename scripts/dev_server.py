@@ -898,6 +898,32 @@ class Handler(SimpleHTTPRequestHandler):
             self._proxy_get(upstream_url, headers={"Accept": "application/json"})
             return
 
+        if self.path.startswith("/osplaces/find"):
+            os_key = os.environ.get("OS_PLACES_API_KEY", "").strip()
+            if not os_key:
+                self._send_json_error(500, b'{"error":"OS_PLACES_API_KEY env var not set"}')
+                return
+
+            parsed = urlsplit(self.path)
+            params = parse_qs(parsed.query or "")
+            raw_query = (params.get("query") or [""])[0].strip()
+            if not raw_query:
+                self._send_json_error(400, b'{"error":"query parameter required"}')
+                return
+
+            query = urlencode(
+                {
+                    "query": raw_query,
+                    "key": os_key,
+                    "dataset": "DPA,LPI",
+                    "maxresults": "5",
+                    "output_srs": "EPSG:4326",
+                }
+            )
+            upstream_url = f"{OS_PLACES_API_BASE}/find?{query}"
+            self._proxy_get(upstream_url, headers={"Accept": "application/json"})
+            return
+
         if self.path.startswith("/nre/health"):
             token = os.environ.get("NRE_LDBWS_TOKEN", "").strip()
             live_dep_url = os.environ.get("RAILDATA_LIVE_DEPARTURE_URL", "").strip()
@@ -1544,6 +1570,7 @@ def main(argv: Optional[list] = None):
     print(f"Proxy:  /api/flightradar/flights?n=..&s=..&w=..&e=.. -> {FR24_FEED_URL}")
     print(f"Proxy:  /api/flightradar/flight?id=... -> {FR24_CLICKHANDLER_URL}<id>")
     print(f"Proxy:  /osplaces/postcode?postcode=... -> {OS_PLACES_API_BASE}/postcode")
+    print(f"Proxy:  /osplaces/find?query=... -> {OS_PLACES_API_BASE}/find")
     print(f"Proxy:  /nre/departures|arrivals?crs=KGX&rows=10 -> {NRE_LDBWS_URL}")
     print(f"Proxy:  /nre/service?service_id=... -> {NRE_LDBWS_URL}")
     print(f"Proxy:  /nre/stations?q=king&limit=20 -> {UK_RAIL_STATIONS_URL}")
