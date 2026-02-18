@@ -45,7 +45,7 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
-  <link rel="stylesheet" href="css/style.css?v=20260218i">
+  <link rel="stylesheet" href="css/style.css?v=20260218j">
   <!-- vis-network for link analysis graph -->
   <script src="https://unpkg.com/vis-network@9.1.6/standalone/umd/vis-network.min.js"></script>
 </head>
@@ -366,58 +366,69 @@
           <div id="entity-search-results" class="entity-search-results-container"></div>
         </div>
 
-        <div class="entity-help">
-          <strong>Entity Placement + i2 Workspace</strong>
-          <p><strong>To place:</strong> Click a category below -> click on map -> enter details (name, address, notes)</p>
-          <p><strong>To connect:</strong> Click Connect on any entity -> click target entity -> enter label</p>
-          <p>Icons auto-suggest based on i2 fields and entity content.</p>
-        </div>
+        <details class="panel-disclosure" open>
+          <summary>Quick Guide</summary>
+          <div class="entity-help">
+            <strong>Entity Placement + i2 Workspace</strong>
+            <p><strong>To place:</strong> Click a category below -> click on map -> enter details (name, address, notes)</p>
+            <p><strong>To connect:</strong> Click Connect on any entity -> click target entity -> enter label</p>
+            <p>Icons auto-suggest based on i2 fields and entity content.</p>
+          </div>
+        </details>
 
-        <div class="entity-import-panel">
-          <div class="entity-import-title">Import Files</div>
-          <input id="entity-import-file" type="file" accept=".xlsx,.xls,.csv,.tsv,.txt,.pdf,.docx,.doc,.rtf,.html,.htm,.xml,.odt,.json,.geojson" />
-          <div class="cp-btn-row">
-            <button id="entity-import-run" class="btn-primary">Import And Plot</button>
-            <button id="entity-import-template" class="btn-secondary" type="button">Download Template</button>
-            <button id="entity-import-clear" class="btn-secondary">Clear Imported</button>
+        <details class="panel-disclosure" open>
+          <summary>Import & Bulk Tools</summary>
+          <div class="entity-import-panel">
+            <div class="entity-import-title">Import Files</div>
+            <input id="entity-import-file" type="file" accept=".xlsx,.xls,.csv,.tsv,.txt,.pdf,.docx,.doc,.rtf,.html,.htm,.xml,.odt,.json,.geojson" />
+            <div class="cp-btn-row">
+              <button id="entity-import-run" class="btn-primary">Import And Plot</button>
+              <button id="entity-import-template" class="btn-secondary" type="button">Download Template</button>
+              <button id="entity-import-clear" class="btn-secondary">Clear Imported</button>
+            </div>
+            <div class="cp-btn-row">
+              <button id="entity-select-box" class="btn-secondary" type="button">Box Select</button>
+              <button id="entity-select-all" class="btn-secondary" type="button">Select All (Ctrl+A)</button>
+              <button id="entity-export-excel" class="btn-secondary" type="button">Export Excel</button>
+            </div>
+            <div id="entity-import-summary" class="entity-import-summary">
+              Supports xlsx/xls/csv/tsv/txt for entities, pdf/docx/doc/rtf/html/xml/odt/txt for intel reports, json/geojson for overlays. Drag and drop supported.
+            </div>
           </div>
-          <div class="cp-btn-row">
-            <button id="entity-select-box" class="btn-secondary" type="button">Box Select</button>
-            <button id="entity-select-all" class="btn-secondary" type="button">Select All (Ctrl+A)</button>
-            <button id="entity-export-excel" class="btn-secondary" type="button">Export Excel</button>
-          </div>
-          <div id="entity-import-summary" class="entity-import-summary">
-            Supports xlsx/xls/csv/tsv/txt for entities, pdf/docx/doc/rtf/html/xml/odt/txt for intel reports, json/geojson for overlays. Drag and drop supported.
-          </div>
-        </div>
+        </details>
 
-        <div class="doc-converter-panel">
-          <div class="doc-converter-title">Document Converter</div>
-          <div class="doc-converter-hint">Convert messy filenames to standardised format: <code>YYYYMMDD - Source - Subject</code></div>
-          <div class="cp-btn-row">
-            <button id="doc-converter-btn" class="btn-secondary" type="button">Browse Files</button>
-            <button id="doc-converter-dl-all" class="btn-secondary" type="button">Download All</button>
+        <details class="panel-disclosure">
+          <summary>Document Converter</summary>
+          <div class="doc-converter-panel">
+            <div class="doc-converter-title">Document Converter</div>
+            <div class="doc-converter-hint">Convert messy filenames to standardised format: <code>YYYYMMDD - Source - Subject</code></div>
+            <div class="cp-btn-row">
+              <button id="doc-converter-btn" class="btn-secondary" type="button">Browse Files</button>
+              <button id="doc-converter-dl-all" class="btn-secondary" type="button">Download All</button>
+            </div>
+            <input id="doc-converter-input" type="file" multiple accept=".pdf,.txt,.xlsx,.xls,.csv,.doc,.docx,.rtf,.html,.htm,.xml,.odt" style="display:none" />
+            <div id="doc-converter-results" class="dc-results">
+              <div class="dc-empty">Drop files or click Browse to convert</div>
+            </div>
           </div>
-          <input id="doc-converter-input" type="file" multiple accept=".pdf,.txt,.xlsx,.xls,.csv,.doc,.docx,.rtf,.html,.htm,.xml,.odt" style="display:none" />
-          <div id="doc-converter-results" class="dc-results">
-            <div class="dc-empty">Drop files or click Browse to convert</div>
-          </div>
-        </div>
+        </details>
 
-        <div id="entity_selector" class="entity-grid">
-          <!-- Populated by JavaScript -->
-        </div>
-        
-        <div class="entity-stats">
-          <div class="entity-stat-item">
-            <span class="entity-stat-label">Entities on map:</span>
-            <span id="entity_count" class="entity-stat-value">0</span>
+        <details class="panel-disclosure">
+          <summary>Entity Palette</summary>
+          <div id="entity_selector" class="entity-grid">
+            <!-- Populated by JavaScript -->
           </div>
-          <div class="entity-stat-item">
-            <span class="entity-stat-label">Connections:</span>
-            <span id="connection_count" class="entity-stat-value">0</span>
+          <div class="entity-stats">
+            <div class="entity-stat-item">
+              <span class="entity-stat-label">Entities on map:</span>
+              <span id="entity_count" class="entity-stat-value">0</span>
+            </div>
+            <div class="entity-stat-item">
+              <span class="entity-stat-label">Connections:</span>
+              <span id="connection_count" class="entity-stat-value">0</span>
+            </div>
           </div>
-        </div>
+        </details>
 
         <details class="panel-disclosure">
           <summary>Search History &amp; Bookmarks</summary>
@@ -1017,6 +1028,7 @@
   </div>
 
   <div id="map"></div>
+  <div id="map-theme-overlay" aria-hidden="true"></div>
 
   <!-- ═══ BOTTOM ANALYSIS PANEL ═══ -->
   <div id="bottom-panel" class="bottom-panel">
@@ -1086,7 +1098,7 @@
   <script src="js/icons.js"></script>
 
   <!-- Map -->
-  <script src="js/map.js?v=20260218i"></script>
+  <script src="js/map.js?v=20260218j"></script>
 
   <!-- Live Data Layers -->
   <script src="js/tfl_live.js"></script>

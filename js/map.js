@@ -8121,6 +8121,21 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   })();
 
+  (function initDisclosureAccordion() {
+    const groups = document.querySelectorAll(".cp-tab-pane");
+    groups.forEach((pane) => {
+      const disclosures = pane.querySelectorAll("details.panel-disclosure");
+      disclosures.forEach((d) => {
+        d.addEventListener("toggle", () => {
+          if (!d.open) return;
+          disclosures.forEach((other) => {
+            if (other !== d) other.open = false;
+          });
+        });
+      });
+    });
+  })();
+
   // â"€â"€ Overlay toggles â"€â"€
   function syncLayerToolBlocks() {
     document.querySelectorAll("[data-layer-tools]").forEach((el) => {
