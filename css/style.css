@@ -6635,3 +6635,235 @@ button.flight-filter-item span {
   border-radius: 4px;
   margin-top: 6px;
 }
+
+/* ==========================================================================
+   UX Revamp Layer (non-breaking)
+   ========================================================================== */
+body.ux-revamp {
+  font-family: "Space Grotesk", "Segoe UI", sans-serif;
+  letter-spacing: 0.01em;
+  background:
+    radial-gradient(1200px 700px at 8% 15%, rgba(34, 197, 94, 0.10), transparent 55%),
+    radial-gradient(900px 600px at 100% 0%, rgba(14, 165, 233, 0.10), transparent 45%),
+    #020617;
+}
+
+body.ux-revamp #map {
+  filter: saturate(1.04) contrast(1.02);
+}
+
+body.ux-revamp .kpi-bar {
+  height: 52px;
+  padding: 0 12px;
+  border-bottom: 1px solid rgba(56, 189, 248, 0.18);
+  background: linear-gradient(90deg, rgba(2, 6, 23, 0.96), rgba(6, 14, 31, 0.88));
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
+}
+
+body.ux-revamp .kpi-brand-title {
+  font-family: "JetBrains Mono", monospace;
+  letter-spacing: 0.24em;
+  font-size: 12px;
+}
+
+body.ux-revamp .kpi-card {
+  border-radius: 10px;
+  border: 1px solid rgba(56, 189, 248, 0.15);
+  background: rgba(15, 23, 42, 0.72);
+}
+
+body.ux-revamp .kpi-pill,
+body.ux-revamp .kpi-action-btn {
+  border-radius: 10px;
+}
+
+body.ux-revamp #control-panel {
+  top: 62px;
+  left: 12px;
+  width: 350px;
+  max-height: calc(100vh - 74px);
+  border: 1px solid rgba(56, 189, 248, 0.22);
+  border-radius: 16px;
+  background: linear-gradient(180deg, rgba(2, 10, 27, 0.96), rgba(3, 12, 30, 0.92));
+  box-shadow:
+    0 18px 44px rgba(2, 6, 23, 0.55),
+    0 0 0 1px rgba(14, 165, 233, 0.08) inset;
+  overflow: hidden;
+}
+
+body.ux-revamp .cp-header {
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(56, 189, 248, 0.14);
+  background: rgba(2, 8, 23, 0.68);
+}
+
+body.ux-revamp .cp-title {
+  font-family: "JetBrains Mono", monospace;
+  letter-spacing: 0.20em;
+  font-size: 12px;
+}
+
+body.ux-revamp .cp-meta-strip {
+  padding: 8px 12px 6px;
+  gap: 6px;
+}
+
+body.ux-revamp .cp-meta-chip {
+  border-radius: 999px;
+  border: 1px solid rgba(56, 189, 248, 0.22);
+  background: rgba(15, 23, 42, 0.65);
+}
+
+body.ux-revamp .cp-command-strip {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  padding: 4px 12px 10px;
+  border-bottom: 1px solid rgba(56, 189, 248, 0.12);
+}
+
+body.ux-revamp .cp-command-btn {
+  appearance: none;
+  border: 1px solid rgba(45, 212, 191, 0.22);
+  background: linear-gradient(180deg, rgba(13, 31, 48, 0.92), rgba(9, 21, 37, 0.9));
+  color: #9ff3dd;
+  border-radius: 10px;
+  padding: 7px 8px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: transform 120ms ease, border-color 120ms ease, box-shadow 120ms ease;
+}
+
+body.ux-revamp .cp-command-btn:hover {
+  border-color: rgba(45, 212, 191, 0.55);
+  box-shadow: 0 0 0 1px rgba(45, 212, 191, 0.24) inset;
+  transform: translateY(-1px);
+}
+
+body.ux-revamp .cp-tabs {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  padding: 8px 12px 9px;
+  background: rgba(2, 10, 27, 0.92);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-bottom: 1px solid rgba(56, 189, 248, 0.12);
+  gap: 6px;
+}
+
+body.ux-revamp .cp-tab {
+  border-radius: 10px;
+  border: 1px solid rgba(71, 85, 105, 0.35);
+  background: rgba(15, 23, 42, 0.75);
+  color: #9fb0c8;
+  font-weight: 700;
+}
+
+body.ux-revamp .cp-tab.active {
+  color: #0b1220;
+  border-color: rgba(45, 212, 191, 0.8);
+  background: linear-gradient(180deg, rgba(45, 212, 191, 0.95), rgba(20, 184, 166, 0.92));
+}
+
+body.ux-revamp .cp-tab-pane {
+  padding: 12px;
+  gap: 10px;
+}
+
+body.ux-revamp .panel-disclosure {
+  border-radius: 12px;
+  border: 1px solid rgba(56, 189, 248, 0.16);
+  background: linear-gradient(180deg, rgba(4, 14, 30, 0.84), rgba(2, 9, 24, 0.86));
+}
+
+body.ux-revamp .panel-disclosure > summary {
+  font-weight: 700;
+  color: #b8d2ea;
+}
+
+body.ux-revamp input,
+body.ux-revamp select,
+body.ux-revamp textarea {
+  border-radius: 10px;
+  border: 1px solid rgba(71, 85, 105, 0.45);
+  background: rgba(2, 8, 23, 0.82);
+  color: #d8e6f8;
+  transition: border-color 120ms ease, box-shadow 120ms ease, background-color 120ms ease;
+}
+
+body.ux-revamp input:focus,
+body.ux-revamp select:focus,
+body.ux-revamp textarea:focus {
+  border-color: rgba(45, 212, 191, 0.72);
+  box-shadow: 0 0 0 3px rgba(45, 212, 191, 0.14);
+  outline: none;
+}
+
+body.ux-revamp .btn-primary,
+body.ux-revamp .btn-secondary,
+body.ux-revamp .quick-action-btn,
+body.ux-revamp .popup-psc-btn {
+  border-radius: 10px;
+}
+
+body.ux-revamp .btn-primary {
+  background: linear-gradient(180deg, #22d3ee, #06b6d4);
+  border-color: rgba(34, 211, 238, 0.85);
+  color: #04202a;
+  font-weight: 700;
+}
+
+body.ux-revamp .btn-secondary {
+  background: rgba(15, 23, 42, 0.74);
+  border-color: rgba(71, 85, 105, 0.56);
+  color: #b8c6d9;
+}
+
+body.ux-revamp .entity-panel {
+  top: 72px;
+  border-radius: 16px;
+  border: 1px solid rgba(45, 212, 191, 0.22);
+  background: linear-gradient(180deg, rgba(3, 10, 27, 0.96), rgba(2, 8, 22, 0.94));
+  box-shadow: 0 20px 48px rgba(2, 6, 23, 0.6);
+}
+
+body.ux-revamp .leaflet-popup-content-wrapper {
+  border-radius: 14px;
+  border: 1px solid rgba(45, 212, 191, 0.18);
+  background: linear-gradient(180deg, rgba(2, 9, 24, 0.98), rgba(3, 14, 33, 0.95));
+  box-shadow: 0 18px 38px rgba(2, 6, 23, 0.64);
+}
+
+body.ux-revamp .leaflet-popup-content {
+  margin: 12px;
+}
+
+body.ux-revamp .mobile-panel-toggle {
+  border-radius: 12px;
+  border: 1px solid rgba(45, 212, 191, 0.35);
+  background: rgba(2, 10, 27, 0.9);
+}
+
+@media (max-width: 980px) {
+  body.ux-revamp #control-panel {
+    width: 92vw;
+    left: 4vw;
+    top: 62px;
+  }
+
+  body.ux-revamp .cp-command-strip {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  body.ux-revamp .kpi-brand-sub,
+  body.ux-revamp .kpi-live-info,
+  body.ux-revamp .kpi-pill-group {
+    display: none;
+  }
+}

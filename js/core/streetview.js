@@ -210,7 +210,7 @@
     options = options || {};
     if (!Number.isFinite(lat) || !Number.isFinite(lng)) return "";
     var mapsUrl = "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=" + lat + "," + lng;
-    var addressJs = JSON.stringify(String(options.addressString || options.address || ""));
+    var encodedAddress = encodeURIComponent(String(options.addressString || options.address || ""));
     if (!isConfigured()) {
       return '<div class="sv-unavailable">Street View not configured</div>' +
         '<a class="popup-psc-btn" href="' + mapsUrl + '" target="_blank" rel="noopener">Open in Google Maps</a>';
@@ -225,7 +225,7 @@
       'style="width:100%;border-radius:4px;margin-top:6px;cursor:pointer;border:1px solid rgba(255,255,255,0.08)" ' +
       'title="Click to open Street View">' +
       '<a class="popup-psc-btn" href="' + mapsUrl + '" target="_blank" rel="noopener" style="display:inline-block;margin-top:6px;">Open in Google Maps</a>' +
-      '<button class="popup-psc-btn" type="button" onclick="window.StreetView.downloadPng(' + lat + ',' + lng + ',{addressString:' + addressJs + '})" style="display:inline-block;margin-top:6px;margin-left:6px;">Download PNG</button>';
+      '<button class="popup-psc-btn" type="button" onclick="window.StreetView.downloadPng(' + lat + ',' + lng + ',{addressString:decodeURIComponent(\'' + encodedAddress + '\')})" style="display:inline-block;margin-top:6px;margin-left:6px;">Download PNG</button>';
   }
 
   // ── Public API ──

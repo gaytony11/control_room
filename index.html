@@ -4,6 +4,9 @@
   <meta charset="utf-8" />
   <title>Control Room</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
   <script>
     (function blockFileProtocolMode() {
       if (window.location.protocol !== "file:") return;
@@ -46,7 +49,7 @@
   <!-- vis-network for link analysis graph -->
   <script src="https://unpkg.com/vis-network@9.1.6/standalone/umd/vis-network.min.js"></script>
 </head>
-<body>
+<body class="ux-revamp">
   <!-- ═══ KPI DASHBOARD STRIP ═══ -->
   <div id="kpi-bar" class="kpi-bar">
     <div class="kpi-brand">
@@ -128,6 +131,12 @@
       <span class="cp-meta-chip"><strong id="cp-active-layers">0</strong> Layers</span>
       <span class="cp-meta-chip"><strong id="cp-entities-chip">0</strong> Entities</span>
       <span class="cp-meta-chip"><strong id="cp-links-chip">0</strong> Links</span>
+    </div>
+    <div class="cp-command-strip" aria-label="Primary actions">
+      <button id="cp-cmd-search" class="cp-command-btn" type="button">Company Search</button>
+      <button id="cp-cmd-place" class="cp-command-btn" type="button">Place Entity</button>
+      <button id="cp-cmd-crime" class="cp-command-btn" type="button">Crime Tools</button>
+      <button id="cp-cmd-layers" class="cp-command-btn" type="button">Layers</button>
     </div>
 
     <div class="cp-body" id="cp-body">
@@ -1175,6 +1184,28 @@
     document.getElementById("kpi-btn-help")?.addEventListener("click", () => {
       if (window.CRDashboard) window.CRDashboard.showShortcutsOverlay();
     });
+
+    // Control-panel command strip
+    (function bindCommandStrip() {
+      const openTab = (tabId) => {
+        document.getElementById(`cp-tab-btn-${tabId}`)?.click();
+      };
+      document.getElementById("cp-cmd-search")?.addEventListener("click", () => {
+        openTab("search");
+        document.getElementById("ch_name")?.focus();
+      });
+      document.getElementById("cp-cmd-place")?.addEventListener("click", () => {
+        openTab("entities");
+        document.getElementById("quick-entity-place")?.click();
+      });
+      document.getElementById("cp-cmd-crime")?.addEventListener("click", () => {
+        openTab("layers");
+        document.getElementById("crime-force-filter")?.focus();
+      });
+      document.getElementById("cp-cmd-layers")?.addEventListener("click", () => {
+        openTab("layers");
+      });
+    })();
     // Wire Land Registry search
     document.getElementById("lr-search-btn")?.addEventListener("click", async () => {
       const pc = document.getElementById("lr-postcode")?.value?.trim();
