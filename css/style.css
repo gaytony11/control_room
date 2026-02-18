@@ -6867,3 +6867,71 @@ body.ux-revamp .mobile-panel-toggle {
     display: none;
   }
 }
+
+/* Strong popup + map HUD polish so UX uplift is immediately visible */
+body.ux-revamp .leaflet-popup-content strong {
+  display: block;
+  font-size: 20px;
+  line-height: 1.15;
+  color: #e6f5ff;
+  margin-bottom: 6px;
+  letter-spacing: 0.01em;
+}
+
+body.ux-revamp .popup-label {
+  color: #7dd3fc !important;
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 10px;
+  letter-spacing: 0.11em;
+}
+
+body.ux-revamp .popup-tag {
+  border-radius: 999px;
+  padding: 3px 9px;
+  border: 1px solid rgba(34, 211, 238, 0.3);
+  box-shadow: 0 0 0 1px rgba(34, 211, 238, 0.1) inset;
+}
+
+body.ux-revamp .leaflet-popup-content-wrapper {
+  min-width: 340px;
+}
+
+body.ux-revamp .popup-btn-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+body.ux-revamp .popup-psc-btn {
+  background: linear-gradient(180deg, rgba(15, 35, 56, 0.95), rgba(8, 23, 41, 0.95));
+  color: #8be9ff;
+  border: 1px solid rgba(14, 165, 233, 0.42);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-size: 10px;
+  transition: transform 120ms ease, border-color 120ms ease, box-shadow 120ms ease;
+}
+
+body.ux-revamp .popup-psc-btn:hover {
+  transform: translateY(-1px);
+  border-color: rgba(45, 212, 191, 0.7);
+  box-shadow: 0 0 0 1px rgba(45, 212, 191, 0.24) inset;
+}
+
+body.ux-revamp .leaflet-popup-tip {
+  background: rgba(3, 14, 33, 0.95);
+  border: 1px solid rgba(45, 212, 191, 0.2);
+}
+
+body.ux-revamp #control-panel {
+  transition: transform 180ms ease, opacity 180ms ease, box-shadow 180ms ease;
+}
+
+body.ux-revamp #control-panel:hover {
+  box-shadow:
+    0 22px 54px rgba(2, 6, 23, 0.66),
+    0 0 0 1px rgba(45, 212, 191, 0.14) inset;
+}

@@ -2777,7 +2777,7 @@ function parseAddressString(rawAddress) {
   const parts = withoutPostcode.split(",").map((p) => p.trim()).filter(Boolean);
   const first = parts[0] || "";
 
-  const firstMatch = first.match(/^(\d+[A-Z]?)\s+(.+)$/i);
+  const firstMatch = first.match(/^(\d+[A-Z]?(?:\/\d+[A-Z]?)?)\s+(.+)$/i);
   if (firstMatch) {
     out.buildingNumber = firstMatch[1].trim();
     out.streetName = firstMatch[2].trim();
@@ -2788,7 +2788,8 @@ function parseAddressString(rawAddress) {
 
   if (parts.length > 1) out.town = parts[1];
   if (parts.length > 2) out.county = parts[2];
-  if (parts.length > 3) out.country = parts[3];
+  if (parts.length > 3) out.country = parts.slice(3).join(", ");
+  if (!out.country && out.county) out.country = out.county;
 
   return out;
 }
@@ -2835,12 +2836,12 @@ function syncAddressStringDerivedFields() {
   }
 
   let updated = false;
-  updated = setI2FieldIfEmpty(["Building Number", "House Number"], parsed.buildingNumber) || updated;
+  updated = setI2FieldIfEmpty(["Building Number", "House Number", "Number"], parsed.buildingNumber) || updated;
   updated = setI2FieldIfEmpty(["Street Name", "Street"], parsed.streetName) || updated;
   updated = setI2FieldIfEmpty(["Town/City", "Town", "City", "Locality"], parsed.town) || updated;
   updated = setI2FieldIfEmpty(["County or State", "County", "State"], parsed.county) || updated;
   updated = setI2FieldIfEmpty(["Post Code", "Postal Code", "Postcode"], parsed.postcode) || updated;
-  updated = setI2FieldIfEmpty(["Country or Region", "Country"], parsed.country) || updated;
+  updated = setI2FieldIfEmpty(["Country or Region", "Country"], parsed.country || parsed.county) || updated;
 
   return syncStructuredFieldsToAddressString() || updated;
 }
