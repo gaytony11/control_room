@@ -5160,6 +5160,26 @@ function getEntityById(entityId) {
   return window._mapEntities.find((e) => e.id === entityId) || null;
 }
 
+async function triggerGoogleEnrichmentForEntity(entityId, includeEnvironment = true) {
+  if (!entityId || !window.GoogleIntelligenceService) return false;
+  if (typeof window.GoogleIntelligenceService.enrichEntityInStore !== "function") return false;
+  if (typeof window.GoogleIntelligenceService.isConfigured === "function" && !window.GoogleIntelligenceService.isConfigured()) return false;
+  try {
+    const res = await window.GoogleIntelligenceService.enrichEntityInStore(entityId, { includeEnvironment: !!includeEnvironment });
+    if (!res?.ok) return false;
+    const entity = getEntityById(entityId);
+    if (entity?.marker) {
+      entity.marker.setPopupContent(buildEntityPopup(entityId, entity));
+      bindEntityHoverTooltip(entity.marker, entity);
+    }
+    if (window.CRDashboard) window.CRDashboard.logActivity("Google enrichment complete", entity?.label || entityId, "intel");
+    return true;
+  } catch (err) {
+    console.warn("Google enrichment failed:", err);
+    return false;
+  }
+}
+
 function getNetworkPlacementLatLng(index) {
   const center = map.getCenter();
   const angle = index * 0.62;
@@ -7503,11 +7523,12 @@ document.addEventListener("DOMContentLoaded", async () => {
         geoMethod === "postcode" ? `Updated: ${label} (postcode geocoded)` :
         `Updated: ${label}`
       );
+      triggerGoogleEnrichmentForEntity(editingEntityId, true);
       return;
     }
 
     // Place new entity
-    placeEntity(placementLatLng, iconData, label, address, notes, i2EntityData);
+    const newEntityId = placeEntity(placementLatLng, iconData, label, address, notes, i2EntityData);
     map.panTo(placementLatLng);
     closeEntityPanel();
     setStatus(
@@ -7515,6 +7536,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       geoMethod === "postcode" ? `Placed: ${label} (postcode geocoded)` :
       `Placed: ${label}`
     );
+    if (newEntityId) triggerGoogleEnrichmentForEntity(newEntityId, true);
   });
   
   // Close button handlers

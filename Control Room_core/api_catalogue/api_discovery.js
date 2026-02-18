@@ -11,7 +11,8 @@ export function getEnabledAPIs() {
           category,
           name: api,
           endpoint: def.endpoint,
-          capability: def.capability
+          capability: def.capability,
+          method: def.method || "GET"
         });
       }
     }
@@ -19,6 +20,17 @@ export function getEnabledAPIs() {
   return enabled;
 }
 
+export function getCapabilityMatrix() {
+  return {
+    geospatial: !!GOOGLE_API_CATALOGUE.geospatial_core,
+    routing: !!GOOGLE_API_CATALOGUE.routing,
+    imagery: !!GOOGLE_API_CATALOGUE.imagery,
+    environment: !!GOOGLE_API_CATALOGUE.environment,
+    device_location: !!GOOGLE_API_CATALOGUE.location_services?.geolocation,
+    terrain: !!GOOGLE_API_CATALOGUE.geospatial_core?.elevation
+  };
+}
+
 if (typeof window !== "undefined") {
-  window.GoogleAPIDiscovery = { getEnabledAPIs };
+  window.GoogleAPIDiscovery = { getEnabledAPIs, getCapabilityMatrix };
 }

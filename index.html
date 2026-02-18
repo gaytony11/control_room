@@ -45,7 +45,7 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
-  <link rel="stylesheet" href="css/style.css?v=20260218e">
+  <link rel="stylesheet" href="css/style.css?v=20260218g">
   <!-- vis-network for link analysis graph -->
   <script src="https://unpkg.com/vis-network@9.1.6/standalone/umd/vis-network.min.js"></script>
 </head>
@@ -462,6 +462,19 @@
           </div>
           <div class="psc-help-text">
             Open sources connect via API. Restricted sources are available for manual entry in 3x5x2 intelligence reports only.
+          </div>
+          <div class="google-api-dashboard">
+            <div class="google-api-header">
+              <span>Google Maps Platform Intelligence</span>
+              <div class="cp-btn-row">
+                <button id="google-api-refresh-btn" class="btn-secondary btn-sm" type="button">Refresh</button>
+                <button id="google-api-selftest-btn" class="btn-secondary btn-sm" type="button">Probe</button>
+                <button id="google-api-enrich-selected-btn" class="btn-secondary btn-sm" type="button">Enrich Selected</button>
+              </div>
+            </div>
+            <div id="google-api-capability-matrix" class="google-api-capability-matrix"></div>
+            <div id="google-api-dashboard-list" class="google-api-dashboard-list"></div>
+            <div id="google-api-selftest" class="psc-help-text">Awaiting probe...</div>
           </div>
         </details>
 
@@ -1051,8 +1064,8 @@
   <!-- Core Config -->
   <script src="js/config.js"></script>
   <script src="js/api_base.js"></script>
-  <script type="module" src="Control%20Room_core/services/google_intelligence_service.js"></script>
-  <script type="module" src="Control%20Room_core/ui/api_dashboard.js"></script>
+  <script type="module" src="Control%20Room_core/services/google_intelligence_service.js?v=20260218g"></script>
+  <script type="module" src="Control%20Room_core/ui/api_dashboard.js?v=20260218g"></script>
 
   <!-- Core Entity System -->
   <script src="js/core/icon_system.js"></script>
@@ -1070,7 +1083,7 @@
   <script src="js/icons.js"></script>
 
   <!-- Map -->
-  <script src="js/map.js?v=20260218f"></script>
+  <script src="js/map.js?v=20260218g"></script>
 
   <!-- Live Data Layers -->
   <script src="js/tfl_live.js"></script>

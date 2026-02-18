@@ -503,7 +503,8 @@
   async function _runGoogleEnrichment(targets) {
     if (!Array.isArray(targets) || !targets.length) return 0;
     if (!window.EntityStore || !window.GoogleIntelligenceService) return 0;
-    if (typeof window.GoogleIntelligenceService.enrichLocation !== "function") return 0;
+    if (typeof window.GoogleIntelligenceService.enrichEntityInStore !== "function" &&
+        typeof window.GoogleIntelligenceService.enrichLocation !== "function") return 0;
     if (typeof window.GoogleIntelligenceService.isConfigured === "function" && !window.GoogleIntelligenceService.isConfigured()) return 0;
 
     var deduped = [];
@@ -523,33 +524,18 @@
       try {
         var entity = window.EntityStore.getEntity(item.entityId);
         if (!entity) continue;
+        if (typeof window.GoogleIntelligenceService.enrichEntityInStore === "function") {
+          var entityRes = await window.GoogleIntelligenceService.enrichEntityInStore(item.entityId, { includeEnvironment: true });
+          if (entityRes && entityRes.ok) enriched++;
+          continue;
+        }
+
         var intel = await window.GoogleIntelligenceService.enrichLocation({
           lat: item.lat,
           lng: item.lng,
           address: item.address || entity.attributes?.address || ""
-        });
-        if (!intel || !intel.ok) continue;
-
-        var geo = intel.geocode || {};
-        var elev = intel.elevation || {};
-        var places = intel.nearbyPlaces || {};
-        var geoFirst = Array.isArray(geo.results) ? geo.results[0] : null;
-        var elevFirst = Array.isArray(elev.results) ? elev.results[0] : null;
-        var placeFirst = Array.isArray(places.results) ? places.results[0] : null;
-        var attrs = Object.assign({}, entity.attributes || {});
-
-        attrs.google_enriched_at = new Date().toISOString();
-        attrs.google_geocode_status = geo.status || "";
-        if (geoFirst && geoFirst.formatted_address) attrs.google_formatted_address = String(geoFirst.formatted_address);
-        if (geoFirst && geoFirst.place_id) attrs.google_place_id = String(geoFirst.place_id);
-        if (elevFirst && Number.isFinite(Number(elevFirst.elevation))) attrs.google_elevation_m = Number(elevFirst.elevation);
-        attrs.google_places_status = places.status || "";
-        attrs.google_nearby_count = Array.isArray(places.results) ? places.results.length : 0;
-        if (placeFirst && placeFirst.name) attrs.google_nearby_top = String(placeFirst.name);
-        if (intel.streetViewUrl) attrs.google_streetview_url = String(intel.streetViewUrl);
-
-        window.EntityStore.updateEntity(item.entityId, { attributes: attrs });
-        enriched++;
+        }, { includeEnvironment: true });
+        if (intel && intel.ok) enriched++;
       } catch (err) {
         console.warn("[Ingestion] Google enrichment failed:", err);
       }
