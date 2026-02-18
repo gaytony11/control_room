@@ -1665,7 +1665,7 @@ function _resolveTileUrlByTheme(baseName, theme) {
   if (b === "dark") {
     if (t === "light") return "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png";
     if (t === "warm" || t === "rose") return "https://{s}.basemaps.cartocdn.com/voyager/{z}/{x}/{y}{r}.png";
-    if (t === "noir") return "https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png";
+    if (t === "noir") return "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png";
     return "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png";
   }
   if (b === "grey") {
@@ -1673,7 +1673,6 @@ function _resolveTileUrlByTheme(baseName, theme) {
     return "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png";
   }
   if (b === "street") {
-    if (t === "rose" || t === "warm") return "https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png";
     return "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
   }
   return (tileCfg[Object.keys(tileCfg).find((k) => String(tileCfg[k]?.name || "").toLowerCase() === b)] || {}).url || "";
