@@ -1476,12 +1476,60 @@ async function geocodeViaNominatimAddress(rawAddress, options = {}) {
   return null;
 }
 
+async function geocodeViaGoogleAddress(rawAddress, options = {}) {
+  const query = String(rawAddress || "").trim();
+  if (!query) return null;
+  const key = String(window.GOOGLE_MAPS_API_KEY || window.GOOGLE_STREETVIEW_API_KEY || "").trim();
+  if (!key) return null;
+
+  const strict = !!options.strict;
+  const parsed = parseAddressString(query) || {};
+  const wantedNumber = String(parsed.buildingNumber || "").toLowerCase();
+  const wantedStreet = String(parsed.streetName || "").toLowerCase();
+  const wantedPostcode = normalizePostcodeKey(parsed.postcode || "");
+
+  let resp = null;
+  const url = "https://maps.googleapis.com/maps/api/geocode/json?address=" +
+    encodeURIComponent(query) + "&key=" + encodeURIComponent(key);
+  try {
+    resp = await fetch(url);
+  } catch (_) {
+    resp = null;
+  }
+  if (!resp || !resp.ok) return null;
+  const data = await resp.json();
+  const results = Array.isArray(data?.results) ? data.results : [];
+  if (!results.length) return null;
+  const first = results[0];
+  if (!first?.geometry?.location) return null;
+
+  if (strict) {
+    const comps = Array.isArray(first.address_components) ? first.address_components : [];
+    const numberComp = comps.find((c) => Array.isArray(c.types) && c.types.includes("street_number"));
+    const routeComp = comps.find((c) => Array.isArray(c.types) && c.types.includes("route"));
+    const postComp = comps.find((c) => Array.isArray(c.types) && c.types.includes("postal_code"));
+    const gotNumber = String(numberComp?.long_name || "").toLowerCase();
+    const gotRoute = String(routeComp?.long_name || "").toLowerCase();
+    const gotPostcode = normalizePostcodeKey(postComp?.long_name || "");
+
+    if (wantedNumber && gotNumber && gotNumber !== wantedNumber) return null;
+    if (wantedStreet && gotRoute && !gotRoute.includes(wantedStreet)) return null;
+    if (wantedPostcode && gotPostcode && gotPostcode !== wantedPostcode) return null;
+  }
+
+  const lat = Number(first.geometry.location.lat);
+  const lon = Number(first.geometry.location.lng);
+  if (Number.isFinite(lat) && Number.isFinite(lon)) return { lat, lon };
+  return null;
+}
+
 async function geocodeAddress(rawAddress, options = {}) {
   const query = String(rawAddress || "").trim();
   if (!query) return null;
   try {
     let coords = await geocodeViaOsPlacesAddress(query, options);
     if (!coords) coords = await geocodeViaNominatimAddress(query, options);
+    if (!coords) coords = await geocodeViaGoogleAddress(query, options);
     return coords || null;
   } catch (e) {
     console.warn("address geocoding failed:", e);
@@ -7312,6 +7360,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
     if (!geoMethod && hasSpecificAddress && geoPostcode) {
       showToast("Exact address match not found; postcode fallback skipped to avoid wrong house number", "warning");
+      setStatus("Address geocode failed: no exact house-level match found");
+      return;
+    }
+    if (!geoMethod && hasSpecificAddress && !geoPostcode) {
+      showToast("Exact address match not found; entity not placed", "error");
+      setStatus("Address geocode failed: no exact house-level match found");
+      return;
     }
 
     if (editingEntity) {
