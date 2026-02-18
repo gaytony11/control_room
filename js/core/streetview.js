@@ -52,9 +52,9 @@
     return base.replace(/[<>:"/\\|?*\x00-\x1F]/g, "").trim() + ".png";
   }
 
-  function _buildStreetViewUrl(lat, lng, options, useProxyOnLocalhost) {
+  function _buildStreetViewUrl(lat, lng, options, useProxyOnLocalhost, allowUnsigned) {
     var key = _getApiKey();
-    if (!key) return null;
+    if (!key && !allowUnsigned) return null;
     options = options || {};
     var size = options.size || DEFAULT_SIZE;
     var fov = options.fov || DEFAULT_FOV;
@@ -66,8 +66,10 @@
       "&location=" + encodeURIComponent(lat + "," + lng) +
       "&fov=" + encodeURIComponent(fov) +
       "&heading=" + encodeURIComponent(heading) +
-      "&pitch=" + encodeURIComponent(pitch) +
-      "&key=" + encodeURIComponent(key);
+      "&pitch=" + encodeURIComponent(pitch);
+    if (key) {
+      qs += "&key=" + encodeURIComponent(key);
+    }
     if (useProxyOnLocalhost && _isLocalHost() && typeof window.apiUrl === "function") {
       return window.apiUrl("/streetview/static" + qs);
     }
@@ -77,13 +79,13 @@
   // ── Build Street View Static API URL ──
   function getStaticUrl(lat, lng, options) {
     // Keep proxy path for download/fetch workflows.
-    return _buildStreetViewUrl(lat, lng, options, true);
+    return _buildStreetViewUrl(lat, lng, options, true, false);
   }
 
   function getDisplayUrl(lat, lng, options) {
     // Use direct Google URL for popup/preview images so localhost proxy issues
-    // never suppress visual previews.
-    return _buildStreetViewUrl(lat, lng, options, false);
+    // never suppress visual previews. Permit unsigned URL as resilience fallback.
+    return _buildStreetViewUrl(lat, lng, options, false, true);
   }
 
   // ── Check if Street View coverage exists at location ──
@@ -216,27 +218,34 @@
     }
   }
 
+  function openMapsPano(lat, lng) {
+    var mapsUrl = "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=" + lat + "," + lng;
+    window.open(mapsUrl, "_blank");
+  }
+
   // ── Add Street View to entity popup HTML ──
   function getPopupThumbnailHtml(lat, lng, options) {
     options = options || {};
     if (!Number.isFinite(lat) || !Number.isFinite(lng)) return "";
     var mapsUrl = "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=" + lat + "," + lng;
     var encodedAddress = encodeURIComponent(String(options.addressString || options.address || ""));
-    if (!isConfigured()) {
-      return '<div class="sv-unavailable">Street View not configured</div>' +
-        '<a class="popup-psc-btn" href="' + mapsUrl + '" target="_blank" rel="noopener">Open in Google Maps</a>';
-    }
     var url = getDisplayUrl(lat, lng, { size: "300x150", fov: 90 });
     if (!url) {
       return '<a class="popup-psc-btn" href="' + mapsUrl + '" target="_blank" rel="noopener">Open in Google Maps</a>';
     }
-    return '<img class="sv-popup-thumb" src="' + url + '" alt="Street View" loading="lazy" ' +
-      'onerror="this.style.display=\'none\';" ' +
-      'onclick="window.open(\'' + mapsUrl + '\',\'_blank\')" ' +
-      'style="width:100%;border-radius:4px;margin-top:6px;cursor:pointer;border:1px solid rgba(255,255,255,0.08)" ' +
-      'title="Click to open Street View">' +
-      '<a class="popup-psc-btn" href="' + mapsUrl + '" target="_blank" rel="noopener" style="display:inline-block;margin-top:6px;">Open in Google Maps</a>' +
-      '<button class="popup-psc-btn" type="button" onclick="window.StreetView.downloadPng(' + lat + ',' + lng + ',{addressString:decodeURIComponent(\'' + encodedAddress + '\')})" style="display:inline-block;margin-top:6px;margin-left:6px;">Download PNG</button>';
+    return (
+      '<div class="sv-popup-wrap">' +
+        '<img class="sv-popup-thumb" src="' + url + '" alt="Street View" loading="lazy" ' +
+          'onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\';" ' +
+          'onclick="window.StreetView.openMapsPano(' + lat + ',' + lng + ')" ' +
+          'title="Click to open Street View">' +
+        '<div class="sv-popup-fallback" style="display:none;">Street View preview unavailable in-app.</div>' +
+      '</div>' +
+      '<div class="popup-btn-row">' +
+        '<a class="popup-psc-btn" href="' + mapsUrl + '" target="_blank" rel="noopener">Open in Google Maps</a>' +
+        '<button class="popup-psc-btn" type="button" onclick="window.StreetView.downloadPng(' + lat + ',' + lng + ',{addressString:decodeURIComponent(\'' + encodedAddress + '\')})">Download PNG</button>' +
+      '</div>'
+    );
   }
 
   // ── Public API ──
@@ -249,7 +258,8 @@
     renderInspectorView: renderInspectorView,
     getPopupThumbnailHtml: getPopupThumbnailHtml,
     downloadPng: downloadPng,
-    getDisplayUrl: getDisplayUrl
+    getDisplayUrl: getDisplayUrl,
+    openMapsPano: openMapsPano
   };
 
 })();

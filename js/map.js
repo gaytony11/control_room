@@ -2084,6 +2084,7 @@ function showEntityPlacementDialog(latLng) {
   const panel = document.getElementById('entity-placement-panel');
   panel.classList.add('open');
   panel.classList.remove('minimized');
+  setEntityPanelMode(!!window._editingEntityId);
   
   // Populate category dropdown
   const categorySelect = document.getElementById('entity-category');
@@ -2112,6 +2113,17 @@ function showEntityPlacementDialog(latLng) {
   document.getElementById('entity-coords').textContent = `${coordPair[0].toFixed(5)}, ${coordPair[1].toFixed(5)}`;
   
   // Avoid auto-focus to prevent viewport jump when selecting entity types.
+}
+
+function setEntityPanelMode(editing) {
+  const panel = document.getElementById("entity-placement-panel");
+  const title = panel?.querySelector(".entity-panel-title");
+  const submitBtn = panel?.querySelector('button[type="submit"]');
+  const cancelBtn = document.getElementById("entity-cancel-btn");
+  if (panel) panel.classList.toggle("is-editing", !!editing);
+  if (title) title.textContent = editing ? "EDIT ENTITY" : "PLACE ENTITY";
+  if (submitBtn) submitBtn.textContent = editing ? "SAVE CHANGES" : "PLACE ENTITY";
+  if (cancelBtn) cancelBtn.textContent = editing ? "CLOSE" : "CANCEL";
 }
 
 function toggleEntityPanelMinimized() {
@@ -2216,6 +2228,7 @@ function updateEntityIconPreview(category, iconIndex) {
 
 function closeEntityPanel() {
   const panel = document.getElementById('entity-placement-panel');
+  const wasEditing = !!window._editingEntityId;
   panel.classList.remove('open');
   panel.classList.remove("minimized");
   panel.style.left = "";
@@ -2236,9 +2249,14 @@ function closeEntityPanel() {
   if (i2Fields) {
     i2Fields.innerHTML = '<div class="entity-i2-fields-empty">Select an i2 entity type to capture structured properties.</div>';
   }
+  window._editingEntityId = null;
+  setEntityPanelMode(false);
   
   // Cancel placement mode
   cancelPlacementMode();
+  if (wasEditing) {
+    setStatus("Edit cancelled");
+  }
 }
 
 function getI2EntityByKey(key) {
@@ -2487,6 +2505,7 @@ function buildI2FieldInput(prop, index, entityName = "") {
       ? ` data-warning-level="${warningMeta.level}"`
       : ` data-warning-notes="1"`)
     : "";
+  const showTechMeta = !!window.CR_SHOW_I2_TECH_META;
 
   let inputHtml = "";
   if ((logicalType === "SELECTED_FROM" || logicalType === "SUGGESTED_FROM") && possibleValues.length) {
@@ -2512,7 +2531,7 @@ function buildI2FieldInput(prop, index, entityName = "") {
     `<div class="entity-i2-field-row"${warningAttrs}>` +
       `<label for="${fieldId}">${escapeHtml(prop.property_name)}${placementRequired ? " *" : ""}</label>` +
       inputHtml +
-      `<div class="entity-i2-meta">${escapeHtml(prop.property_id)} | ${escapeHtml(logicalType || "TEXT")}${mandatory && !placementRequired ? " | i2 mandatory" : ""}</div>` +
+      (showTechMeta ? `<div class="entity-i2-meta">${escapeHtml(prop.property_id)} | ${escapeHtml(logicalType || "TEXT")}${mandatory && !placementRequired ? " | i2 mandatory" : ""}</div>` : "") +
     `</div>`
   );
 }
@@ -2792,6 +2811,95 @@ function parseAddressString(rawAddress) {
   if (!out.country && out.county) out.country = out.county;
 
   return out;
+}
+
+function setI2FieldValueByProperty(propertyId, propertyName, value) {
+  const val = String(value || "").trim();
+  if (!val) return false;
+  const fields = document.querySelectorAll("#entity-i2-fields [data-i2-property-id]");
+  for (const field of fields) {
+    const byId = String(field.dataset.i2PropertyId || "") === String(propertyId || "");
+    const byName = String(field.dataset.i2PropertyName || "").toLowerCase() === String(propertyName || "").toLowerCase();
+    if (byId || byName) {
+      field.value = val;
+      field.dataset.autogen = "0";
+      return true;
+    }
+  }
+  return false;
+}
+
+function getCategoryKeyByName(categoryName) {
+  const needle = String(categoryName || "").trim().toLowerCase();
+  if (!needle) return "";
+  for (const [key, cat] of Object.entries(ICON_CATEGORIES)) {
+    if (String(cat?.name || "").trim().toLowerCase() === needle) return key;
+  }
+  return "";
+}
+
+function resolveEntityCategoryAndIcon(entity) {
+  const fromName = getCategoryKeyByName(entity?.iconData?.categoryName);
+  const categoryKey = fromName || Object.keys(ICON_CATEGORIES).find((key) =>
+    (ICON_CATEGORIES[key]?.icons || []).some((icon) =>
+      icon?.id && entity?.iconData?.id && icon.id === entity.iconData.id
+    )
+  ) || "people";
+  const iconList = ICON_CATEGORIES[categoryKey]?.icons || [];
+  const iconIndex = Math.max(0, iconList.findIndex((icon) =>
+    (entity?.iconData?.id && icon.id === entity.iconData.id) ||
+    (entity?.iconData?.icon && icon.icon === entity.iconData.icon)
+  ));
+  return { categoryKey, iconIndex };
+}
+
+async function openEntityEditor(entityId) {
+  const entity = getEntityById(entityId);
+  if (!entity) return;
+  const { categoryKey, iconIndex } = resolveEntityCategoryAndIcon(entity);
+  window._editingEntityId = entityId;
+  window._placementMode = categoryKey;
+  showEntityPlacementDialog(entity.latLng);
+  setEntityPanelMode(true);
+
+  await ensureI2EntityCatalogLoaded(categoryKey);
+
+  const labelInput = document.getElementById("entity-label");
+  const categorySelect = document.getElementById("entity-category");
+  const iconSelect = document.getElementById("entity-icon");
+  const typeSelect = document.getElementById("entity-i2-type");
+  const placementAddress = document.getElementById("entity-placement-address");
+  const placementNumber = document.getElementById("entity-placement-number");
+
+  if (categorySelect) {
+    categorySelect.value = categoryKey;
+    updateIconDropdown(categoryKey);
+  }
+  if (iconSelect) {
+    iconSelect.value = String(iconIndex);
+    updateEntityIconPreview(categoryKey, iconIndex);
+  }
+  if (labelInput) {
+    labelInput.value = String(entity.label || "");
+  }
+  if (placementAddress) {
+    placementAddress.value = String(entity.address || "");
+  }
+  if (placementNumber) {
+    placementNumber.value = String(getI2ValueByNames(entity.i2EntityData, ["Building Number", "House Number", "Number"]) || "");
+  }
+
+  const entityTypeId = String(entity?.i2EntityData?.entityId || "");
+  if (typeSelect && entityTypeId) {
+    typeSelect.value = entityTypeId;
+    renderI2FieldsForType(entityTypeId);
+    const values = Object.values(entity?.i2EntityData?.values || {});
+    values.forEach((row) => {
+      setI2FieldValueByProperty(row.propertyId, row.propertyName, row.value);
+    });
+  }
+  document.getElementById("entity-coords").textContent = `${entity.latLng[0].toFixed(5)}, ${entity.latLng[1].toFixed(5)}`;
+  setStatus(`Editing ${entity.label || "entity"} - update fields then save`);
 }
 
 function composeAddressFromStructuredFields() {
@@ -3322,6 +3430,7 @@ function clearConnections() {
 // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
 function startPlacementMode(category) {
+  window._editingEntityId = null;
   window._placementMode = category;
   const catData = ICON_CATEGORIES[category];
   setStatus(`Click on map to place ${catData.name}...`);
@@ -4125,38 +4234,7 @@ function removeEntity(entityId) {
 }
 
 function editEntity(entityId) {
-  const entity = window._mapEntities.find(e => e.id === entityId);
-  if (!entity) return;
-  
-  // Show edit dialog
-  const newLabel = prompt('Label:', entity.label);
-  if (newLabel === null) return;
-  
-  const newAddress = prompt('Address (for geolocation):', entity.address);
-  if (newAddress === null) return;
-  
-  const newNotes = prompt('Notes:', entity.notes);
-  if (newNotes === null) return;
-  
-  // Update entity
-  entity.label = newLabel.trim() || entity.label;
-  entity.address = newAddress.trim();
-  entity.notes = newNotes.trim();
-
-  if (window.EntityStore && window.EntityStore.getEntity(entityId)) {
-    const existing = window.EntityStore.getEntity(entityId);
-    const mergedAttrs = { ...(existing?.attributes || {}) };
-    mergedAttrs.address = entity.address;
-    mergedAttrs.notes = entity.notes;
-    window.EntityStore.updateEntity(entityId, {
-      label: entity.label,
-      attributes: mergedAttrs
-    });
-  }
-  
-  entity.marker.setPopupContent(buildEntityPopup(entityId, entity));
-  bindEntityHoverTooltip(entity.marker, entity);
-  setStatus('Entity updated');
+  openEntityEditor(entityId);
 }
 
 function editEntityLabel(entityId) {
@@ -7398,6 +7476,18 @@ document.addEventListener("DOMContentLoaded", async () => {
       editingEntity.iconData = iconData;
       editingEntity.i2EntityData = i2EntityData;
       editingEntity.latLng = placementLatLng;
+
+      if (window.EntityStore && window.EntityStore.getEntity(editingEntityId)) {
+        const existing = window.EntityStore.getEntity(editingEntityId);
+        const mergedAttrs = { ...(existing?.attributes || {}) };
+        mergedAttrs.address = address;
+        mergedAttrs.notes = notes;
+        window.EntityStore.updateEntity(editingEntityId, {
+          label,
+          attributes: mergedAttrs,
+          latLng: placementLatLng
+        });
+      }
 
       editingEntity.marker.setLatLng(placementLatLng);
       editingEntity.marker.setIcon(createEntityMarkerIcon(iconData, i2EntityData));
