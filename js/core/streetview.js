@@ -18,6 +18,15 @@
     return !!_getApiKey();
   }
 
+  function _escapeHtml(text) {
+    return String(text == null ? "" : text)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+  }
+
   // ── Build Street View Static API URL ──
   function getStaticUrl(lat, lng, options) {
     var key = _getApiKey();
@@ -99,6 +108,7 @@
       else if (meta.status === "REQUEST_DENIED") msg = "Street View request denied (API key/referrer)";
       else if (meta.status === "OVER_QUERY_LIMIT") msg = "Street View quota exceeded";
       else if (meta.status === "INVALID_REQUEST") msg = "Street View request invalid";
+      if (meta?.data?.error_message) msg += ": " + _escapeHtml(meta.data.error_message);
       container.innerHTML = '<div class="sv-unavailable">' + msg + '</div>';
       return;
     }
@@ -131,14 +141,22 @@
 
   // ── Add Street View to entity popup HTML ──
   function getPopupThumbnailHtml(lat, lng) {
-    if (!isConfigured() || !Number.isFinite(lat) || !Number.isFinite(lng)) return "";
+    if (!Number.isFinite(lat) || !Number.isFinite(lng)) return "";
+    var mapsUrl = "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=" + lat + "," + lng;
+    if (!isConfigured()) {
+      return '<div class="sv-unavailable">Street View not configured</div>' +
+        '<a class="popup-psc-btn" href="' + mapsUrl + '" target="_blank" rel="noopener">Open in Google Maps</a>';
+    }
     var url = getStaticUrl(lat, lng, { size: "300x150", fov: 90 });
-    if (!url) return "";
+    if (!url) {
+      return '<a class="popup-psc-btn" href="' + mapsUrl + '" target="_blank" rel="noopener">Open in Google Maps</a>';
+    }
     return '<img class="sv-popup-thumb" src="' + url + '" alt="Street View" loading="lazy" ' +
       'onerror="this.style.display=\'none\'" ' +
-      'onclick="window.open(\'https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=' + lat + ',' + lng + '\',\'_blank\')" ' +
+      'onclick="window.open(\'' + mapsUrl + '\',\'_blank\')" ' +
       'style="width:100%;border-radius:4px;margin-top:6px;cursor:pointer;border:1px solid rgba(255,255,255,0.08)" ' +
-      'title="Click to open Street View">';
+      'title="Click to open Street View">' +
+      '<a class="popup-psc-btn" href="' + mapsUrl + '" target="_blank" rel="noopener" style="display:inline-block;margin-top:6px;">Open in Google Maps</a>';
   }
 
   // ── Public API ──
