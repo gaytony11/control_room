@@ -1362,10 +1362,66 @@ async function geocodeViaOsPlacesAddress(rawAddress) {
   const results = Array.isArray(data?.results) ? data.results : [];
   if (!results.length) return null;
 
-  const first = results[0] || {};
-  const rec = first.DPA || first.LPI || {};
-  const lat = parseFloat(rec.LAT ?? rec.LATITUDE);
-  const lon = parseFloat(rec.LNG ?? rec.LONGITUDE);
+  const parsed = parseAddressString(query) || {};
+  const wantedNumber = String(parsed.buildingNumber || "").toLowerCase();
+  const wantedStreet = String(parsed.streetName || "").toLowerCase();
+  const wantedPostcode = normalizePostcodeKey(parsed.postcode || "");
+  const hasToken = (haystack, needle) => {
+    const h = String(haystack || "").toLowerCase();
+    const n = String(needle || "").toLowerCase();
+    if (!h || !n) return false;
+    const escaped = n.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    return new RegExp(`(^|\\W)${escaped}(\\W|$)`, "i").test(h);
+  };
+
+  let bestRec = null;
+  let bestScore = -9999;
+  for (const row of results) {
+    const rec = row?.DPA || row?.LPI || null;
+    if (!rec) continue;
+    const candidateText = [
+      rec.ADDRESS,
+      rec.ADDRESS_STRING,
+      rec.THOROUGHFARE_NAME,
+      rec.STREET_DESCRIPTION,
+      rec.ORGANISATION_NAME,
+      rec.BUILDING_NAME
+    ].filter(Boolean).join(" ").toLowerCase();
+    const candidateNumber = String(
+      rec.BUILDING_NUMBER ||
+      rec.PAO_START_NUMBER ||
+      rec.PAO_TEXT ||
+      rec.SAO_START_NUMBER ||
+      ""
+    ).trim().toLowerCase();
+    const candidatePostcode = normalizePostcodeKey(rec.POSTCODE || rec.POSTAL_CODE || "");
+
+    let score = 0;
+    if (wantedPostcode) {
+      if (candidatePostcode === wantedPostcode) score += 80;
+      else if (candidatePostcode && candidatePostcode.slice(0, -3) === wantedPostcode.slice(0, -3)) score += 15;
+      else score -= 30;
+    }
+    if (wantedStreet) {
+      if (candidateText.includes(wantedStreet)) score += 35;
+      else score -= 15;
+    }
+    if (wantedNumber) {
+      if (candidateNumber && candidateNumber === wantedNumber) score += 90;
+      else if (hasToken(candidateText, wantedNumber)) score += 55;
+      else score -= 45;
+    }
+    if (row?.DPA) score += 5;
+
+    if (score > bestScore) {
+      bestScore = score;
+      bestRec = rec;
+    }
+  }
+
+  const rec = bestRec || results[0]?.DPA || results[0]?.LPI || {};
+  const lat = parseFloat(rec?.LAT ?? rec?.LATITUDE);
+  const lon = parseFloat(rec?.LNG ?? rec?.LONGITUDE);
   if (Number.isFinite(lat) && Number.isFinite(lon)) return { lat, lon };
   return null;
 }

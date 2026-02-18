@@ -916,13 +916,60 @@ class Handler(SimpleHTTPRequestHandler):
                     "query": raw_query,
                     "key": os_key,
                     "dataset": "DPA,LPI",
-                    "maxresults": "5",
+                    "maxresults": "20",
                     "output_srs": "EPSG:4326",
                 }
             )
             upstream_url = f"{OS_PLACES_API_BASE}/find?{query}"
             self._proxy_get(upstream_url, headers={"Accept": "application/json"})
             return
+
+        if self.path.startswith("/streetview/static"):
+            parsed = urlsplit(self.path)
+            params = parse_qs(parsed.query or "")
+            location = (params.get("location") or [""])[0].strip()
+            size = (params.get("size") or ["400x250"])[0].strip()
+            fov = (params.get("fov") or ["90"])[0].strip()
+            heading = (params.get("heading") or ["0"])[0].strip()
+            pitch = (params.get("pitch") or ["0"])[0].strip()
+            key = (params.get("key") or [""])[0].strip() or os.environ.get("GOOGLE_STREETVIEW_API_KEY", "").strip()
+            if not key:
+                self._send_json_error(500, b'{"error":"GOOGLE_STREETVIEW_API_KEY missing"}')
+                return
+            if not location:
+                self._send_json_error(400, b'{"error":"location query parameter required"}')
+                return
+
+            upstream_qs = urlencode(
+                {
+                    "size": size,
+                    "location": location,
+                    "fov": fov,
+                    "heading": heading,
+                    "pitch": pitch,
+                    "key": key,
+                }
+            )
+            upstream_url = f"https://maps.googleapis.com/maps/api/streetview?{upstream_qs}"
+            req = urllib.request.Request(upstream_url)
+            req.add_header("User-Agent", "ControlRoom/1.0 (+https://localhost)")
+            try:
+                with urllib.request.urlopen(req, timeout=30) as resp:
+                    body = resp.read()
+                    self.send_response(resp.status)
+                    self.send_header("Content-Type", resp.headers.get("Content-Type", "image/jpeg"))
+                    self.send_header("Cache-Control", "no-store")
+                    self.send_header("Access-Control-Allow-Origin", "*")
+                    self.end_headers()
+                    self.wfile.write(body)
+                    return
+            except urllib.error.HTTPError as e:
+                err_body = e.read() if hasattr(e, "read") else b"{}"
+                self._send_json_error(e.code, err_body)
+                return
+            except Exception as e:
+                self._send_json({"error": "Street View upstream failed", "detail": str(e)}, status=502)
+                return
 
         if self.path.startswith("/nre/health"):
             token = os.environ.get("NRE_LDBWS_TOKEN", "").strip()
@@ -1571,6 +1618,7 @@ def main(argv: Optional[list] = None):
     print(f"Proxy:  /api/flightradar/flight?id=... -> {FR24_CLICKHANDLER_URL}<id>")
     print(f"Proxy:  /osplaces/postcode?postcode=... -> {OS_PLACES_API_BASE}/postcode")
     print(f"Proxy:  /osplaces/find?query=... -> {OS_PLACES_API_BASE}/find")
+    print("Proxy:  /streetview/static?location=lat,lng&size=... -> https://maps.googleapis.com/maps/api/streetview")
     print(f"Proxy:  /nre/departures|arrivals?crs=KGX&rows=10 -> {NRE_LDBWS_URL}")
     print(f"Proxy:  /nre/service?service_id=... -> {NRE_LDBWS_URL}")
     print(f"Proxy:  /nre/stations?q=king&limit=20 -> {UK_RAIL_STATIONS_URL}")
