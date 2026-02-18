@@ -152,8 +152,25 @@ class Handler(SimpleHTTPRequestHandler):
             return False
         if not str(fs_path).startswith(str(PROJECT_ROOT)):
             return False
+        stat = fs_path.stat()
+        # For very large files, stream directly to avoid huge in-memory payloads
+        # and single-write truncation risk on buffered sockets.
+        if stat.st_size >= 64 * 1024 * 1024:
+            self.send_response(200)
+            self.send_header("Content-Type", mime)
+            self.send_header("Cache-Control", "public, max-age=60")
+            self.send_header("Content-Length", str(stat.st_size))
+            self.end_headers()
+            with fs_path.open("rb") as f:
+                while True:
+                    chunk = f.read(1024 * 1024)
+                    if not chunk:
+                        break
+                    self.wfile.write(chunk)
+            return True
+
         cached = _STATIC_FILE_CACHE.get(route_path)
-        mtime = fs_path.stat().st_mtime
+        mtime = stat.st_mtime
         if not cached or cached.get("mtime") != mtime:
             data = fs_path.read_bytes()
             gz = gzip.compress(data)
