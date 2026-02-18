@@ -102,21 +102,39 @@
    * @returns {string} entityId
    */
   function addEntity(type, label, attributes, latLng, source, i2EntityData) {
-    if (!ENTITY_TYPES[type]) {
-      console.warn("[EntityStore] Unknown entity type: " + type + ", defaulting to location");
-      type = "location";
+    var payload = (type && typeof type === "object" && !Array.isArray(type))
+      ? type
+      : {
+          type: type,
+          label: label,
+          attributes: attributes,
+          latLng: latLng,
+          source: source,
+          i2EntityData: i2EntityData
+        };
+    var nextType = payload.type;
+    var nextLabel = payload.label;
+    var nextAttrs = payload.attributes;
+    var nextLatLng = payload.latLng;
+    var nextSource = payload.source;
+    var nextI2 = payload.i2EntityData;
+    var nextIconOverride = payload.iconOverride;
+
+    if (!ENTITY_TYPES[nextType]) {
+      console.warn("[EntityStore] Unknown entity type: " + nextType + ", defaulting to location");
+      nextType = "location";
     }
     var id = generateId("ent");
     var now = Date.now();
     var entity = {
       id: id,
-      type: type,
-      label: label || "Unknown",
-      attributes: attributes || {},
-      latLng: latLng || null,
-      source: source || null,
-      i2EntityData: i2EntityData || null,
-      iconOverride: null,
+      type: nextType,
+      label: nextLabel || "Unknown",
+      attributes: nextAttrs || {},
+      latLng: nextLatLng || null,
+      source: nextSource || null,
+      i2EntityData: nextI2 || null,
+      iconOverride: nextIconOverride || null,
       metadata: { createdAt: now, updatedAt: now },
       _marker: null,
       _visible: true
@@ -194,12 +212,29 @@
   // ═══════════════════════════════════════════════════
 
   function addRelationship(type, fromId, toId, label, attributes, source) {
-    if (!RELATIONSHIP_TYPES[type]) {
-      console.warn("[EntityStore] Unknown relationship type: " + type + ", defaulting to linked_to");
-      type = "linked_to";
+    var payload = (type && typeof type === "object" && !Array.isArray(type))
+      ? type
+      : {
+          type: type,
+          fromId: fromId,
+          toId: toId,
+          label: label,
+          attributes: attributes,
+          source: source
+        };
+    var nextType = payload.type;
+    var nextFromId = payload.fromId;
+    var nextToId = payload.toId;
+    var nextLabel = payload.label;
+    var nextAttributes = payload.attributes;
+    var nextSource = payload.source;
+
+    if (!RELATIONSHIP_TYPES[nextType]) {
+      console.warn("[EntityStore] Unknown relationship type: " + nextType + ", defaulting to linked_to");
+      nextType = "linked_to";
     }
-    var from = _entityIndex[fromId];
-    var to = _entityIndex[toId];
+    var from = _entityIndex[nextFromId];
+    var to = _entityIndex[nextToId];
     if (!from || !to) {
       console.warn("[EntityStore] Cannot create relationship: entity not found");
       return null;
@@ -208,12 +243,12 @@
     var now = Date.now();
     var rel = {
       id: id,
-      type: type,
-      fromId: fromId,
-      toId: toId,
-      label: label || RELATIONSHIP_TYPES[type].label,
-      attributes: attributes || {},
-      source: source || null,
+      type: nextType,
+      fromId: nextFromId,
+      toId: nextToId,
+      label: nextLabel || RELATIONSHIP_TYPES[nextType].label,
+      attributes: nextAttributes || {},
+      source: nextSource || null,
       metadata: { createdAt: now },
       _line: null,
       _labelMarker: null

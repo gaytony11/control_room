@@ -46,25 +46,6 @@
   <!-- vis-network for link analysis graph -->
   <script src="https://unpkg.com/vis-network@9.1.6/standalone/umd/vis-network.min.js"></script>
 </head>
-<script>
-document.addEventListener("DOMContentLoaded", function() {
-
-  // Wait until map exists
-  const waitForMap = setInterval(() => {
-
-    if (window._map && window.EntityRenderer) {
-
-      clearInterval(waitForMap);
-
-      console.log("Initialising EntityRenderer...");
-      window.EntityRenderer.init(window._map);
-
-    }
-
-  }, 200);
-
-});
-</script>
 <body>
   <!-- ═══ KPI DASHBOARD STRIP ═══ -->
   <div id="kpi-bar" class="kpi-bar">
@@ -1273,4 +1254,3 @@ document.addEventListener("DOMContentLoaded", function() {
 
 </body>
 </html>
-

@@ -2721,6 +2721,18 @@ function normalizeConnectionLabel(label) {
   return raw.replace(/[_-]+/g, " ").replace(/\b\w/g, (m) => m.toUpperCase());
 }
 
+function mapConnectionTypeToStoreRelationship(type = "", label = "") {
+  const normalizedType = String(type || "").toLowerCase();
+  const normalizedLabel = String(label || "").toLowerCase();
+  if (normalizedType === "officer") return "directs";
+  if (normalizedType === "psc") return "controls";
+  if (normalizedType === "manual") {
+    if (normalizedLabel.includes("associate")) return "associated_with";
+    if (normalizedLabel.includes("owner")) return "controls";
+  }
+  return "linked_to";
+}
+
 function addConnection(fromLatLng, toLatLng, label, type = 'officer', metadata = {}) {
   label = normalizeConnectionLabel(label);
   const connectionId = `conn_${Date.now()}_${Math.random()}`;
@@ -2785,7 +2797,7 @@ function addConnection(fromLatLng, toLatLng, label, type = 'officer', metadata =
       toLatLng: to,
       line: polyline,
       labelMarker: labelMarker,
-      metadata: metadata
+      metadata: { ...(metadata || {}) }
     });
   } else {
     window._mapConnections.push({
@@ -2794,8 +2806,23 @@ function addConnection(fromLatLng, toLatLng, label, type = 'officer', metadata =
       fromLatLng: from,
       toLatLng: to,
       line: polyline,
-      metadata: metadata
+      metadata: { ...(metadata || {}) }
     });
+  }
+
+  const conn = window._mapConnections[window._mapConnections.length - 1];
+  if (window.EntityStore && conn?.metadata?.fromId && conn?.metadata?.toId) {
+    const relId = window.EntityStore.addRelationship({
+      type: mapConnectionTypeToStoreRelationship(type, label),
+      fromId: conn.metadata.fromId,
+      toId: conn.metadata.toId,
+      label: label || "",
+      attributes: { __legacyLine: true, sourceType: type || "manual" },
+      source: conn.metadata?.source ? { method: String(conn.metadata.source) } : null
+    });
+    if (relId) {
+      conn.metadata.storeRelId = relId;
+    }
   }
   
   updateDashboardCounts();
@@ -3498,12 +3525,31 @@ function createEntityMarkerIcon(iconData = {}, i2EntityData = null) {
 }
 
 function placeEntity(latLng, iconData, label = '', address = '', notes = '', i2EntityData = null) {
-  const entityId = `entity_${Date.now()}_${Math.random()}`;
   const coords = normalizeLatLng(latLng);
   if (!Number.isFinite(coords[0]) || !Number.isFinite(coords[1])) {
     setStatus("Invalid coordinates for entity placement");
     return null;
   }
+
+  // Prefer the EntityStore/EntityRenderer path when available so the new core
+  // systems (search, inspector, exports, graph) receive live updates.
+  if (window.EntityRenderer && window.EntityStore) {
+    const normalizedI2 = normalizeVehicleI2EntityData(i2EntityData, iconData) || null;
+    const inferredType = typeof window.EntityRenderer.inferEntityType === "function"
+      ? window.EntityRenderer.inferEntityType(iconData, null, normalizedI2)
+      : "location";
+    const entityId = window.EntityRenderer.placeEntityViaStore(
+      inferredType,
+      label || iconData?.name || "Entity",
+      coords,
+      { address: address || "", notes: notes || "" },
+      null,
+      normalizedI2
+    );
+    if (entityId) return entityId;
+  }
+
+  const entityId = `entity_${Date.now()}_${Math.random()}`;
   
   const icon = createEntityMarkerIcon(iconData, i2EntityData);
   
@@ -3560,6 +3606,34 @@ function placeEntity(latLng, iconData, label = '', address = '', notes = '', i2E
 }
 
 function removeEntity(entityId) {
+  if (window.EntityStore && window.EntityStore.getEntity(entityId)) {
+    window.EntityStore.removeEntity(entityId);
+    if (window._selectedEntityIds) window._selectedEntityIds.delete(entityId);
+    if (window._companyEntityIndex) {
+      Object.keys(window._companyEntityIndex).forEach((k) => {
+        if (window._companyEntityIndex[k] === entityId) delete window._companyEntityIndex[k];
+      });
+    }
+    if (window._officerEntityIndex) {
+      Object.keys(window._officerEntityIndex).forEach((k) => {
+        if (window._officerEntityIndex[k] === entityId) delete window._officerEntityIndex[k];
+      });
+    }
+    if (window._officerEntityByOfficerId) {
+      Object.keys(window._officerEntityByOfficerId).forEach((k) => {
+        if (window._officerEntityByOfficerId[k] === entityId) delete window._officerEntityByOfficerId[k];
+      });
+    }
+    if (window._officerEntityByNameDob) {
+      Object.keys(window._officerEntityByNameDob).forEach((k) => {
+        if (window._officerEntityByNameDob[k] === entityId) delete window._officerEntityByNameDob[k];
+      });
+    }
+    setStatus('Entity removed');
+    updateDashboardCounts();
+    return;
+  }
+
   const idx = window._mapEntities.findIndex(e => e.id === entityId);
   if (idx >= 0) {
     const entity = window._mapEntities[idx];
@@ -3610,6 +3684,17 @@ function editEntity(entityId) {
   entity.label = newLabel.trim() || entity.label;
   entity.address = newAddress.trim();
   entity.notes = newNotes.trim();
+
+  if (window.EntityStore && window.EntityStore.getEntity(entityId)) {
+    const existing = window.EntityStore.getEntity(entityId);
+    const mergedAttrs = { ...(existing?.attributes || {}) };
+    mergedAttrs.address = entity.address;
+    mergedAttrs.notes = entity.notes;
+    window.EntityStore.updateEntity(entityId, {
+      label: entity.label,
+      attributes: mergedAttrs
+    });
+  }
   
   entity.marker.setPopupContent(buildEntityPopup(entityId, entity));
   bindEntityHoverTooltip(entity.marker, entity);
@@ -3621,6 +3706,15 @@ function editEntityLabel(entityId) {
 }
 
 function clearAllEntities() {
+  if (window.EntityStore && window.EntityStore.getAll().length) {
+    window.EntityStore.clear();
+    window._mapEntities = [];
+    window._mapConnections = [];
+    setStatus('All custom entities removed');
+    updateDashboardCounts();
+    return;
+  }
+
   clearEntitySelection();
   window._mapEntities.forEach(entity => {
     entitiesMarkerCluster.removeLayer(entity.marker);
@@ -4159,6 +4253,9 @@ function removeConnection(connectionId) {
   const idx = window._mapConnections.findIndex(c => c.id === connectionId);
   if (idx >= 0) {
     const conn = window._mapConnections[idx];
+    if (window.EntityStore && conn?.metadata?.storeRelId) {
+      window.EntityStore.removeRelationship(conn.metadata.storeRelId);
+    }
     connectionsLayer.removeLayer(conn.line);
     if (conn.labelMarker) connectionsLayer.removeLayer(conn.labelMarker);
     window._mapConnections.splice(idx, 1);

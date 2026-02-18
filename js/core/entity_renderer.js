@@ -149,6 +149,8 @@
   // ── EntityStore event handlers ──
 
   function _onEntityAdded(entity) {
+    entity = entity && entity.entity ? entity.entity : entity;
+    if (!entity) return;
     if (!_map || !_entitiesCluster) return;
     if (entity._marker) return; // Already has a marker
 
@@ -208,6 +210,8 @@
   }
 
   function _onEntityRemoved(entity) {
+    entity = entity && entity.entity ? entity.entity : entity;
+    if (!entity) return;
     if (!_entitiesCluster) return;
     if (entity._marker) {
       _entitiesCluster.removeLayer(entity._marker);
@@ -219,6 +223,8 @@
   }
 
   function _onEntityUpdated(entity) {
+    entity = entity && entity.entity ? entity.entity : entity;
+    if (!entity) return;
     if (!entity._marker) return;
     // Update marker position if changed
     var markerPos = entity._marker.getLatLng();
@@ -231,7 +237,10 @@
   }
 
   function _onRelationshipAdded(rel) {
+    rel = rel && rel.relationship ? rel.relationship : rel;
+    if (!rel) return;
     if (!_map || !_connectionsLayer) return;
+    if (rel.attributes && rel.attributes.__legacyLine) return;
     if (rel._line) return; // Already rendered
 
     var fromEntity = window.EntityStore.getEntity(rel.fromId);
@@ -280,6 +289,8 @@
   }
 
   function _onRelationshipRemoved(rel) {
+    rel = rel && rel.relationship ? rel.relationship : rel;
+    if (!rel) return;
     if (!_connectionsLayer) return;
     if (rel._line) {
       _connectionsLayer.removeLayer(rel._line);
